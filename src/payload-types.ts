@@ -420,6 +420,7 @@ export interface ContentBlock {
            */
           appearance?: ('default' | 'outline') | null;
         };
+        blocks?: (CallToActionBlock | MediaBlock | ArchiveBlock | FormBlock)[] | null;
         id?: string | null;
       }[]
     | null;
@@ -1019,6 +1020,14 @@ export interface ContentBlockSelect<T extends boolean = true> {
               url?: T;
               label?: T;
               appearance?: T;
+            };
+        blocks?:
+          | T
+          | {
+              cta?: T | CallToActionBlockSelect<T>;
+              mediaBlock?: T | MediaBlockSelect<T>;
+              archive?: T | ArchiveBlockSelect<T>;
+              formBlock?: T | FormBlockSelect<T>;
             };
         id?: T;
       };

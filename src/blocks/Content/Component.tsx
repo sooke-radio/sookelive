@@ -6,6 +6,9 @@ import type { ContentBlock as ContentBlockProps } from '@/payload-types'
 
 import { CMSLink } from '../../components/Link'
 
+import { RenderBlocks } from '@/blocks/RenderBlocks'
+
+
 export const ContentBlock: React.FC<ContentBlockProps> = (props) => {
   const { columns } = props
 
@@ -22,7 +25,7 @@ export const ContentBlock: React.FC<ContentBlockProps> = (props) => {
         {columns &&
           columns.length > 0 &&
           columns.map((col, index) => {
-            const { enableLink, link, richText, size } = col
+            const { enableLink, link, richText, size, blocks} = col
 
             return (
               <div
@@ -34,6 +37,9 @@ export const ContentBlock: React.FC<ContentBlockProps> = (props) => {
                 {richText && <RichText data={richText} enableGutter={false} />}
 
                 {enableLink && <CMSLink {...link} />}
+
+                {blocks && <RenderBlocks blocks={blocks} />}
+
               </div>
             )
           })}
