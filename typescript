@@ -1,0 +1,1126 @@
+Script started on Sat Jan 18 23:34:04 2025
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                    ]2;schuyberg@Schuylers-MacBook-Air:~/dev/sookelive/sl-p3/sl2]1;..ive/sl-p3/sl2[0m[27m[24m[J[36m~/dev/sookelive/sl-p3/sl2 [34m([31mdev[34m)[00m [32m>[00m [K[?1h=[?2004hppnpm[?1l>[?2004l
+]2;pnpm]1;pnpmVersion 9.2.0
+Usage: pnpm [command] [flags]
+       pnpm [ -h | --help | -v | --version ]
+
+Manage your dependencies:
+      add                  Installs a package and any packages that it depends on. By default, any new package is installed as a prod dependency
+      import               Generates a pnpm-lock.yaml from an npm package-lock.json (or npm-shrinkwrap.json) file
+   i, install              Install all dependencies for a project
+  it, install-test         Runs a pnpm install followed immediately by a pnpm test
+  ln, link                 Connect the local project to another one
+      prune                Removes extraneous packages
+  rb, rebuild              Rebuild a package
+  rm, remove               Removes packages from node_modules and from the project's package.json
+      unlink               Unlinks a package. Like yarn unlink but pnpm re-installs the dependency after removing the external link
+  up, update               Updates packages to their latest version based on the specified range
+
+Review your dependencies:
+      audit                Checks for known security issues with the installed packages
+      licenses             Check licenses in consumed packages
+  ls, list                 Print all the versions of packages that are installed, as well as their dependencies, in a tree-structure
+      outdated             Check for outdated packages
+
+Run your scripts:
+      exec                 Executes a shell command in scope of a project
+      run                  Runs a defined package script
+      start                Runs an arbitrary command specified in the package's "start" property of its "scripts" object
+   t, test                 Runs a package's "test" script, if one was provided
+
+Other:
+      cat-file             Prints the contents of a file based on the hash value stored in the index file
+      cat-index            Prints the index file of a specific package from the store
+      find-hash            Experimental! Lists the packages that include the file with the specified hash.
+      pack                 Create a tarball from a package
+      publish              Publishes a package to the registry
+      root                 Prints the effective modules directory
+
+Manage your store:
+      store add            Adds new packages to the pnpm store directly. Does not modify any projects or files outside the store
+      store path           Prints the path to the active store directory
+      store prune          Removes unreferenced (extraneous, orphan) packages from the store
+      store status         Checks for modified packages in the store
+
+Options:
+  -r, --recursive          Run the command for each project in the workspace.
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                    ]2;schuyberg@Schuylers-MacBook-Air:~/dev/sookelive/sl-p3/sl2]1;..ive/sl-p3/sl2[0m[27m[24m[J[36m~/dev/sookelive/sl-p3/sl2 [34m([31mdev[34m)[00m [31m>[27m[00m [K[?1h=[?2004hppnpn [?1l>[?2004l
+]2;pnpn]1;pnpnzsh: command not found: pnpn
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                    ]2;schuyberg@Schuylers-MacBook-Air:~/dev/sookelive/sl-p3/sl2]1;..ive/sl-p3/sl2[0m[27m[24m[J[36m~/dev/sookelive/sl-p3/sl2 [34m([31mdev[34m)[00m [31m>[27m[00m [K[?1h=[?2004hccat package.json[1m [0m[0m [?1l>[?2004l
+]2;cat package.json]1;cat{
+  "name": "my-project",
+  "version": "1.0.0",
+  "description": "Website template for Payload",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "build": "cross-env NODE_OPTIONS=--no-deprecation next build",
+    "postbuild": "next-sitemap --config next-sitemap.config.cjs",
+    "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
+    "dev:prod": "cross-env NODE_OPTIONS=--no-deprecation rm -rf .next && pnpm build && pnpm start",
+    "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
+    "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
+    "ii": "cross-env NODE_OPTIONS=--no-deprecation pnpm --ignore-workspace install",
+    "lint": "cross-env NODE_OPTIONS=--no-deprecation next lint",
+    "lint:fix": "cross-env NODE_OPTIONS=--no-deprecation next lint --fix",
+    "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
+    "reinstall": "cross-env NODE_OPTIONS=--no-deprecation rm -rf node_modules && rm pnpm-lock.yaml && pnpm --ignore-workspace install",
+    "start": "cross-env NODE_OPTIONS=--no-deprecation next start"
+  },
+  "dependencies": {
+    "@payloadcms/db-mongodb": "latest",
+    "@payloadcms/live-preview-react": "latest",
+    "@payloadcms/next": "latest",
+    "@payloadcms/payload-cloud": "latest",
+    "@payloadcms/plugin-form-builder": "latest",
+    "@payloadcms/plugin-nested-docs": "latest",
+    "@payloadcms/plugin-redirects": "latest",
+    "@payloadcms/plugin-search": "latest",
+    "@payloadcms/plugin-seo": "latest",
+    "@payloadcms/richtext-lexical": "latest",
+    "@payloadcms/ui": "latest",
+    "@radix-ui/react-checkbox": "^1.0.4",
+    "@radix-ui/react-label": "^2.0.2",
+    "@radix-ui/react-select": "^2.0.0",
+    "@radix-ui/react-slot": "^1.0.2",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "cross-env": "^7.0.3",
+    "geist": "^1.3.0",
+    "graphql": "^16.8.2",
+    "lucide-react": "^0.378.0",
+    "next": "^15.1.0",
+    "next-sitemap": "^4.2.3",
+    "payload": "latest",
+    "payload-admin-bar": "^1.0.6",
+    "prism-react-renderer": "^2.3.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-hook-form": "7.45.4",
+    "sharp": "0.32.6",
+    "tailwind-merge": "^2.3.0",
+    "tailwindcss-animate": "^1.0.7"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.2.0",
+    "@tailwindcss/typography": "^0.5.13",
+    "@types/escape-html": "^1.0.2",
+    "@types/node": "22.5.4",
+    "@types/react": "19.0.1",
+    "@types/react-dom": "19.0.1",
+    "autoprefixer": "^10.4.19",
+    "copyfiles": "^2.4.1",
+    "eslint": "^9.16.0",
+    "eslint-config-next": "15.1.0",
+    "postcss": "^8.4.38",
+    "prettier": "^3.4.2",
+    "tailwindcss": "^3.4.3",
+    "typescript": "5.7.2"
+  },
+  "engines": {
+    "node": "^18.20.2 || >=20.9.0"
+  }
+}
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                    ]2;schuyberg@Schuylers-MacBook-Air:~/dev/sookelive/sl-p3/sl2]1;..ive/sl-p3/sl2[0m[27m[24m[J[36m~/dev/sookelive/sl-p3/sl2 [34m([31mdev[34m)[00m [32m>[00m [K[?1h=[?2004hppnpn m[?1l>[?2004l
+]2;pnpm]1;pnpmVersion 9.2.0
+Usage: pnpm [command] [flags]
+       pnpm [ -h | --help | -v | --version ]
+
+Manage your dependencies:
+      add                  Installs a package and any packages that it depends on. By default, any new package is installed as a prod dependency
+      import               Generates a pnpm-lock.yaml from an npm package-lock.json (or npm-shrinkwrap.json) file
+   i, install              Install all dependencies for a project
+  it, install-test         Runs a pnpm install followed immediately by a pnpm test
+  ln, link                 Connect the local project to another one
+      prune                Removes extraneous packages
+  rb, rebuild              Rebuild a package
+  rm, remove               Removes packages from node_modules and from the project's package.json
+      unlink               Unlinks a package. Like yarn unlink but pnpm re-installs the dependency after removing the external link
+  up, update               Updates packages to their latest version based on the specified range
+
+Review your dependencies:
+      audit                Checks for known security issues with the installed packages
+      licenses             Check licenses in consumed packages
+  ls, list                 Print all the versions of packages that are installed, as well as their dependencies, in a tree-structure
+      outdated             Check for outdated packages
+
+Run your scripts:
+      exec                 Executes a shell command in scope of a project
+      run                  Runs a defined package script
+      start                Runs an arbitrary command specified in the package's "start" property of its "scripts" object
+   t, test                 Runs a package's "test" script, if one was provided
+
+Other:
+      cat-file             Prints the contents of a file based on the hash value stored in the index file
+      cat-index            Prints the index file of a specific package from the store
+      find-hash            Experimental! Lists the packages that include the file with the specified hash.
+      pack                 Create a tarball from a package
+      publish              Publishes a package to the registry
+      root                 Prints the effective modules directory
+
+Manage your store:
+      store add            Adds new packages to the pnpm store directly. Does not modify any projects or files outside the store
+      store path           Prints the path to the active store directory
+      store prune          Removes unreferenced (extraneous, orphan) packages from the store
+      store status         Checks for modified packages in the store
+
+Options:
+  -r, --recursive          Run the command for each project in the workspace.
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                    ]2;schuyberg@Schuylers-MacBook-Air:~/dev/sookelive/sl-p3/sl2]1;..ive/sl-p3/sl2[0m[27m[24m[J[36m~/dev/sookelive/sl-p3/sl2 [34m([31mdev[34m)[00m [31m>[27m[00m [K[?1h=[?2004hppnpm gener  a erate y types      e" :types[?1l>[?2004l
+]2;pnpm generate:types]1;pnpm
+> my-project@1.0.0 generate:types /Users/schuyberg/dev/sookelive/sl-p3/sl2
+> cross-env NODE_OPTIONS=--no-deprecation payload generate:types
+
+[23:34:43] [32mINFO[39m: [36mCompiling TS types for Collections and Globals...[39m
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                    ]2;schuyberg@Schuylers-MacBook-Air:~/dev/sookelive/sl-p3/sl2]1;..ive/sl-p3/sl2[0m[27m[24m[J[36m~/dev/sookelive/sl-p3/sl2 [34m([31mdev[34m)[00m [32m>[00m [K[?1h=[?2004hpnpm generate:types[14D              [15Dcat package.json[16Dpnpm            [12D dev[?1l>[?2004l
+]2;pnpm dev]1;pnpm
+> my-project@1.0.0 dev /Users/schuyberg/dev/sookelive/sl-p3/sl2
+> cross-env NODE_OPTIONS=--no-deprecation next dev
+
+   [1m[38;2;173;127;168m▲ Next.js 15.1.4[39m[22m
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.0.165:3000
+   - Environments: .env
+   - Experiments (use with caution):
+     · turbo
+
+ [32m[1m✓[22m[39m Starting...
+ [32m[1m✓[22m[39m Ready in 1565ms
+ [37m[1m○[22m[39m Compiling /admin/[[...segments]] ...
+ [32m[1m✓[22m[39m Compiled /admin/[[...segments]] in 5.8s (5559 modules)
+[23:36:11] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ GET /admin/collections/pages/create [32m200[39m in 7994ms
+ GET /admin/collections/pages/678cab6b4d838843301fca6d [32m200[39m in 121ms
+ GET /admin/collections/pages/678cab6b4d838843301fca6d [32m200[39m in 81ms
+ [37m[1m○[22m[39m Compiling /api/[...slug] ...
+ [32m[1m✓[22m[39m Compiled /api/[...slug] in 1575ms (5724 modules)
+ GET /api/payload-preferences/collection-pages-678cab6b4d838843301fca6d [32m200[39m in 2962ms
+ POST /api/payload-preferences/collection-pages-678cab6b4d838843301fca6d [32m200[39m in 121ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 2669ms
+ POST /admin/collections/pages/678cab6b4d838843301fca6d [32m200[39m in 146ms
+ POST /api/payload-preferences/collection-pages-678cab6b4d838843301fca6d [32m200[39m in 22ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 35ms
+ POST /admin/collections/pages/678cab6b4d838843301fca6d [32m200[39m in 25ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 15ms
+ POST /admin/collections/pages/678cab6b4d838843301fca6d [32m200[39m in 16ms
+ POST /api/payload-preferences/collection-pages-678cab6b4d838843301fca6d [32m200[39m in 21ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 33ms
+ POST /admin/collections/pages/678cab6b4d838843301fca6d [32m200[39m in 17ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 20ms
+ POST /admin/collections/pages/678cab6b4d838843301fca6d [32m200[39m in 15ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 24ms
+ POST /admin/collections/pages/678cab6b4d838843301fca6d [32m200[39m in 19ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 21ms
+ POST /admin/collections/pages/678cab6b4d838843301fca6d [32m200[39m in 18ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 16ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 14ms
+ POST /admin/collections/pages/678cab6b4d838843301fca6d [32m200[39m in 13ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 31ms
+ POST /admin/collections/pages/678cab6b4d838843301fca6d [32m200[39m in 21ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 16ms
+ POST /admin/collections/pages/678cab6b4d838843301fca6d [32m200[39m in 15ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 34ms
+ POST /admin/collections/pages/678cab6b4d838843301fca6d [32m200[39m in 16ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 17ms
+ POST /admin/collections/pages/678cab6b4d838843301fca6d [32m200[39m in 16ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 32ms
+ POST /admin/collections/pages/678cab6b4d838843301fca6d [32m200[39m in 14ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 16ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 17ms
+ POST /admin/collections/pages/678cab6b4d838843301fca6d [32m200[39m in 31ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 18ms
+ POST /admin/collections/pages/678cab6b4d838843301fca6d [32m200[39m in 14ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 15ms
+ POST /admin/collections/pages/678cab6b4d838843301fca6d [32m200[39m in 13ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 18ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 15ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 16ms
+ POST /admin/collections/pages/678cab6b4d838843301fca6d [32m200[39m in 14ms
+ GET /api/pages/678cab6b4d838843301fca6d/preview?draft=true [32m200[39m in 23ms
+ [37m[1m○[22m[39m Compiling /next/preview ...
+ [32m[1m✓[22m[39m Compiled /next/preview in 1120ms (5729 modules)
+ GET /next/preview?slug=&collection=pages&path=%2F [33m404[39m in 1554ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 77ms
+ POST /admin/collections/pages/678cab6b4d838843301fca6d [32m200[39m in 139ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 12ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 15ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 21ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 16ms
+ POST /admin/collections/pages/678cab6b4d838843301fca6d [32m200[39m in 18ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 29ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 21ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 14ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 16ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 15ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 17ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 16ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 26ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 16ms
+ POST /admin/collections/pages/678cab6b4d838843301fca6d [32m200[39m in 13ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 18ms
+ POST /admin/collections/pages/678cab6b4d838843301fca6d [32m200[39m in 24ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 23ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 16ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 23ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 16ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 15ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 25ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 14ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 22ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 21ms
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 14ms
+ POST /admin/collections/pages/678cab6b4d838843301fca6d [32m200[39m in 14ms
+[23:37:09] [32mINFO[39m: [36mRevalidating page at path: /member-agreement[39m
+ PATCH /api/pages/678cab6b4d838843301fca6d?depth=0&fallback-locale=null [32m200[39m in 49ms
+ POST /api/pages/access/678cab6b4d838843301fca6d? [32m200[39m in 13ms
+ POST /api/pages/access/678cab6b4d838843301fca6d? [32m200[39m in 5ms
+ GET /api/pages/678cab6b4d838843301fca6d/preview?draft=true [32m200[39m in 7ms
+ GET /next/preview?slug=member-agreement&collection=pages&path=%2Fmember-agreement [34m307[39m in 10ms
+ [37m[1m○[22m[39m Compiling /[slug] ...
+ [32m[1m✓[22m[39m Compiled /[slug] in 2.7s (6212 modules)
+ [32m[1m✓[22m[39m Compiled in 162ms (1363 modules)
+[23:37:13] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ GET /member-agreement [32m200[39m in 4506ms
+ GET /api/users/me [32m200[39m in 59ms
+ GET /member-agreement [32m200[39m in 79ms
+[23:37:15] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+[23:37:23] [32mINFO[39m: [36mRevalidating old page at path: /member-agreement[39m
+ PATCH /api/pages/678cab6b4d838843301fca6d?draft=true&autosave=true&locale=undefined [32m200[39m in 54ms
+ POST /admin/collections/pages/678cab6b4d838843301fca6d [32m200[39m in 112ms
+ GET /api/payload-locked-documents?where[document.value][equals]=678cab6b4d838843301fca6d&where[document.relationTo][equals]=pages [32m200[39m in 48ms
+ POST /admin/collections/pages?limit=10 [32m200[39m in 21ms
+ POST /admin/collections/pages?limit=10 [32m200[39m in 22ms
+ DELETE /api/payload-locked-documents/678cabb34d838843301fcc79 [32m200[39m in 30ms
+ POST /admin/collections/pages?limit=10 [32m200[39m in 14ms
+ GET /admin/globals/header [32m200[39m in 72ms
+ GET /api/payload-preferences/global-header [32m200[39m in 21ms
+ POST /admin/globals/header [32m200[39m in 32ms
+ POST /admin/globals/header [32m200[39m in 16ms
+ POST /api/pages [32m200[39m in 28ms
+ POST /api/posts [32m200[39m in 14ms
+ POST /api/pages [32m200[39m in 13ms
+ POST /admin/globals/header [32m200[39m in 15ms
+ POST /admin/globals/header [32m200[39m in 17ms
+[23:39:06] [32mINFO[39m: [36mRevalidating header[39m
+ POST /api/globals/header?depth=0&fallback-locale=null [32m200[39m in 35ms
+ POST /api/globals/header/access? [32m200[39m in 10ms
+ POST /api/globals/header/access? [32m200[39m in 8ms
+ POST /admin/globals/header [32m200[39m in 18ms
+ GET /api/payload-locked-documents?where[globalSlug][equals]=header [32m200[39m in 15ms
+ POST /admin/globals/header [32m200[39m in 40ms
+ POST /admin/globals/header [32m200[39m in 16ms
+ POST /api/pages [32m200[39m in 24ms
+ POST /api/posts [32m200[39m in 13ms
+ POST /api/pages [32m200[39m in 12ms
+ POST /admin/globals/header [32m200[39m in 28ms
+ POST /admin/globals/header [32m200[39m in 31ms
+[23:39:19] [32mINFO[39m: [36mRevalidating header[39m
+ POST /api/globals/header?depth=0&fallback-locale=null [32m200[39m in 37ms
+ POST /api/globals/header/access? [32m200[39m in 10ms
+ POST /api/globals/header/access? [32m200[39m in 4ms
+ POST /admin/globals/header [32m200[39m in 16ms
+ GET /api/payload-locked-documents?where[globalSlug][equals]=header [32m200[39m in 19ms
+ GET /join [32m200[39m in 52ms
+ GET /api/users/me [32m200[39m in 26ms
+ GET /join [32m200[39m in 44ms
+[23:39:23] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ [37m[1m○[22m[39m Compiling /search ...
+ [32m[1m✓[22m[39m Compiled /search in 1158ms (6207 modules)
+ GET /search [32m200[39m in 1656ms
+ GET /search [32m200[39m in 10ms
+ GET /search [32m200[39m in 11ms
+ GET /join [32m200[39m in 65ms
+[23:39:33] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ GET /admin/collections/posts [32m200[39m in 234ms
+ GET /api/payload-preferences/undefined [32m200[39m in 51ms
+ POST /admin/collections/posts [32m200[39m in 69ms
+ GET /admin/collections/posts?limit=10 [32m200[39m in 82ms
+ GET /admin/collections/posts?limit=10 [32m200[39m in 45ms
+ POST /admin/collections/posts [32m200[39m in 18ms
+ GET /admin/collections/posts?limit=10 [32m200[39m in 49ms
+ GET /admin/collections/posts/create [32m200[39m in 33ms
+ GET /admin/collections/posts/678cac5a4d838843301fcd1d [32m200[39m in 96ms
+ GET /admin/collections/posts/678cac5a4d838843301fcd1d [32m200[39m in 77ms
+ GET /api/payload-preferences/collection-posts-678cac5a4d838843301fcd1d [32m200[39m in 14ms
+ PATCH /api/posts/678cac5a4d838843301fcd1d?draft=true&autosave=true&locale=undefined [32m200[39m in 22ms
+ PATCH /api/posts/678cac5a4d838843301fcd1d?draft=true&autosave=true&locale=undefined [32m200[39m in 14ms
+ POST /admin/collections/posts/678cac5a4d838843301fcd1d [32m200[39m in 25ms
+ POST /api/payload-preferences/collection-posts-678cac5a4d838843301fcd1d [32m200[39m in 20ms
+ POST /api/payload-preferences/collection-posts-678cac5a4d838843301fcd1d [32m200[39m in 8ms
+ PATCH /api/posts/678cac5a4d838843301fcd1d?draft=true&autosave=true&locale=undefined [32m200[39m in 20ms
+ POST /admin/collections/posts/678cac5a4d838843301fcd1d [32m200[39m in 16ms
+ POST /admin/collections/posts/678cac5a4d838843301fcd1d [32m200[39m in 23ms
+ PATCH /api/posts/678cac5a4d838843301fcd1d?draft=true&autosave=true&locale=undefined [32m200[39m in 19ms
+ POST /admin/collections/posts/678cac5a4d838843301fcd1d [32m200[39m in 19ms
+ PATCH /api/posts/678cac5a4d838843301fcd1d?draft=true&autosave=true&locale=undefined [32m200[39m in 32ms
+ POST /admin/collections/posts/678cac5a4d838843301fcd1d [32m200[39m in 15ms
+ PATCH /api/posts/678cac5a4d838843301fcd1d?draft=true&autosave=true&locale=undefined [32m200[39m in 39ms
+ POST /admin/collections/posts/678cac5a4d838843301fcd1d [32m200[39m in 15ms
+ POST /admin/collections/posts/678cac5a4d838843301fcd1d [32m200[39m in 22ms
+ PATCH /api/posts/678cac5a4d838843301fcd1d?draft=true&autosave=true&locale=undefined [32m200[39m in 30ms
+ POST /admin/collections/posts/678cac5a4d838843301fcd1d [32m200[39m in 14ms
+ PATCH /api/posts/678cac5a4d838843301fcd1d?draft=true&autosave=true&locale=undefined [32m200[39m in 38ms
+ POST /admin/collections/posts/678cac5a4d838843301fcd1d [32m200[39m in 16ms
+ PATCH /api/posts/678cac5a4d838843301fcd1d?draft=true&autosave=true&locale=undefined [32m200[39m in 19ms
+ POST /admin/collections/posts/678cac5a4d838843301fcd1d [32m200[39m in 18ms
+ PATCH /api/posts/678cac5a4d838843301fcd1d?draft=true&autosave=true&locale=undefined [32m200[39m in 28ms
+ POST /admin/collections/posts/678cac5a4d838843301fcd1d [32m200[39m in 13ms
+ PATCH /api/posts/678cac5a4d838843301fcd1d?draft=true&autosave=true&locale=undefined [32m200[39m in 31ms
+ POST /admin/collections/posts/678cac5a4d838843301fcd1d [32m200[39m in 16ms
+ PATCH /api/posts/678cac5a4d838843301fcd1d?draft=true&autosave=true&locale=undefined [32m200[39m in 35ms
+ POST /admin/collections/posts/678cac5a4d838843301fcd1d [32m200[39m in 17ms
+ PATCH /api/posts/678cac5a4d838843301fcd1d?draft=true&autosave=true&locale=undefined [32m200[39m in 21ms
+ POST /admin/collections/posts/678cac5a4d838843301fcd1d [32m200[39m in 16ms
+ GET /admin/collections/users [32m200[39m in 47ms
+ GET /api/payload-locked-documents?where[document.value][equals]=678cac5a4d838843301fcd1d&where[document.relationTo][equals]=posts [32m200[39m in 51ms
+ POST /admin/collections/users [32m200[39m in 51ms
+ GET /admin/collections/users?limit=10 [32m200[39m in 69ms
+ DELETE /api/payload-locked-documents/678cac7b4d838843301fcdf8 [32m200[39m in 33ms
+ GET /admin/collections/users?limit=10 [32m200[39m in 40ms
+ POST /admin/collections/users [32m200[39m in 15ms
+ GET /admin/collections/users?limit=10 [32m200[39m in 42ms
+ GET /admin/collections/users [32m200[39m in 48ms
+ GET /admin/collections/categories [32m200[39m in 48ms
+ POST /admin/collections/categories [32m200[39m in 30ms
+ GET /admin/collections/categories?limit=10 [32m200[39m in 51ms
+ GET /admin/collections/categories?limit=10 [32m200[39m in 36ms
+ POST /admin/collections/categories [32m200[39m in 15ms
+ GET /admin/collections/categories?limit=10 [32m200[39m in 34ms
+ GET /admin/collections/media [32m200[39m in 32ms
+ POST /admin/collections/media [32m200[39m in 28ms
+ GET /admin/collections/media?limit=10 [32m200[39m in 42ms
+ GET /admin/collections/media?limit=10 [32m200[39m in 33ms
+ POST /admin/collections/media [32m200[39m in 14ms
+ GET /admin/collections/media?limit=10 [32m200[39m in 29ms
+ GET /admin/collections/pages [32m200[39m in 51ms
+ POST /admin/collections/pages [32m200[39m in 32ms
+ GET /admin/collections/pages?limit=10 [32m200[39m in 52ms
+ GET /admin/collections/pages?limit=10 [32m200[39m in 40ms
+ POST /admin/collections/pages [32m200[39m in 16ms
+ GET /admin/collections/pages?limit=10 [32m200[39m in 35ms
+ [32m[1m✓[22m[39m Compiled in 1178ms (4756 modules)
+ GET /join [32m200[39m in 452ms
+[23:44:40] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ GET /join [32m200[39m in 99ms
+ [32m[1m✓[22m[39m Compiled /api/[...slug] in 325ms (3844 modules)
+[23:44:46] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ GET /api/users/me [32m200[39m in 1127ms
+ GET /join [32m200[39m in 1148ms
+[23:44:48] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ [32m[1m✓[22m[39m Compiled in 1324ms (4756 modules)
+ GET /join [32m200[39m in 682ms
+[23:48:50] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ GET /join [32m200[39m in 96ms
+ [32m[1m✓[22m[39m Compiled /api/[...slug] in 329ms (3844 modules)
+[23:49:27] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ GET /api/users/me [32m200[39m in 1304ms
+ GET /join [32m200[39m in 1338ms
+[23:49:28] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ GET /home [32m200[39m in 61ms
+ GET /home [32m200[39m in 28ms
+[23:49:36] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ GET /join [32m200[39m in 21ms
+ GET /join [32m200[39m in 20ms
+[23:49:38] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ [32m[1m✓[22m[39m Compiled in 410ms (1367 modules)
+ GET /join [32m200[39m in 109ms
+[23:52:26] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ [32m[1m✓[22m[39m Compiled in 192ms (1367 modules)
+ GET /join [32m200[39m in 54ms
+[23:53:04] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ [32m[1m✓[22m[39m Compiled in 343ms (1367 modules)
+ GET /join [32m200[39m in 109ms
+[23:56:22] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ [32m[1m✓[22m[39m Compiled in 1866ms (4756 modules)
+ GET /join [32m200[39m in 699ms
+[23:56:49] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ [32m[1m✓[22m[39m Compiled in 466ms (4757 modules)
+[31m(node:6203) MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 exit listeners added to [process]. MaxListeners is 10. Use emitter.setMaxListeners() to increase limit
+(Use `node --trace-warnings ...` to show where the warning was created)[39m
+ GET /join [32m200[39m in 489ms
+[23:57:03] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ [32m[1m✓[22m[39m Compiled in 471ms (4757 modules)
+ GET /join [32m200[39m in 267ms
+[23:57:21] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ GET /join [32m200[39m in 98ms
+ [37m[1m○[22m[39m Compiling /api/[...slug] ...
+ [32m[1m✓[22m[39m Compiled /api/[...slug] in 788ms (3845 modules)
+[23:58:39] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ GET /api/users/me [32m200[39m in 1536ms
+ GET /join [32m200[39m in 1548ms
+[23:58:41] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ [37m[1m○[22m[39m Compiling /admin/[[...segments]] ...
+ [32m[1m✓[22m[39m Compiled /admin/[[...segments]] in 2.2s (4846 modules)
+ GET /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 2908ms
+ GET /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 320ms
+ GET /api/payload-preferences/collection-pages-678caa83a63654a1d0e5032c [32m200[39m in 61ms
+ GET /api/users/me [32m200[39m in 69ms
+ GET /api/payload-preferences/nav [32m200[39m in 37ms
+ GET /admin/collections/pages?limit=10 [32m200[39m in 55ms
+ POST /admin/collections/pages?limit=10 [32m200[39m in 14ms
+ POST /admin/collections/pages?limit=10 [32m200[39m in 10ms
+ POST /admin/collections/pages?limit=10 [32m200[39m in 15ms
+ GET /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 66ms
+ [32m[1m✓[22m[39m Compiled in 2.6s (6049 modules)
+ GET /join [32m200[39m in 1204ms
+ GET /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 1276ms
+[00:00:12] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ [32m[1m✓[22m[39m Compiled in 663ms (6050 modules)
+ GET /join [32m200[39m in 759ms
+ GET /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 846ms
+[00:00:26] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ [32m[1m✓[22m[39m Compiled in 192ms (1367 modules)
+ GET /join [32m200[39m in 158ms
+ GET /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 278ms
+[00:00:28] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ GET /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 337ms
+ [37m[1m○[22m[39m Compiling /api/[...slug] ...
+ [32m[1m✓[22m[39m Compiled /api/[...slug] in 623ms (4847 modules)
+ GET /api/users/me [32m200[39m in 1338ms
+ GET /api/payload-preferences/collection-pages-678caa83a63654a1d0e5032c [32m200[39m in 1350ms
+ GET /api/payload-preferences/nav [32m200[39m in 1350ms
+ GET /join [32m200[39m in 759ms
+ GET /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 875ms
+[00:00:32] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ PATCH /api/pages/678caa83a63654a1d0e5032c?draft=true&autosave=true&locale=undefined [32m200[39m in 49ms
+ POST /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 27ms
+ PATCH /api/pages/678caa83a63654a1d0e5032c?draft=true&autosave=true&locale=undefined [32m200[39m in 18ms
+ POST /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 27ms
+ PATCH /api/pages/678caa83a63654a1d0e5032c?draft=true&autosave=true&locale=undefined [32m200[39m in 34ms
+ POST /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 20ms
+ PATCH /api/pages/678caa83a63654a1d0e5032c?draft=true&autosave=true&locale=undefined [32m200[39m in 20ms
+ POST /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 21ms
+ PATCH /api/pages/678caa83a63654a1d0e5032c?draft=true&autosave=true&locale=undefined [32m200[39m in 38ms
+ POST /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 25ms
+ PATCH /api/pages/678caa83a63654a1d0e5032c?draft=true&autosave=true&locale=undefined [32m200[39m in 38ms
+ POST /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 21ms
+ PATCH /api/pages/678caa83a63654a1d0e5032c?draft=true&autosave=true&locale=undefined [32m200[39m in 18ms
+ POST /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 23ms
+ PATCH /api/pages/678caa83a63654a1d0e5032c?draft=true&autosave=true&locale=undefined [32m200[39m in 37ms
+ PATCH /api/pages/678caa83a63654a1d0e5032c?draft=true&autosave=true&locale=undefined [32m200[39m in 19ms
+ PATCH /api/pages/678caa83a63654a1d0e5032c?draft=true&autosave=true&locale=undefined [32m200[39m in 19ms
+ POST /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 19ms
+ PATCH /api/pages/678caa83a63654a1d0e5032c?draft=true&autosave=true&locale=undefined [32m200[39m in 19ms
+ PATCH /api/pages/678caa83a63654a1d0e5032c?draft=true&autosave=true&locale=undefined [32m200[39m in 18ms
+ PATCH /api/pages/678caa83a63654a1d0e5032c?draft=true&autosave=true&locale=undefined [32m200[39m in 18ms
+ POST /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 23ms
+ PATCH /api/pages/678caa83a63654a1d0e5032c?draft=true&autosave=true&locale=undefined [32m200[39m in 18ms
+ POST /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 30ms
+ PATCH /api/pages/678caa83a63654a1d0e5032c?draft=true&autosave=true&locale=undefined [32m200[39m in 33ms
+ POST /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 21ms
+ [32m[1m✓[22m[39m Compiled in 2.5s (6050 modules)
+ GET /join [32m200[39m in 1213ms
+ GET /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 1255ms
+ [37m[1m○[22m[39m Compiling /api/[...slug] ...
+[00:03:47] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ [32m[1m✓[22m[39m Compiled /api/[...slug] in 735ms (4847 modules)
+[00:03:48] [31mERROR[39m: [36mThere was an error building form state[39m
+    err: {
+      "type": "TypeError",
+      "message": "Cannot read properties of null (reading '_id')",
+      "stack":
+          TypeError: Cannot read properties of null (reading '_id')
+              at Object.updateOne (webpack-internal:///(rsc)/./node_modules/.pnpm/@payloadcms+db-mongodb@3.17.1_@aws-sdk+credential-providers@3.729.0_@aws-sdk+client-sso-oidc@_mxrs6n5bw5cxhbbvwbr6mgs5uy/node_modules/@payloadcms/db-mongodb/dist/updateOne.js:55:24)
+              at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+              at async handleFormStateLocking (webpack-internal:///(rsc)/./node_modules/.pnpm/@payloadcms+ui@3.17.1_@types+react@19.0.1_monaco-editor@0.52.2_next@15.1.4_react-dom@19.0.0_r_h5irrt4qzojdy236los5gpcbcq/node_modules/@payloadcms/ui/dist/utilities/handleFormStateLocking.js:67:11)
+              at async buildFormState (webpack-internal:///(rsc)/./node_modules/.pnpm/@payloadcms+ui@3.17.1_@types+react@19.0.1_monaco-editor@0.52.2_next@15.1.4_react-dom@19.0.0_r_h5irrt4qzojdy236los5gpcbcq/node_modules/@payloadcms/ui/dist/utilities/buildFormState.js:168:25)
+              at async buildFormStateHandler (webpack-internal:///(rsc)/./node_modules/.pnpm/@payloadcms+ui@3.17.1_@types+react@19.0.1_monaco-editor@0.52.2_next@15.1.4_react-dom@19.0.0_r_h5irrt4qzojdy236los5gpcbcq/node_modules/@payloadcms/ui/dist/utilities/buildFormState.js:56:17)
+              at async /Users/schuyberg/dev/sookelive/sl-p3/sl2/node_modules/.pnpm/next@15.1.4_react-dom@19.0.0_react@19.0.0__react@19.0.0_sass@1.77.4/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:157:2088
+              at async handleAction (/Users/schuyberg/dev/sookelive/sl-p3/sl2/node_modules/.pnpm/next@15.1.4_react-dom@19.0.0_react@19.0.0__react@19.0.0_sass@1.77.4/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:156:21940)
+              at async renderToHTMLOrFlightImpl (/Users/schuyberg/dev/sookelive/sl-p3/sl2/node_modules/.pnpm/next@15.1.4_react-dom@19.0.0_react@19.0.0__react@19.0.0_sass@1.77.4/node_modules/next/dist/compiled/next-server/app-page.runtime.dev.js:161:22397)
+              at async doRender (/Users/schuyberg/dev/sookelive/sl-p3/sl2/node_modules/.pnpm/next@15.1.4_react-dom@19.0.0_react@19.0.0__react@19.0.0_sass@1.77.4/node_modules/next/dist/server/base-server.js:1574:34)
+              at async responseGenerator (/Users/schuyberg/dev/sookelive/sl-p3/sl2/node_modules/.pnpm/next@15.1.4_react-dom@19.0.0_react@19.0.0__react@19.0.0_sass@1.77.4/node_modules/next/dist/server/base-server.js:1822:28)
+              at async DevServer.renderToResponseWithComponentsImpl (/Users/schuyberg/dev/sookelive/sl-p3/sl2/node_modules/.pnpm/next@15.1.4_react-dom@19.0.0_react@19.0.0__react@19.0.0_sass@1.77.4/node_modules/next/dist/server/base-server.js:1832:28)
+              at async DevServer.renderPageComponent (/Users/schuyberg/dev/sookelive/sl-p3/sl2/node_modules/.pnpm/next@15.1.4_react-dom@19.0.0_react@19.0.0__react@19.0.0_sass@1.77.4/node_modules/next/dist/server/base-server.js:2259:24)
+              at async DevServer.renderToResponseImpl (/Users/schuyberg/dev/sookelive/sl-p3/sl2/node_modules/.pnpm/next@15.1.4_react-dom@19.0.0_react@19.0.0__react@19.0.0_sass@1.77.4/node_modules/next/dist/server/base-server.js:2297:32)
+              at async DevServer.pipeImpl (/Users/schuyberg/dev/sookelive/sl-p3/sl2/node_modules/.pnpm/next@15.1.4_react-dom@19.0.0_react@19.0.0__react@19.0.0_sass@1.77.4/node_modules/next/dist/server/base-server.js:959:25)
+              at async NextNodeServer.handleCatchallRenderRequest (/Users/schuyberg/dev/sookelive/sl-p3/sl2/node_modules/.pnpm/next@15.1.4_react-dom@19.0.0_react@19.0.0__react@19.0.0_sass@1.77.4/node_modules/next/dist/server/next-server.js:281:17)
+              at async DevServer.handleRequestImpl (/Users/schuyberg/dev/sookelive/sl-p3/sl2/node_modules/.pnpm/next@15.1.4_react-dom@19.0.0_react@19.0.0__react@19.0.0_sass@1.77.4/node_modules/next/dist/server/base-server.js:853:17)
+              at async /Users/schuyberg/dev/sookelive/sl-p3/sl2/node_modules/.pnpm/next@15.1.4_react-dom@19.0.0_react@19.0.0__react@19.0.0_sass@1.77.4/node_modules/next/dist/server/dev/next-dev-server.js:371:20
+              at async Span.traceAsyncFn (/Users/schuyberg/dev/sookelive/sl-p3/sl2/node_modules/.pnpm/next@15.1.4_react-dom@19.0.0_react@19.0.0__react@19.0.0_sass@1.77.4/node_modules/next/dist/trace/trace.js:153:20)
+              at async DevServer.handleRequest (/Users/schuyberg/dev/sookelive/sl-p3/sl2/node_modules/.pnpm/next@15.1.4_react-dom@19.0.0_react@19.0.0__react@19.0.0_sass@1.77.4/node_modules/next/dist/server/dev/next-dev-server.js:368:24)
+              at async invokeRender (/Users/schuyberg/dev/sookelive/sl-p3/sl2/node_modules/.pnpm/next@15.1.4_react-dom@19.0.0_react@19.0.0__react@19.0.0_sass@1.77.4/node_modules/next/dist/server/lib/router-server.js:230:21)
+              at async handleRequest (/Users/schuyberg/dev/sookelive/sl-p3/sl2/node_modules/.pnpm/next@15.1.4_react-dom@19.0.0_react@19.0.0__react@19.0.0_sass@1.77.4/node_modules/next/dist/server/lib/router-server.js:408:24)
+              at async requestHandlerImpl (/Users/schuyberg/dev/sookelive/sl-p3/sl2/node_modules/.pnpm/next@15.1.4_react-dom@19.0.0_react@19.0.0__react@19.0.0_sass@1.77.4/node_modules/next/dist/server/lib/router-server.js:432:13)
+              at async Server.requestListener (/Users/schuyberg/dev/sookelive/sl-p3/sl2/node_modules/.pnpm/next@15.1.4_react-dom@19.0.0_react@19.0.0__react@19.0.0_sass@1.77.4/node_modules/next/dist/server/lib/start-server.js:146:13)
+    }
+ POST /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 1547ms
+ PATCH /api/pages/678caa83a63654a1d0e5032c?draft=true&autosave=true&locale=undefined [32m200[39m in 1796ms
+ [32m[1m✓[22m[39m Compiled in 920ms (6214 modules)
+ GET /join [32m200[39m in 666ms
+ GET /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 720ms
+ PATCH /api/pages/678caa83a63654a1d0e5032c?draft=true&autosave=true&locale=undefined [32m200[39m in 55ms
+ POST /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 35ms
+[00:03:57] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ [32m[1m✓[22m[39m Compiled in 831ms (6214 modules)
+ GET /join [32m200[39m in 668ms
+ GET /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 747ms
+ PATCH /api/pages/678caa83a63654a1d0e5032c?draft=true&autosave=true&locale=undefined [32m200[39m in 45ms
+ POST /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 51ms
+[00:04:35] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ [32m[1m✓[22m[39m Compiled in 1105ms (6214 modules)
+ GET /join [32m200[39m in 625ms
+ GET /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 670ms
+ PATCH /api/pages/678caa83a63654a1d0e5032c?draft=true&autosave=true&locale=undefined [32m200[39m in 45ms
+ POST /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 38ms
+[00:04:41] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ GET /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 338ms
+ GET /api/payload-preferences/collection-pages-678caa83a63654a1d0e5032c [32m200[39m in 52ms
+ GET /api/users/me [32m200[39m in 62ms
+ GET /api/payload-preferences/nav [32m200[39m in 50ms
+ GET /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 98ms
+ GET /api/payload-preferences/collection-pages-678caa83a63654a1d0e5032c [32m200[39m in 32ms
+ GET /api/users/me [32m200[39m in 38ms
+ GET /api/payload-preferences/nav [32m200[39m in 25ms
+ PATCH /api/pages/678caa83a63654a1d0e5032c?draft=true&autosave=true&locale=undefined [32m200[39m in 44ms
+ POST /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 20ms
+ GET /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 113ms
+ GET /api/payload-preferences/collection-pages-678caa83a63654a1d0e5032c [32m200[39m in 44ms
+ GET /api/users/me [32m200[39m in 52ms
+ GET /api/payload-preferences/nav [32m200[39m in 41ms
+ PATCH /api/pages/678caa83a63654a1d0e5032c?draft=true&autosave=true&locale=undefined [32m200[39m in 33ms
+ POST /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 18ms
+ PATCH /api/pages/678caa83a63654a1d0e5032c?draft=true&autosave=true&locale=undefined [32m200[39m in 24ms
+ POST /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 18ms
+[33m [33m[1m⚠[22m[39m ./src/blocks/TextBlock/config.ts
+Attempted import error: 'ListFeature' is not exported from '@payloadcms/richtext-lexical' (imported as 'ListFeature').
+
+Import trace for requested module:
+./src/blocks/TextBlock/config.ts
+./src/collections/Pages/index.ts
+./src/payload.config.ts
+./src/app/(frontend)/[slug]/page.tsx[39m
+ [31m[1m⨯[22m[39m TypeError: (0 , _payloadcms_richtext_lexical__WEBPACK_IMPORTED_MODULE_1__.ListFeature) is not a function
+    at ListFeature (src/blocks/TextBlock/config.ts:24:21)
+    at async getGlobal (src/utilities/getGlobals.ts:10:18)
+    at async Header (src/Header/Component.tsx:8:29)
+[0m [90m 22 |[39m           [33mFixedToolbarFeature[39m()[33m,[39m[0m
+[0m [90m 23 |[39m           [33mInlineToolbarFeature[39m()[33m,[39m[0m
+[0m[31m[1m>[22m[39m[90m 24 |[39m           [33mListFeature[39m()[0m
+[0m [90m    |[39m                     [31m[1m^[22m[39m[0m
+[0m [90m 25 |[39m         ][0m
+[0m [90m 26 |[39m       }[33m,[39m[0m
+[0m [90m 27 |[39m     })[33m,[39m[0m {
+  digest: [32m'801380590'[39m
+}
+ [31m[1m⨯[22m[39m TypeError: (0 , _payloadcms_richtext_lexical__WEBPACK_IMPORTED_MODULE_1__.ListFeature) is not a function
+    at ListFeature (src/blocks/TextBlock/config.ts:24:21)
+    at async getGlobal (src/utilities/getGlobals.ts:10:18)
+    at async Header (src/Header/Component.tsx:8:29)
+[0m [90m 22 |[39m           [33mFixedToolbarFeature[39m()[33m,[39m[0m
+[0m [90m 23 |[39m           [33mInlineToolbarFeature[39m()[33m,[39m[0m
+[0m[31m[1m>[22m[39m[90m 24 |[39m           [33mListFeature[39m()[0m
+[0m [90m    |[39m                     [31m[1m^[22m[39m[0m
+[0m [90m 25 |[39m         ][0m
+[0m [90m 26 |[39m       }[33m,[39m[0m
+[0m [90m 27 |[39m     })[33m,[39m[0m {
+  digest: [32m'801380590'[39m
+}
+ [31m[1m⨯[22m[39m TypeError: (0 , _payloadcms_richtext_lexical__WEBPACK_IMPORTED_MODULE_1__.ListFeature) is not a function
+    at ListFeature (src/blocks/TextBlock/config.ts:24:21)
+    at async getGlobal (src/utilities/getGlobals.ts:10:18)
+    at async Header (src/Header/Component.tsx:8:29)
+[0m [90m 22 |[39m           [33mFixedToolbarFeature[39m()[33m,[39m[0m
+[0m [90m 23 |[39m           [33mInlineToolbarFeature[39m()[33m,[39m[0m
+[0m[31m[1m>[22m[39m[90m 24 |[39m           [33mListFeature[39m()[0m
+[0m [90m    |[39m                     [31m[1m^[22m[39m[0m
+[0m [90m 25 |[39m         ][0m
+[0m [90m 26 |[39m       }[33m,[39m[0m
+[0m [90m 27 |[39m     })[33m,[39m[0m {
+  digest: [32m'801380590'[39m
+}
+ [31m[1m⨯[22m[39m TypeError: (0 , _payloadcms_richtext_lexical__WEBPACK_IMPORTED_MODULE_1__.ListFeature) is not a function
+    at ListFeature (src/blocks/TextBlock/config.ts:24:21)
+    at async getGlobal (src/utilities/getGlobals.ts:10:18)
+    at async Header (src/Header/Component.tsx:8:29)
+[0m [90m 22 |[39m           [33mFixedToolbarFeature[39m()[33m,[39m[0m
+[0m [90m 23 |[39m           [33mInlineToolbarFeature[39m()[33m,[39m[0m
+[0m[31m[1m>[22m[39m[90m 24 |[39m           [33mListFeature[39m()[0m
+[0m [90m    |[39m                     [31m[1m^[22m[39m[0m
+[0m [90m 25 |[39m         ][0m
+[0m [90m 26 |[39m       }[33m,[39m[0m
+[0m [90m 27 |[39m     })[33m,[39m[0m {
+  digest: [32m'801380590'[39m
+}
+ [31m[1m⨯[22m[39m TypeError: (0 , _payloadcms_richtext_lexical__WEBPACK_IMPORTED_MODULE_1__.ListFeature) is not a function
+    at ListFeature (src/blocks/TextBlock/config.ts:24:21)
+    at async getGlobal (src/utilities/getGlobals.ts:10:18)
+    at async Header (src/Header/Component.tsx:8:29)
+[0m [90m 22 |[39m           [33mFixedToolbarFeature[39m()[33m,[39m[0m
+[0m [90m 23 |[39m           [33mInlineToolbarFeature[39m()[33m,[39m[0m
+[0m[31m[1m>[22m[39m[90m 24 |[39m           [33mListFeature[39m()[0m
+[0m [90m    |[39m                     [31m[1m^[22m[39m[0m
+[0m [90m 25 |[39m         ][0m
+[0m [90m 26 |[39m       }[33m,[39m[0m
+[0m [90m 27 |[39m     })[33m,[39m[0m {
+  digest: [32m'801380590'[39m
+}
+ GET /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 738ms
+[33m [33m[1m⚠[22m[39m ./src/blocks/TextBlock/config.ts
+Attempted import error: 'ListFeature' is not exported from '@payloadcms/richtext-lexical' (imported as 'ListFeature').
+
+Import trace for requested module:
+./src/blocks/TextBlock/config.ts
+./src/collections/Pages/index.ts
+./src/payload.config.ts
+./src/app/(frontend)/[slug]/page.tsx[39m
+ [37m[1m○[22m[39m Compiling /api/[...slug] ...
+[31m [31m[1m⨯[22m[39m Failed to generate static paths for /[slug]:[39m
+TypeError: (0 , _payloadcms_richtext_lexical__WEBPACK_IMPORTED_MODULE_1__.ListFeature) is not a function
+    at ListFeature (src/blocks/TextBlock/config.ts:24:21)
+    at async Object.generateStaticParams (src/app/(frontend)/[slug]/page.tsx:19:18)
+[0m [90m 22 |[39m           [33mFixedToolbarFeature[39m()[33m,[39m[0m
+[0m [90m 23 |[39m           [33mInlineToolbarFeature[39m()[33m,[39m[0m
+[0m[31m[1m>[22m[39m[90m 24 |[39m           [33mListFeature[39m()[0m
+[0m [90m    |[39m                     [31m[1m^[22m[39m[0m
+[0m [90m 25 |[39m         ][0m
+[0m [90m 26 |[39m       }[33m,[39m[0m
+[0m [90m 27 |[39m     })[33m,[39m[0m {
+  type: [32m'TypeError'[39m
+}
+[33m [33m[1m⚠[22m[39m ./src/blocks/TextBlock/config.ts
+Attempted import error: 'ListFeature' is not exported from '@payloadcms/richtext-lexical' (imported as 'ListFeature').
+
+Import trace for requested module:
+./src/blocks/TextBlock/config.ts
+./src/collections/Pages/index.ts
+./src/payload.config.ts
+./src/app/(frontend)/[slug]/page.tsx[39m
+ [31m[1m⨯[22m[39m TypeError: (0 , _payloadcms_richtext_lexical__WEBPACK_IMPORTED_MODULE_1__.ListFeature) is not a function
+    at ListFeature (src/blocks/TextBlock/config.ts:24:21)
+[0m [90m 22 |[39m           [33mFixedToolbarFeature[39m()[33m,[39m[0m
+[0m [90m 23 |[39m           [33mInlineToolbarFeature[39m()[33m,[39m[0m
+[0m[31m[1m>[22m[39m[90m 24 |[39m           [33mListFeature[39m()[0m
+[0m [90m    |[39m                     [31m[1m^[22m[39m[0m
+[0m [90m 25 |[39m         ][0m
+[0m [90m 26 |[39m       }[33m,[39m[0m
+[0m [90m 27 |[39m     })[33m,[39m[0m
+ [31m[1m⨯[22m[39m TypeError: (0 , _payloadcms_richtext_lexical__WEBPACK_IMPORTED_MODULE_1__.ListFeature) is not a function
+    at ListFeature (src/blocks/TextBlock/config.ts:24:21)
+[0m [90m 22 |[39m           [33mFixedToolbarFeature[39m()[33m,[39m[0m
+[0m [90m 23 |[39m           [33mInlineToolbarFeature[39m()[33m,[39m[0m
+[0m[31m[1m>[22m[39m[90m 24 |[39m           [33mListFeature[39m()[0m
+[0m [90m    |[39m                     [31m[1m^[22m[39m[0m
+[0m [90m 25 |[39m         ][0m
+[0m [90m 26 |[39m       }[33m,[39m[0m
+[0m [90m 27 |[39m     })[33m,[39m[0m
+ GET /api/payload-locked-documents?where[document.value][equals]=678caa83a63654a1d0e5032c&where[document.relationTo][equals]=pages [31m500[39m in 1177ms
+/Users/schuyberg/dev/sookelive/sl-p3/sl2/src/blocks/TextBlock/config.ts:24
+          ListFeature()
+                     ^
+
+
+TypeError: (0 , _payloadcms_richtext_lexical__WEBPACK_IMPORTED_MODULE_1__.ListFeature) is not a function
+    at Object.features (webpack-internal:///(rsc)/./src/blocks/TextBlock/config.ts:29:94)
+    at Object.eval [as editor] (webpack-internal:///(rsc)/./node_modules/.pnpm/@payloadcms+richtext-lexical@3.17.1_6wuqvrtqlt7bggpeoytqzqvnre/node_modules/@payloadcms/richtext-lexical/dist/index.js:190:26)
+    at sanitizeRichText (webpack-internal:///(rsc)/./node_modules/.pnpm/payload@3.17.1_graphql@16.10.0_monaco-editor@0.52.2_react-dom@19.0.0_react@19.0.0__react@19.0.0_typescript@5.7.2/node_modules/payload/dist/fields/config/sanitize.js:145:48)
+    at sanitizeConfig (webpack-internal:///(rsc)/./node_modules/.pnpm/payload@3.17.1_graphql@16.10.0_monaco-editor@0.52.2_react-dom@19.0.0_react@19.0.0__react@19.0.0_typescript@5.7.2/node_modules/payload/dist/config/sanitize.js:235:23)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async buildConfig (webpack-internal:///(rsc)/./node_modules/.pnpm/payload@3.17.1_graphql@16.10.0_monaco-editor@0.52.2_react-dom@19.0.0_react@19.0.0__react@19.0.0_typescript@5.7.2/node_modules/payload/dist/config/build.js:17:16)
+
+Node.js v22.2.0
+ [31m[1m⨯[22m[39m TypeError: (0 , _payloadcms_richtext_lexical__WEBPACK_IMPORTED_MODULE_1__.ListFeature) is not a function
+    at ListFeature (src/blocks/TextBlock/config.ts:24:21)
+[0m [90m 22 |[39m           [33mFixedToolbarFeature[39m()[33m,[39m[0m
+[0m [90m 23 |[39m           [33mInlineToolbarFeature[39m()[33m,[39m[0m
+[0m[31m[1m>[22m[39m[90m 24 |[39m           [33mListFeature[39m()[0m
+[0m [90m    |[39m                     [31m[1m^[22m[39m[0m
+[0m [90m 25 |[39m         ][0m
+[0m [90m 26 |[39m       }[33m,[39m[0m
+[0m [90m 27 |[39m     })[33m,[39m[0m {
+  digest: [32m'3457989158'[39m
+}
+ [31m[1m⨯[22m[39m TypeError: (0 , _payloadcms_richtext_lexical__WEBPACK_IMPORTED_MODULE_1__.ListFeature) is not a function
+    at ListFeature (src/blocks/TextBlock/config.ts:24:21)
+[0m [90m 22 |[39m           [33mFixedToolbarFeature[39m()[33m,[39m[0m
+[0m [90m 23 |[39m           [33mInlineToolbarFeature[39m()[33m,[39m[0m
+[0m[31m[1m>[22m[39m[90m 24 |[39m           [33mListFeature[39m()[0m
+[0m [90m    |[39m                     [31m[1m^[22m[39m[0m
+[0m [90m 25 |[39m         ][0m
+[0m [90m 26 |[39m       }[33m,[39m[0m
+[0m [90m 27 |[39m     })[33m,[39m[0m {
+  digest: [32m'3457989158'[39m
+}
+ [31m[1m⨯[22m[39m TypeError: (0 , _payloadcms_richtext_lexical__WEBPACK_IMPORTED_MODULE_1__.ListFeature) is not a function
+    at ListFeature (src/blocks/TextBlock/config.ts:24:21)
+[0m [90m 22 |[39m           [33mFixedToolbarFeature[39m()[33m,[39m[0m
+[0m [90m 23 |[39m           [33mInlineToolbarFeature[39m()[33m,[39m[0m
+[0m[31m[1m>[22m[39m[90m 24 |[39m           [33mListFeature[39m()[0m
+[0m [90m    |[39m                     [31m[1m^[22m[39m[0m
+[0m [90m 25 |[39m         ][0m
+[0m [90m 26 |[39m       }[33m,[39m[0m
+[0m [90m 27 |[39m     })[33m,[39m[0m {
+  digest: [32m'3457989158'[39m
+}
+ [31m[1m⨯[22m[39m TypeError: (0 , _payloadcms_richtext_lexical__WEBPACK_IMPORTED_MODULE_1__.ListFeature) is not a function
+    at ListFeature (src/blocks/TextBlock/config.ts:24:21)
+[0m [90m 22 |[39m           [33mFixedToolbarFeature[39m()[33m,[39m[0m
+[0m [90m 23 |[39m           [33mInlineToolbarFeature[39m()[33m,[39m[0m
+[0m[31m[1m>[22m[39m[90m 24 |[39m           [33mListFeature[39m()[0m
+[0m [90m    |[39m                     [31m[1m^[22m[39m[0m
+[0m [90m 25 |[39m         ][0m
+[0m [90m 26 |[39m       }[33m,[39m[0m
+[0m [90m 27 |[39m     })[33m,[39m[0m {
+  digest: [32m'3457989158'[39m
+}
+ GET /admin/collections/pages/678caa83a63654a1d0e5032c [31m500[39m in 1116ms
+/Users/schuyberg/dev/sookelive/sl-p3/sl2/src/blocks/TextBlock/config.ts:24
+          ListFeature()
+                     ^
+
+
+TypeError: (0 , _payloadcms_richtext_lexical__WEBPACK_IMPORTED_MODULE_1__.ListFeature) is not a function
+    at Object.features (webpack-internal:///(rsc)/./src/blocks/TextBlock/config.ts:29:94)
+    at Object.eval [as editor] (webpack-internal:///(rsc)/./node_modules/.pnpm/@payloadcms+richtext-lexical@3.17.1_6wuqvrtqlt7bggpeoytqzqvnre/node_modules/@payloadcms/richtext-lexical/dist/index.js:190:26)
+    at sanitizeRichText (webpack-internal:///(rsc)/./node_modules/.pnpm/payload@3.17.1_graphql@16.10.0_monaco-editor@0.52.2_react-dom@19.0.0_react@19.0.0__react@19.0.0_typescript@5.7.2/node_modules/payload/dist/fields/config/sanitize.js:145:48)
+    at sanitizeConfig (webpack-internal:///(rsc)/./node_modules/.pnpm/payload@3.17.1_graphql@16.10.0_monaco-editor@0.52.2_react-dom@19.0.0_react@19.0.0__react@19.0.0_typescript@5.7.2/node_modules/payload/dist/config/sanitize.js:235:23)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async buildConfig (webpack-internal:///(rsc)/./node_modules/.pnpm/payload@3.17.1_graphql@16.10.0_monaco-editor@0.52.2_react-dom@19.0.0_react@19.0.0__react@19.0.0_typescript@5.7.2/node_modules/payload/dist/config/build.js:17:16)
+
+Node.js v22.2.0
+ [31m[1m⨯[22m[39m TypeError: (0 , _payloadcms_richtext_lexical__WEBPACK_IMPORTED_MODULE_1__.ListFeature) is not a function
+    at ListFeature (src/blocks/TextBlock/config.ts:24:21)
+    at async Object.generateStaticParams (src/app/(frontend)/[slug]/page.tsx:19:18)
+[0m [90m 22 |[39m           [33mFixedToolbarFeature[39m()[33m,[39m[0m
+[0m [90m 23 |[39m           [33mInlineToolbarFeature[39m()[33m,[39m[0m
+[0m[31m[1m>[22m[39m[90m 24 |[39m           [33mListFeature[39m()[0m
+[0m [90m    |[39m                     [31m[1m^[22m[39m[0m
+[0m [90m 25 |[39m         ][0m
+[0m [90m 26 |[39m       }[33m,[39m[0m
+[0m [90m 27 |[39m     })[33m,[39m[0m {
+  type: [32m'TypeError'[39m,
+  page: [32m'/join'[39m
+}
+/Users/schuyberg/dev/sookelive/sl-p3/sl2/src/blocks/TextBlock/config.ts:24
+          ListFeature()
+                     ^
+
+
+TypeError: (0 , _payloadcms_richtext_lexical__WEBPACK_IMPORTED_MODULE_1__.ListFeature) is not a function
+    at Object.features (webpack-internal:///(rsc)/./src/blocks/TextBlock/config.ts:29:94)
+    at Object.eval [as editor] (webpack-internal:///(rsc)/./node_modules/.pnpm/@payloadcms+richtext-lexical@3.17.1_6wuqvrtqlt7bggpeoytqzqvnre/node_modules/@payloadcms/richtext-lexical/dist/index.js:190:26)
+    at sanitizeRichText (webpack-internal:///(rsc)/./node_modules/.pnpm/payload@3.17.1_graphql@16.10.0_monaco-editor@0.52.2_react-dom@19.0.0_react@19.0.0__react@19.0.0_typescript@5.7.2/node_modules/payload/dist/fields/config/sanitize.js:145:48)
+    at sanitizeConfig (webpack-internal:///(rsc)/./node_modules/.pnpm/payload@3.17.1_graphql@16.10.0_monaco-editor@0.52.2_react-dom@19.0.0_react@19.0.0__react@19.0.0_typescript@5.7.2/node_modules/payload/dist/config/sanitize.js:235:23)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async buildConfig (webpack-internal:///(rsc)/./node_modules/.pnpm/payload@3.17.1_graphql@16.10.0_monaco-editor@0.52.2_react-dom@19.0.0_react@19.0.0__react@19.0.0_typescript@5.7.2/node_modules/payload/dist/config/build.js:17:16)
+
+Node.js v22.2.0
+[33m [33m[1m⚠[22m[39m ./src/blocks/TextBlock/config.ts
+Attempted import error: 'ListFeature' is not exported from '@payloadcms/richtext-lexical' (imported as 'ListFeature').
+
+Import trace for requested module:
+./src/blocks/TextBlock/config.ts
+./src/collections/Pages/index.ts
+./src/payload.config.ts
+./src/app/(frontend)/[slug]/page.tsx[39m
+[33m [33m[1m⚠[22m[39m Fast Refresh had to perform a full reload due to a runtime error.[39m
+[33m [33m[1m⚠[22m[39m Fast Refresh had to perform a full reload due to a runtime error.[39m
+[33m [33m[1m⚠[22m[39m ./src/blocks/TextBlock/config.ts
+Attempted import error: 'ListFeature' is not exported from '@payloadcms/richtext-lexical' (imported as 'ListFeature').
+
+Import trace for requested module:
+./src/blocks/TextBlock/config.ts
+./src/collections/Pages/index.ts
+./src/payload.config.ts
+./src/app/(payload)/api/[...slug]/route.ts[39m
+[33m [33m[1m⚠[22m[39m ./src/blocks/TextBlock/config.ts
+Attempted import error: 'ListFeature' is not exported from '@payloadcms/richtext-lexical' (imported as 'ListFeature').
+
+Import trace for requested module:
+./src/blocks/TextBlock/config.ts
+./src/collections/Pages/index.ts
+./src/payload.config.ts
+./src/app/(payload)/api/[...slug]/route.ts[39m
+[33m [33m[1m⚠[22m[39m ./src/blocks/TextBlock/config.ts
+Attempted import error: 'ListFeature' is not exported from '@payloadcms/richtext-lexical' (imported as 'ListFeature').
+
+Import trace for requested module:
+./src/blocks/TextBlock/config.ts
+./src/collections/Pages/index.ts
+./src/payload.config.ts
+./src/app/(payload)/api/[...slug]/route.ts[39m
+ [31m[1m⨯[22m[39m TypeError: (0 , _payloadcms_richtext_lexical__WEBPACK_IMPORTED_MODULE_1__.ListFeature) is not a function
+    at ListFeature (src/blocks/TextBlock/config.ts:24:21)
+[0m [90m 22 |[39m           [33mFixedToolbarFeature[39m()[33m,[39m[0m
+[0m [90m 23 |[39m           [33mInlineToolbarFeature[39m()[33m,[39m[0m
+[0m[31m[1m>[22m[39m[90m 24 |[39m           [33mListFeature[39m()[0m
+[0m [90m    |[39m                     [31m[1m^[22m[39m[0m
+[0m [90m 25 |[39m         ][0m
+[0m [90m 26 |[39m       }[33m,[39m[0m
+[0m [90m 27 |[39m     })[33m,[39m[0m {
+  digest: [32m'1715237455'[39m
+}
+ [31m[1m⨯[22m[39m TypeError: (0 , _payloadcms_richtext_lexical__WEBPACK_IMPORTED_MODULE_1__.ListFeature) is not a function
+    at ListFeature (src/blocks/TextBlock/config.ts:24:21)
+[0m [90m 22 |[39m           [33mFixedToolbarFeature[39m()[33m,[39m[0m
+[0m [90m 23 |[39m           [33mInlineToolbarFeature[39m()[33m,[39m[0m
+[0m[31m[1m>[22m[39m[90m 24 |[39m           [33mListFeature[39m()[0m
+[0m [90m    |[39m                     [31m[1m^[22m[39m[0m
+[0m [90m 25 |[39m         ][0m
+[0m [90m 26 |[39m       }[33m,[39m[0m
+[0m [90m 27 |[39m     })[33m,[39m[0m {
+  digest: [32m'1715237455'[39m
+}
+ [31m[1m⨯[22m[39m TypeError: (0 , _payloadcms_richtext_lexical__WEBPACK_IMPORTED_MODULE_1__.ListFeature) is not a function
+    at ListFeature (src/blocks/TextBlock/config.ts:24:21)
+[0m [90m 22 |[39m           [33mFixedToolbarFeature[39m()[33m,[39m[0m
+[0m [90m 23 |[39m           [33mInlineToolbarFeature[39m()[33m,[39m[0m
+[0m[31m[1m>[22m[39m[90m 24 |[39m           [33mListFeature[39m()[0m
+[0m [90m    |[39m                     [31m[1m^[22m[39m[0m
+[0m [90m 25 |[39m         ][0m
+[0m [90m 26 |[39m       }[33m,[39m[0m
+[0m [90m 27 |[39m     })[33m,[39m[0m {
+  digest: [32m'1715237455'[39m
+}
+ [31m[1m⨯[22m[39m TypeError: (0 , _payloadcms_richtext_lexical__WEBPACK_IMPORTED_MODULE_1__.ListFeature) is not a function
+    at ListFeature (src/blocks/TextBlock/config.ts:24:21)
+[0m [90m 22 |[39m           [33mFixedToolbarFeature[39m()[33m,[39m[0m
+[0m [90m 23 |[39m           [33mInlineToolbarFeature[39m()[33m,[39m[0m
+[0m[31m[1m>[22m[39m[90m 24 |[39m           [33mListFeature[39m()[0m
+[0m [90m    |[39m                     [31m[1m^[22m[39m[0m
+[0m [90m 25 |[39m         ][0m
+[0m [90m 26 |[39m       }[33m,[39m[0m
+[0m [90m 27 |[39m     })[33m,[39m[0m {
+  digest: [32m'1715237455'[39m
+}
+ [31m[1m⨯[22m[39m TypeError: (0 , _payloadcms_richtext_lexical__WEBPACK_IMPORTED_MODULE_1__.ListFeature) is not a function
+    at ListFeature (src/blocks/TextBlock/config.ts:24:21)
+[0m [90m 22 |[39m           [33mFixedToolbarFeature[39m()[33m,[39m[0m
+[0m [90m 23 |[39m           [33mInlineToolbarFeature[39m()[33m,[39m[0m
+[0m[31m[1m>[22m[39m[90m 24 |[39m           [33mListFeature[39m()[0m
+[0m [90m    |[39m                     [31m[1m^[22m[39m[0m
+[0m [90m 25 |[39m         ][0m
+[0m [90m 26 |[39m       }[33m,[39m[0m
+[0m [90m 27 |[39m     })[33m,[39m[0m {
+  digest: [32m'1715237455'[39m
+}
+ [31m[1m⨯[22m[39m TypeError: (0 , _payloadcms_richtext_lexical__WEBPACK_IMPORTED_MODULE_1__.ListFeature) is not a function
+    at ListFeature (src/blocks/TextBlock/config.ts:24:21)
+[0m [90m 22 |[39m           [33mFixedToolbarFeature[39m()[33m,[39m[0m
+[0m [90m 23 |[39m           [33mInlineToolbarFeature[39m()[33m,[39m[0m
+[0m[31m[1m>[22m[39m[90m 24 |[39m           [33mListFeature[39m()[0m
+[0m [90m    |[39m                     [31m[1m^[22m[39m[0m
+[0m [90m 25 |[39m         ][0m
+[0m [90m 26 |[39m       }[33m,[39m[0m
+[0m [90m 27 |[39m     })[33m,[39m[0m {
+  digest: [32m'1715237455'[39m
+}
+ [31m[1m⨯[22m[39m TypeError: (0 , _payloadcms_richtext_lexical__WEBPACK_IMPORTED_MODULE_1__.ListFeature) is not a function
+    at ListFeature (src/blocks/TextBlock/config.ts:24:21)
+[0m [90m 22 |[39m           [33mFixedToolbarFeature[39m()[33m,[39m[0m
+[0m [90m 23 |[39m           [33mInlineToolbarFeature[39m()[33m,[39m[0m
+[0m[31m[1m>[22m[39m[90m 24 |[39m           [33mListFeature[39m()[0m
+[0m [90m    |[39m                     [31m[1m^[22m[39m[0m
+[0m [90m 25 |[39m         ][0m
+[0m [90m 26 |[39m       }[33m,[39m[0m
+[0m [90m 27 |[39m     })[33m,[39m[0m {
+  digest: [32m'1715237455'[39m
+}
+ [31m[1m⨯[22m[39m TypeError: (0 , _payloadcms_richtext_lexical__WEBPACK_IMPORTED_MODULE_1__.ListFeature) is not a function
+    at ListFeature (src/blocks/TextBlock/config.ts:24:21)
+[0m [90m 22 |[39m           [33mFixedToolbarFeature[39m()[33m,[39m[0m
+[0m [90m 23 |[39m           [33mInlineToolbarFeature[39m()[33m,[39m[0m
+[0m[31m[1m>[22m[39m[90m 24 |[39m           [33mListFeature[39m()[0m
+[0m [90m    |[39m                     [31m[1m^[22m[39m[0m
+[0m [90m 25 |[39m         ][0m
+[0m [90m 26 |[39m       }[33m,[39m[0m
+[0m [90m 27 |[39m     })[33m,[39m[0m {
+  digest: [32m'1715237455'[39m
+}
+ GET /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 1759ms
+ GET /admin/collections/pages/678caa83a63654a1d0e5032c [31m500[39m in 1645ms
+ GET /join [31m500[39m in 4429ms
+ GET /join [32m200[39m in 1920ms
+ GET /join [32m200[39m in 5903ms
+/Users/schuyberg/dev/sookelive/sl-p3/sl2/src/blocks/TextBlock/config.ts:24
+          ListFeature()
+                     ^
+
+
+TypeError: (0 , _payloadcms_richtext_lexical__WEBPACK_IMPORTED_MODULE_1__.ListFeature) is not a function
+    at Object.features (webpack-internal:///(rsc)/./src/blocks/TextBlock/config.ts:29:94)
+    at Object.eval [as editor] (webpack-internal:///(rsc)/./node_modules/.pnpm/@payloadcms+richtext-lexical@3.17.1_6wuqvrtqlt7bggpeoytqzqvnre/node_modules/@payloadcms/richtext-lexical/dist/index.js:190:26)
+    at sanitizeRichText (webpack-internal:///(rsc)/./node_modules/.pnpm/payload@3.17.1_graphql@16.10.0_monaco-editor@0.52.2_react-dom@19.0.0_react@19.0.0__react@19.0.0_typescript@5.7.2/node_modules/payload/dist/fields/config/sanitize.js:145:48)
+    at sanitizeConfig (webpack-internal:///(rsc)/./node_modules/.pnpm/payload@3.17.1_graphql@16.10.0_monaco-editor@0.52.2_react-dom@19.0.0_react@19.0.0__react@19.0.0_typescript@5.7.2/node_modules/payload/dist/config/sanitize.js:235:23)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async buildConfig (webpack-internal:///(rsc)/./node_modules/.pnpm/payload@3.17.1_graphql@16.10.0_monaco-editor@0.52.2_react-dom@19.0.0_react@19.0.0__react@19.0.0_typescript@5.7.2/node_modules/payload/dist/config/build.js:17:16)
+
+Node.js v22.2.0
+ [31m[1m⨯[22m[39m TypeError: (0 , _payloadcms_richtext_lexical__WEBPACK_IMPORTED_MODULE_1__.ListFeature) is not a function
+    at ListFeature (src/blocks/TextBlock/config.ts:24:21)
+    at async Object.generateStaticParams (src/app/(frontend)/[slug]/page.tsx:19:18)
+[0m [90m 22 |[39m           [33mFixedToolbarFeature[39m()[33m,[39m[0m
+[0m [90m 23 |[39m           [33mInlineToolbarFeature[39m()[33m,[39m[0m
+[0m[31m[1m>[22m[39m[90m 24 |[39m           [33mListFeature[39m()[0m
+[0m [90m    |[39m                     [31m[1m^[22m[39m[0m
+[0m [90m 25 |[39m         ][0m
+[0m [90m 26 |[39m       }[33m,[39m[0m
+[0m [90m 27 |[39m     })[33m,[39m[0m {
+  type: [32m'TypeError'[39m,
+  page: [32m'/join'[39m
+}
+[33m [33m[1m⚠[22m[39m Fast Refresh had to perform a full reload due to a runtime error.[39m
+ [32m[1m✓[22m[39m Compiled /_error in 650ms (6456 modules)
+Generating import map
+Writing import map to /Users/schuyberg/dev/sookelive/sl-p3/sl2/src/app/(payload)/admin/importMap.js
+ GET /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 1863ms
+ [32m[1m✓[22m[39m Compiled in 5.8s (6442 modules)
+Generating import map
+No new imports found, skipping writing import map
+ GET /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 2429ms
+ GET /api/payload-preferences/collection-pages-678caa83a63654a1d0e5032c [32m200[39m in 61ms
+ GET /api/users/me [32m200[39m in 67ms
+ GET /api/payload-preferences/nav [32m200[39m in 39ms
+ PATCH /api/pages/678caa83a63654a1d0e5032c?draft=true&autosave=true&locale=undefined [32m200[39m in 42ms
+ POST /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 26ms
+ PATCH /api/pages/678caa83a63654a1d0e5032c?draft=true&autosave=true&locale=undefined [32m200[39m in 35ms
+ POST /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 25ms
+ PATCH /api/pages/678caa83a63654a1d0e5032c?draft=true&autosave=true&locale=undefined [32m200[39m in 21ms
+ POST /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 20ms
+ POST /api/payload-preferences/collection-pages-678caa83a63654a1d0e5032c [32m200[39m in 22ms
+[00:25:49] [32mINFO[39m: [36mYou are not allowed to perform this action.[39m
+ GET /api/payload-locked-documents?where[document.value][equals]=678caa83a63654a1d0e5032c&where[document.relationTo][equals]=pages [33m403[39m in 21ms
+ GET /admin/logout-inactivity?redirect=%2Fadmin%2Fcollections%2Fpages%2F678caa83a63654a1d0e5032c [32m200[39m in 93ms
+ GET /admin/login?redirect=%2Fadmin%2Fcollections%2Fpages%2F678caa83a63654a1d0e5032c [32m200[39m in 30ms
+ GET /admin/login?redirect=%2Fadmin%2Fcollections%2Fpages%2F678caa83a63654a1d0e5032c [32m200[39m in 31ms
+ POST /api/users/login [32m200[39m in 156ms
+ GET /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 157ms
+ GET /api/payload-preferences/collection-pages-678caa83a63654a1d0e5032c [32m200[39m in 33ms
+[23:21:00] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ GET /join [32m200[39m in 1170ms
+ GET /api/users/me [32m200[39m in 27ms
+ GET /join [32m200[39m in 45ms
+[23:21:01] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ [32m[1m✓[22m[39m Compiled in 2.3s (6292 modules)
+ GET /join [32m200[39m in 670ms
+[23:30:11] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ [32m[1m✓[22m[39m Compiled in 1730ms (1733 modules)
+ GET /join [32m200[39m in 199ms
+[23:30:49] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ [32m[1m✓[22m[39m Compiled in 1505ms (1733 modules)
+ GET /join [32m200[39m in 64ms
+[23:30:58] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ [32m[1m✓[22m[39m Compiled in 1340ms (6292 modules)
+ GET /join [32m200[39m in 658ms
+[23:31:50] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ [32m[1m✓[22m[39m Compiled in 988ms (6292 modules)
+ GET /join [32m200[39m in 596ms
+[23:32:18] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ [32m[1m✓[22m[39m Compiled in 1395ms (6292 modules)
+ GET /join [32m200[39m in 359ms
+ [32m[1m✓[22m[39m Compiled in 1005ms (6292 modules)
+[23:32:59] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ [32m[1m✓[22m[39m Compiled in 844ms (6292 modules)
+ [32m[1m✓[22m[39m Compiled in 766ms (6292 modules)
+ [32m[1m✓[22m[39m Compiled in 801ms (6292 modules)
+^C[?25h
+[1m[7m%[27m[1m[0m                                                                                                                                                                                                    ]2;schuyberg@Schuylers-MacBook-Air:~/dev/sookelive/sl-p3/sl2]1;..ive/sl-p3/sl2[0m[27m[24m[J[36m~/dev/sookelive/sl-p3/sl2 [34m([31mdev[34m)[00m [32m>[00m [K[?1h=[?2004hpnpm dev[?1l>[?2004l
+]2;pnpm dev]1;pnpm
+> my-project@1.0.0 dev /Users/schuyberg/dev/sookelive/sl-p3/sl2
+> cross-env NODE_OPTIONS=--no-deprecation next dev
+
+   [1m[38;2;173;127;168m▲ Next.js 15.1.4[39m[22m
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.0.165:3000
+   - Environments: .env
+   - Experiments (use with caution):
+     · turbo
+
+ [32m[1m✓[22m[39m Starting...
+ [32m[1m✓[22m[39m Ready in 1593ms
+ [37m[1m○[22m[39m Compiling /[slug] ...
+ [32m[1m✓[22m[39m Compiled /[slug] in 5.1s (3947 modules)
+ [32m[1m✓[22m[39m Compiled in 357ms (517 modules)
+[23:34:15] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+[23:34:16] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ GET /home [32m200[39m in 7918ms
+ [37m[1m○[22m[39m Compiling /api/[...slug] ...
+ [32m[1m✓[22m[39m Compiled /api/[...slug] in 1575ms (4366 modules)
+ GET /api/users/me [32m200[39m in 2998ms
+ [32m[1m✓[22m[39m Compiled in 969ms (572 modules)
+ GET /home [32m200[39m in 177ms
+[23:35:39] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ [32m[1m✓[22m[39m Compiled in 925ms (3911 modules)
+ GET /home [32m200[39m in 704ms
+[23:36:45] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+[31m [31m[1m⨯[22m[39m ./src/app/(frontend)/globals.css:144:5
+[31m[1mSyntax error[22m[39m: /Users/schuyberg/dev/sookelive/sl-p3/sl2/src/app/(frontend)/globals.css Unknown word
+
+ [90m 142 | [39m    --chart-5[33m:[39m [36mhsl[39m[36m(340 75% 55%)[39m[33m;[39m   */
+ [90m 143 | [39m
+[1m[31m>[39m[22m[90m 144 | [39m    --success[33m:[39m [36mhsl[39m[36m(196 100% 14%)[39m[33m;[39m
+ [90m     | [39m    [1m[31m^[39m[22m
+ [90m 145 | [39m    --warning[33m:[39m [36mhsl[39m[36m(34 51% 25%)[39m[33m;[39m
+ [90m 146 | [39m    --error[33m:[39m [36mhsl[39m[36m(10 39% 43%)[39m[33m;[39m[39m
+ [37m[1m○[22m[39m Compiling /_error ...
+[31m [31m[1m⨯[22m[39m ./src/app/(frontend)/globals.css:144:5
+[31m[1mSyntax error[22m[39m: /Users/schuyberg/dev/sookelive/sl-p3/sl2/src/app/(frontend)/globals.css Unknown word
+
+ [90m 142 | [39m    --chart-5[33m:[39m [36mhsl[39m[36m(340 75% 55%)[39m[33m;[39m   */
+ [90m 143 | [39m
+[1m[31m>[39m[22m[90m 144 | [39m    --success[33m:[39m [36mhsl[39m[36m(196 100% 14%)[39m[33m;[39m
+ [90m     | [39m    [1m[31m^[39m[22m
+ [90m 145 | [39m    --warning[33m:[39m [36mhsl[39m[36m(34 51% 25%)[39m[33m;[39m
+ [90m 146 | [39m    --error[33m:[39m [36mhsl[39m[36m(10 39% 43%)[39m[33m;[39m[39m
+ GET /home [31m500[39m in 1464ms
+ GET /home [31m500[39m in 6ms
+ GET /home [31m500[39m in 5ms
+ GET /home [31m500[39m in 6ms
+ [32m[1m✓[22m[39m Compiled /_not-found in 1745ms (4158 modules)
+ GET /_next/static/webpack/4fe284707ac1eaa7.webpack.hot-update.json [33m404[39m in 1528ms
+[33m [33m[1m⚠[22m[39m Fast Refresh had to perform a full reload due to a runtime error.[39m
+ GET /home [32m200[39m in 578ms
+ GET /home [32m200[39m in 96ms
+[23:37:26] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ [37m[1m○[22m[39m Compiling /api/[...slug] ...
+ [32m[1m✓[22m[39m Compiled /api/[...slug] in 1323ms (3893 modules)
+ GET /api/users/me [32m200[39m in 1871ms
+ [32m[1m✓[22m[39m Compiled in 879ms (4613 modules)
+ GET /home [32m200[39m in 624ms
+[23:37:42] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ [32m[1m✓[22m[39m Compiled in 1927ms (4153 modules)
+ GET /home [32m200[39m in 882ms
+[23:40:49] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ [32m[1m✓[22m[39m Compiled in 476ms (4153 modules)
+ GET /home [32m200[39m in 651ms
+[23:41:28] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ [32m[1m✓[22m[39m Compiled in 418ms (4153 modules)
+ GET /home [32m200[39m in 456ms
+[23:41:57] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ [32m[1m✓[22m[39m Compiled in 528ms (4153 modules)
+ GET /home [32m200[39m in 312ms
+[23:42:33] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ [32m[1m✓[22m[39m Compiled in 594ms (4153 modules)
+[31m(node:20596) MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 exit listeners added to [process]. MaxListeners is 10. Use emitter.setMaxListeners() to increase limit
+(Use `node --trace-warnings ...` to show where the warning was created)[39m
+ GET /home [32m200[39m in 343ms
+[23:43:11] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ [32m[1m✓[22m[39m Compiled in 382ms (4153 modules)
+ GET /home [32m200[39m in 368ms
+[23:43:50] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ [37m[1m○[22m[39m Compiling /admin/[[...segments]] ...
+ [32m[1m✓[22m[39m Compiled /admin/[[...segments]] in 4.1s (6391 modules)
+ GET /admin/logout-inactivity?redirect=%2Fadmin%2Fcollections%2Fpages%2F678caa83a63654a1d0e5032c [32m200[39m in 6243ms
+ GET /admin/login?redirect=%2Fadmin%2Fcollections%2Fpages%2F678caa83a63654a1d0e5032c [32m200[39m in 67ms
+ GET /admin/login?redirect=%2Fadmin%2Fcollections%2Fpages%2F678caa83a63654a1d0e5032c [32m200[39m in 16ms
+ [37m[1m○[22m[39m Compiling /api/[...slug] ...
+ [32m[1m✓[22m[39m Compiled /api/[...slug] in 2.6s (3891 modules)
+ POST /api/users/login [32m200[39m in 3506ms
+ [37m[1m○[22m[39m Compiling /admin/[[...segments]] ...
+ [32m[1m✓[22m[39m Compiled /admin/[[...segments]] in 722ms (4892 modules)
+ GET /admin/collections/pages/678caa83a63654a1d0e5032c [32m200[39m in 2188ms
+ GET /api/payload-preferences/collection-pages-678caa83a63654a1d0e5032c [32m200[39m in 67ms
+ GET /join [32m200[39m in 231ms
+ GET /api/users/me [32m200[39m in 31ms
+[21:34:03] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ [37m[1m○[22m[39m Compiling / ...
+ [32m[1m✓[22m[39m Compiled / in 2.8s (5438 modules)
+ GET / [32m200[39m in 3464ms
+ GET /home [32m200[39m in 1410ms
+ GET /home [32m200[39m in 31ms
+[21:34:21] [33mWARN[39m: [36mNo email adapter provided. Email will be written to console. More info at https://payloadcms.com/docs/email/overview.[39m
+ [37m[1m○[22m[39m Compiling /_not-found ...
+ [32m[1m✓[22m[39m Compiled /_not-found in 1829ms (4986 modules)
+ GET /home [33m404[39m in 1920ms
+ GET /_next/static/chunks/main-app.js?v=1737524157834 [33m404[39m in 22ms
+ GET /_next/static/chunks/app-pages-internals.js [33m404[39m in 13ms

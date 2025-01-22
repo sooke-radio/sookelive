@@ -1,5 +1,4 @@
 version: '3'
-
 # services:
 #   payload:
 #     image: node:18-alpine
