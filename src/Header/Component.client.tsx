@@ -8,6 +8,7 @@ import type { Header } from '@/payload-types'
 
 import { Logo } from '@/components/Logo/Logo'
 import { HeaderNav } from './Nav'
+import { MediaPlayer } from '@/components/StreamPlayer/index.client'
 
 interface HeaderClientProps {
   data: Header
@@ -67,7 +68,11 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
           </div>
         </div>
         <div className="lg:w-2/5 flex w-full items-center justify-center hidden lg:flex">
-          <p className="text-white">{"( Watch this space. )"}</p>
+          {/* <p className="text-white">{"( Watch this space. )"}</p> */}
+
+          <MediaPlayer 
+            className="w-full max-w-xl"
+          />
         </div>
       </div>
 
