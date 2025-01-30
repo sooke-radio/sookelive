@@ -30,16 +30,6 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [headerTheme])
 
-  // return (
-  //   <header className="container relative z-20   " {...(theme ? { 'data-theme': theme } : {})}>
-  //     <div className="py-8 flex justify-between">
-  //       <Link href="/">
-  //         <Logo loading="eager" priority="high" className="invert dark:invert-0" />
-  //       </Link>
-  //       <HeaderNav data={data} />
-  //     </div>
-  //   </header>
-  // )
   return (
     <header
       className="full  
@@ -51,7 +41,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
         border-t-bright
         dark:border-t-bright
         flex-wrap 
-        border-b-8 
+        border-b-4 
         border-b-bright
         dark:border-b-bright"
       {...(theme ? { 'data-theme': theme } : {})}
@@ -63,7 +53,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
               <Logo />
             </Link>
           </div>
-          <div className="flex-1 p-6 border-r border-l border-white">
+          <div className="flex-1 p-6 ">
             <HeaderNav data={data} />
           </div>
         </div>

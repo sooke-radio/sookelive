@@ -75,7 +75,9 @@
     --chart-4: hsl(43 74% 66%);
     --chart-5: hsl(27 87% 67%);
     
-    --bright: hsl(117, 100%, 48%);
+    /* --bright: hsl(117, 100%, 48%); */
+    --bright: hsl(187, 100%, 48%);
+
 
     --success: hsl(196 52% 74%);
     --warning: hsl(34 89% 85%);

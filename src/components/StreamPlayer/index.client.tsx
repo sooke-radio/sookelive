@@ -2,7 +2,7 @@
 
 import React, { useRef, useEffect, useState } from 'react'
 import { cn } from '@/utilities/ui'
-import { connectToWebSocket } from '@/streamService/websocketMetadata'
+import { connectToWebSocket } from '@/streamService/azuracastNowplayingWs'
 
 export type StreamMetadata = {
   title: string

@@ -1,5 +1,4 @@
 import { StreamMetadata } from '@/components/StreamPlayer/index.client'
-import { set } from 'react-hook-form';
 
 let ws: WebSocket | null = null;
 let listeners: Set<(data: StreamMetadata) => void> = new Set();
