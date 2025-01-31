@@ -59,10 +59,30 @@ export const hero: Field = {
       },
     }),
     {
+      name: 'background',
+      type: 'select',
+      defaultValue: 'gradient',
+      label: 'Background',
+      admin: {
+        condition: (_, { type } = {}) => ['highImpact', 'mediumImpact'].includes(type),
+      },
+      options: [
+        {
+          label: 'Gradient',
+          value: 'gradient',
+        },
+        {
+          label: 'Media',
+          value: 'media',
+        },
+      ]
+    },
+    {
       name: 'media',
       type: 'upload',
       admin: {
-        condition: (_, { type } = {}) => ['highImpact', 'mediumImpact'].includes(type),
+        condition: ((_, { type, background } = {}) => ['highImpact', 'mediumImpact'].includes(type) && background === 'media'),
+         
       },
       relationTo: 'media',
       required: true,

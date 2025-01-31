@@ -133,6 +133,7 @@ export interface Page {
           id?: string | null;
         }[]
       | null;
+    background?: ('gradient' | 'media') | null;
     media?: (string | null) | Media;
   };
   layout: (
@@ -1002,6 +1003,7 @@ export interface PagesSelect<T extends boolean = true> {
                   };
               id?: T;
             };
+        background?: T;
         media?: T;
       };
   layout?:

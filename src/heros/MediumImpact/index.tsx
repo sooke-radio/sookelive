@@ -5,11 +5,12 @@ import type { Page } from '@/payload-types'
 import { CMSLink } from '@/components/Link'
 import { Media } from '@/components/Media'
 import RichText from '@/components/RichText'
+import { GradientFill } from '@/components/GradientFill'
 
-export const MediumImpactHero: React.FC<Page['hero']> = ({ links, media, richText }) => {
+export const MediumImpactHero: React.FC<Page['hero']> = ({ links, background,  media, richText }) => {
   return (
-    <div className="">
-      <div className="container mb-8">
+    <div className="relative -mt-[10.4rem] flex items-end">
+      <div className="container mt-[10.4rem] mb-8">
         {richText && <RichText className="mb-6" data={richText} enableGutter={false} />}
 
         {Array.isArray(links) && links.length > 0 && (
@@ -24,23 +25,26 @@ export const MediumImpactHero: React.FC<Page['hero']> = ({ links, media, richTex
           </ul>
         )}
       </div>
-      <div className="container ">
-        {media && typeof media === 'object' && (
-          <div>
-            <Media
-              className="-mx-4 md:-mx-8 2xl:-mx-16"
-              imgClassName=""
-              priority
-              resource={media}
-            />
-            {media?.caption && (
-              <div className="mt-3">
-                <RichText data={media.caption} enableGutter={false} />
-              </div>
-            )}
+        { background && background === 'media' && media && typeof media === 'object' ? (
+          <div className="container ">
+              <Media
+                className="-mx-4 md:-mx-8 2xl:-mx-16"
+                imgClassName=""
+                priority
+                resource={media}
+              />
+              {media?.caption && (
+                <div className="mt-3">
+                  <RichText data={media.caption} enableGutter={false} />
+                </div>
+              )}
           </div>
-        )}
-      </div>
+        ) : ( 
+          <div className="h-[30vh] select-none -z-10">
+            <GradientFill id="gradient-fill" />
+            <div className="absolute pointer-events-none left-0 bottom-0 w-full h-1/2 bg-gradient-to-t dark:from-black to-transparent from-white to-transparent" />
+          </div>
+      ) } 
     </div>
   )
 }
