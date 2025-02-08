@@ -8,7 +8,7 @@ import type { Header } from '@/payload-types'
 
 import { Logo } from '@/components/Logo/Logo'
 import { HeaderNav } from './Nav'
-import { MediaPlayer } from '@/components/StreamPlayer/index.client'
+import { StreamPlayer } from '@/components/StreamPlayer/index.client'
 
 interface HeaderClientProps {
   data: Header
@@ -46,7 +46,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
         dark:border-b-bright"
       {...(theme ? { 'data-theme': theme } : {})}
     >
-      <div className="container relative flex justify-between ">
+      <div className="container relative flex flex-wrap justify-between ">
         <div className='lg:w-3/5 w-full flex'>
           <div className="max-w-[280] flex items-center">
             <Link href="/">
@@ -57,12 +57,8 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
             <HeaderNav data={data} />
           </div>
         </div>
-        <div className="lg:w-2/5 flex w-full items-center justify-center hidden lg:flex">
-          {/* <p className="text-white">{"( Watch this space. )"}</p> */}
-
-          <MediaPlayer 
-            className="w-full max-w-xl"
-          />
+        <div className="lg:w-2/5 flex w-full items-center justify-center basis-full lg:basis-auto">
+          <StreamPlayer  />
         </div>
       </div>
 

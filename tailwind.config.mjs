@@ -45,6 +45,10 @@ export default {
         background: "var(--background)",
         foreground: "var(--foreground)",
         bright: "var(--bright)",
+        "bright-2": "var(--bright-2)",
+        "bright-3": "var(--bright-3)",
+        "bright-4": "var(--bright-4)",
+        "bright-5": "var(--bright-5)",
         primary: {
           DEFAULT: "var(--primary)",
           foreground: "var(--primary-foreground)",

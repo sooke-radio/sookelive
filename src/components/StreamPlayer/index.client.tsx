@@ -3,7 +3,7 @@
 import React, { useRef, useEffect, useState } from 'react'
 import { cn } from '@/utilities/ui'
 import { connectToWebSocket } from '@/streamService/azuracastNowplayingWs'
-
+import { AudioWaveform } from './AudioWaveform.index.client'
 export type StreamMetadata = {
   title: string
   artist: string
@@ -15,12 +15,15 @@ export type MediaPlayerProps = {
 }
 
 
-export const MediaPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
+export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
   const audioRef = useRef<HTMLAudioElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
 
-  const streamSrc = 'https://stream.sooke.live/listen/sookelive/high_192kbps.mp3';
-  
+  // const streamSrc = 'https://stream.sooke.live/listen/sookelive/high_192kbps.mp3';
+  // use proxy stream to enable visualizer
+  const streamSrc = '/api/stream';
+
+
   const [trackInfo, setNowPlaying] = useState<StreamMetadata>({
     title: 'Loading...',
     artist: 'SRS',
@@ -44,35 +47,38 @@ export const MediaPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
   }
 
   return (
-    <div className={cn('flex items-center gap-4 p-6', className)}>
-      <audio ref={audioRef} src={streamSrc} />
-      <button 
-        onClick={togglePlay}
-        className="w-32 h-32
-        rounded-full
-        bg-gradient-to-tr
-        from-bright
-        to-dark
-        flex
-        items-center
-        justify-center
-        hover:scale-105
-        transition-transform"
-      >
-        {isPlaying ? (
-          <div className="flex gap-1">
-            <div className="w-[4px] h-[16px] bg-white rounded-sm" />
-            <div className="w-[4px] h-[16px] bg-white rounded-sm" />
-          </div>
-        ) : (
-          <div className="w-0 h-0 border-t-[16px] border-t-transparent border-l-[32px] border-l-white border-b-[16px] border-b-transparent ml-1" />
-        )}
-      </button>
-      <div className="flex flex-col">
-        <span className="text-xl font-bold">{trackInfo.title}</span>
-        <span className="text-lg">{trackInfo.artist}</span>
-        {trackInfo.show && <span className="text-sm">{trackInfo.show}</span>}
+      <div className='flex flex-wrap items-center justify-center gap-4 p-6 w-full w-max-w-xl h-[40vh] md:h-[220px]'>
+        <audio ref={audioRef} src={streamSrc} />
+        <button 
+          onClick={togglePlay}
+          className="w-32 h-32
+          rounded-full
+          bg-gradient-to-tr
+          from-bright
+          to-bright-4
+          flex
+          items-center
+          justify-center
+          hover:scale-105
+          transition-transform"
+        >
+          {isPlaying ? (
+            <div className="flex gap-2 basis-full justify-center w-full">
+              <div className="w-[8px] h-[32px] bg-white rounded-sm" />
+              <div className="w-[8px] h-[32px] bg-white rounded-sm" />
+            </div>
+          ) : (
+            <div className="w-0 h-0 border-t-[16px] border-t-transparent border-l-[32px] border-l-white border-b-[16px] border-b-transparent ml-1" />
+          )}
+        </button>
+        <div className="flex flex-col">
+          <span className="text-xl font-bold">{trackInfo.title}</span>
+          <span className="text-lg">{trackInfo.artist}</span>
+          {trackInfo.show && <span className="text-sm">{trackInfo.show}</span>}
+        </div>
+        {/* {audioRef.current && <AudioWaveform audioElement={audioRef.current} />} */}
+
+
       </div>
-    </div>
   )
 }

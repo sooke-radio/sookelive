@@ -40,7 +40,7 @@ export const MediumImpactHero: React.FC<Page['hero']> = ({ links, background,  m
               )}
           </div>
         ) : ( 
-          <div className="h-[30vh] select-none -z-10">
+          <div className="h-[33vh] select-none -z-10">
             <GradientFill id="gradient-fill" />
             <div className="absolute pointer-events-none left-0 bottom-0 w-full h-1/2 bg-gradient-to-t dark:from-black to-transparent from-white to-transparent" />
           </div>
