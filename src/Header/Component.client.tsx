@@ -8,7 +8,7 @@ import type { Header } from '@/payload-types'
 
 import { Logo } from '@/components/Logo/Logo'
 import { HeaderNav } from './Nav'
-import { StreamPlayer } from '@/components/StreamPlayer/index.client'
+import { StreamPlayer } from '@/streamService/index.client'
 
 interface HeaderClientProps {
   data: Header

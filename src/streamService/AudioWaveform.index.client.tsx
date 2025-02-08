@@ -1,11 +1,15 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
 
-export const AudioWaveform = ({ audioElement }: { audioElement: HTMLAudioElement }) => {
+export const AudioWaveform = ({ 
+  audioContext, 
+  source 
+}: { 
+  audioContext: AudioContext
+  source: MediaElementAudioSourceNode 
+}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [audioContext] = useState(() => new AudioContext())
-  const [source] = useState(() => audioContext.createMediaElementSource(audioElement))
-  
+
   useEffect(() => {
     if (!canvasRef.current) return
     
@@ -21,6 +25,8 @@ export const AudioWaveform = ({ audioElement }: { audioElement: HTMLAudioElement
     const ctx = canvas.getContext('2d')
     
     const draw = () => {
+      if (!ctx) return; 
+      
       const WIDTH = canvas.width
       const HEIGHT = canvas.height
       
@@ -40,8 +46,7 @@ export const AudioWaveform = ({ audioElement }: { audioElement: HTMLAudioElement
         ctx.fillRect(x, HEIGHT - barHeight, barWidth, barHeight)
         x += barWidth + 1
       }
-    }
-    
+    }    
     draw()
   }, [audioContext, source])
 

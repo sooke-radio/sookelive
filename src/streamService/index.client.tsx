@@ -1,14 +1,10 @@
 'use client'
 
 import React, { useRef, useEffect, useState } from 'react'
-import { cn } from '@/utilities/ui'
 import { connectToWebSocket } from '@/streamService/azuracastNowplayingWs'
 import { AudioWaveform } from './AudioWaveform.index.client'
-export type StreamMetadata = {
-  title: string
-  artist: string
-  show?: string
-}
+import type { StreamMetadata } from './types'
+
 
 export type MediaPlayerProps = {
   className?: string
@@ -19,10 +15,18 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
   const audioRef = useRef<HTMLAudioElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
 
-  // const streamSrc = 'https://stream.sooke.live/listen/sookelive/high_192kbps.mp3';
-  // use proxy stream to enable visualizer
-  const streamSrc = '/api/stream';
+  // create context for audio processing (visuualizer))
+  const [audioContext] = useState(() => new AudioContext())
+  const [audioSource, setAudioSource] = useState<MediaElementAudioSourceNode | null>(null)
+  useEffect(() => {
+    if (audioRef.current && !audioSource) {
+      const source = audioContext.createMediaElementSource(audioRef.current)
+      setAudioSource(source)
+    }
+  }, [audioRef, audioContext, audioSource])
 
+  // const streamSrc = 'https://stream.sooke.live/listen/sookelive/high_192kbps.mp3';
+  const streamSrc = '/api/stream'; // use proxy stream to enable visualizer
 
   const [trackInfo, setNowPlaying] = useState<StreamMetadata>({
     title: 'Loading...',
@@ -41,6 +45,7 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
         audioRef.current.pause()
       } else {
         audioRef.current.play()
+        audioContext.resume() 
       }
       setIsPlaying(!isPlaying)
     }
@@ -76,7 +81,7 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
           <span className="text-lg">{trackInfo.artist}</span>
           {trackInfo.show && <span className="text-sm">{trackInfo.show}</span>}
         </div>
-        {/* {audioRef.current && <AudioWaveform audioElement={audioRef.current} />} */}
+        {audioSource && <AudioWaveform audioContext={audioContext} source={audioSource} />}
 
 
       </div>
