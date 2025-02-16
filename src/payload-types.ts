@@ -216,6 +216,7 @@ export interface Page {
 export interface Post {
   id: string;
   title: string;
+  background?: ('gradient' | 'media') | null;
   heroImage?: (string | null) | Media;
   content: {
     root: {
@@ -1248,6 +1249,7 @@ export interface FormBlockSelect<T extends boolean = true> {
  */
 export interface PostsSelect<T extends boolean = true> {
   title?: T;
+  background?: T;
   heroImage?: T;
   content?: T;
   relatedPosts?: T;

@@ -56,6 +56,7 @@ export const ShowHero: React.FC<{
           (heroImage && typeof heroImage !== 'string') && (
             <div className="min-h-[66vh] select-none">
               <Media fill priority imgClassName="-z-10 object-cover" resource={heroImage} />
+              <div className="absolute pointer-events-none left-0 bottom-0 w-full h-1/2 bg-gradient-to-t from-black to-transparent" />
             </div>
           ) :
           <div className="h-[40vh] select-none -z-10">
@@ -63,8 +64,6 @@ export const ShowHero: React.FC<{
             <div className="absolute pointer-events-none left-0 bottom-0 w-full h-1/2 bg-gradient-to-t dark:from-black to-transparent from-white to-transparent" />
           </div>
         }
-          
-        <div className="absolute pointer-events-none left-0 bottom-0 w-full h-1/2 bg-gradient-to-t from-black to-transparent" />
       </div>
   )
 }

@@ -80,9 +80,28 @@ export const Posts: CollectionConfig<'posts'> = {
         {
           fields: [
             {
+              name: 'background',
+              type: 'select',
+              defaultValue: 'gradient',
+              label: 'Hero Background',
+              options: [
+                {
+                  label: 'Gradient',
+                  value: 'gradient',
+                },
+                {
+                  label: 'Media',
+                  value: 'media',
+                },
+              ]
+            },
+            {
               name: 'heroImage',
               type: 'upload',
               relationTo: 'media',
+              admin: {
+                condition: ((_, { background } = {}) => background === 'media'),
+              },
             },
             {
               name: 'content',
