@@ -2,7 +2,7 @@
 
 import React, { useRef, useEffect, useState } from 'react'
 import { connectToWebSocket } from '@/streamService/azuracastNowplayingWs'
-import { AudioWaveform } from './AudioWaveform.index.client'
+// import { AudioWaveform } from './AudioWaveform.index.client'
 import type { StreamMetadata } from './types'
 
 
@@ -15,12 +15,19 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
   const audioRef = useRef<HTMLAudioElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
 
-  // create context for audio processing (visuualizer))
-  const [audioContext] = useState(() => new AudioContext())
+  // create context for audio processing (visualizer))
+  const [audioContext, setAudioContext] = useState<AudioContext | null>(null)
   const [audioSource, setAudioSource] = useState<MediaElementAudioSourceNode | null>(null)
   useEffect(() => {
-    if (audioRef.current && !audioSource) {
+    if(!audioContext) {
+      const ctx = new AudioContext()
+      setAudioContext(ctx)
+    }
+  }, [audioContext])
+  useEffect(() => {
+    if (audioRef.current && audioContext && !audioSource) {
       const source = audioContext.createMediaElementSource(audioRef.current)
+      source.connect(audioContext.destination)
       setAudioSource(source)
     }
   }, [audioRef, audioContext, audioSource])
@@ -40,7 +47,7 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
   }, []);
 
   const togglePlay = () => {
-    if (audioRef.current) {
+    if (audioContext && audioRef.current) {
       if (isPlaying) {
         audioRef.current.pause()
       } else {

@@ -22,8 +22,7 @@ export const TextBlock: React.FC<
               const { enableLink, link, richText } = textBlock
               return (
                 <div className="" key={index}>
-                  <RichText content={richText || {}} enableGutter={false} />
-                  {enableLink && <CMSLink {...link} />}
+                {richText && <RichText data={richText} enableGutter={false} />}                  {enableLink && <CMSLink {...link} />}
                 </div>
               )
           })}

@@ -1,4 +1,4 @@
-// @ts-nocheck
+// @ts-nocheck because deep merge
 
 /**
  * Simple object check.

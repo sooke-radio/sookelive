@@ -49,8 +49,9 @@ export default async function Page({ params: paramsPromise }: Args) {
   const { slug = 'home' } = await paramsPromise
   const url = '/' + slug
 
+  // eslint-disable-next-line
   let page: PageType | null
-
+  // eslint-disable-next-line
   page = await queryPageBySlug({
     slug,
   })

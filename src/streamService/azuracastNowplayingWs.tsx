@@ -1,7 +1,7 @@
 import type { StreamMetadata } from './types';
 
 let ws: WebSocket | null = null;
-let listeners: Set<(data: StreamMetadata) => void> = new Set();
+const listeners: Set<(data: StreamMetadata) => void> = new Set();
 
 export const connectToWebSocket = (setNowPlaying: (data: StreamMetadata) => void) => {
   listeners.add(setNowPlaying);
