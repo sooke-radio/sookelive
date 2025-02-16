@@ -1,7 +1,7 @@
 {
-  "name": "my-project",
+  "name": "sookelive",
   "version": "1.0.0",
-  "description": "Website template for Payload",
+  "description": "Sooke.live Community Radio",
   "license": "MIT",
   "type": "module",
   "scripts": {

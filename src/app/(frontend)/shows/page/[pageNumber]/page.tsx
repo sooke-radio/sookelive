@@ -25,8 +25,8 @@ export default async function Page({ params: paramsPromise }: Args) {
 
   if (!Number.isInteger(sanitizedPageNumber)) notFound()
 
-  const posts = await payload.find({
-    collection: 'posts',
+  const shows = await payload.find({
+    collection: 'shows',
     depth: 1,
     limit: 12,
     page: sanitizedPageNumber,
@@ -38,24 +38,24 @@ export default async function Page({ params: paramsPromise }: Args) {
       <PageClient />
       <div className="container mb-16">
         <div className="prose dark:prose-invert max-w-none">
-          <h1>Posts</h1>
+          <h1>Shows</h1>
         </div>
       </div>
 
       <div className="container mb-8">
         <PageRange
-          collection="posts"
-          currentPage={posts.page}
+          collection="shows"
+          currentPage={shows.page}
           limit={12}
-          totalDocs={posts.totalDocs}
+          totalDocs={shows.totalDocs}
         />
       </div>
 
-      <CollectionArchive posts={posts.docs} />
+      <CollectionArchive posts={shows.docs} />
 
       <div className="container">
-        {posts?.page && posts?.totalPages > 1 && (
-          <Pagination page={posts.page} totalPages={posts.totalPages} />
+        {shows?.page && shows?.totalPages > 1 && (
+          <Pagination page={shows.page} totalPages={shows.totalPages} />
         )}
       </div>
     </div>
@@ -65,14 +65,14 @@ export default async function Page({ params: paramsPromise }: Args) {
 export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
   const { pageNumber } = await paramsPromise
   return {
-    title: `Sooke.live Blog Posts, Page ${pageNumber || ''}`,
+    title: `Payload Website Template shows Page ${pageNumber || ''}`,
   }
 }
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
   const { totalDocs } = await payload.count({
-    collection: 'posts',
+    collection: 'shows',
     overrideAccess: false,
   })
 

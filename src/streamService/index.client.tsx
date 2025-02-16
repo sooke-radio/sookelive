@@ -81,7 +81,7 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
           <span className="text-lg">{trackInfo.artist}</span>
           {trackInfo.show && <span className="text-sm">{trackInfo.show}</span>}
         </div>
-        {audioSource && <AudioWaveform audioContext={audioContext} source={audioSource} />}
+        {/* {audioSource && <AudioWaveform audioContext={audioContext} source={audioSource} />} */}
 
 
       </div>
