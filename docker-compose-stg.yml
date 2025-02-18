@@ -1,0 +1,15 @@
+services:
+  payload:
+    build:
+      context: .
+      args:
+        MIGRATE: false   # run payload migrate
+        EXPOSE_PORT: 3001
+    ports:
+      - '3001:3000'
+    volumes:
+      - stg_media:/app/src/public/media
+    env_file:
+      - .env
+volumes:
+  stg_media:
