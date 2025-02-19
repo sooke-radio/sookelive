@@ -5,10 +5,8 @@
 
 # for further discussion see: https://github.com/payloadcms/payload/discussions/7423#discussioncomment-10235308
 
-# TODO: payload migrate to get db changes.
-
-# save
-FROM node:20-alpine AS base
+# Base w/ corepack
+FROM node:22-alpine AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
@@ -19,7 +17,7 @@ ARG MIGRATE
 RUN apk add --no-cache libc6-compat
 
 # Add these lines to install Sharp dependencies
-# RUN apk add --no-cache build-base gcc autoconf automake zlib-dev libpng-dev nasm
+RUN apk add --no-cache build-base gcc autoconf automake zlib-dev libpng-dev nasm
 
 #copy app files
 COPY . /app
