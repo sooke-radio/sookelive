@@ -25,7 +25,7 @@ import {
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
 import { slugField } from '@/fields/slug'
-import { populatePlaylists } from './hooks/populatePlaylists'
+// import { populatePlaylists } from './hooks/populatePlaylists'
 
 export const Shows: CollectionConfig<'shows'> = {
   slug: 'shows',
@@ -48,6 +48,7 @@ export const Shows: CollectionConfig<'shows'> = {
     meta: {
       image: true,
       description: true,
+      title: true
     },
   },
   admin: {
