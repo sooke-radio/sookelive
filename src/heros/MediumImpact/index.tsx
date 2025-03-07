@@ -5,7 +5,7 @@ import type { Page } from '@/payload-types'
 import { CMSLink } from '@/components/Link'
 import { Media } from '@/components/Media'
 import RichText from '@/components/RichText'
-import { GradientFill } from '@/components/GradientFill'
+import { GradientFill } from '@/components/GradientFill/index.client'
 
 export const MediumImpactHero: React.FC<Page['hero']> = ({ links, background,  media, richText }) => {
   return (

@@ -22,8 +22,8 @@ export default async function Page() {
     select: {
       title: true,
       slug: true,
-      categories: true,
       meta: true,
+      genres: true,
     },
   })
 
@@ -45,7 +45,7 @@ export default async function Page() {
         />
       </div>
 
-      <CollectionArchive posts={shows.docs} />
+      <CollectionArchive posts={shows.docs} relationTo="shows" />
 
       <div className="container">
         {shows.totalPages > 1 && shows.page && (

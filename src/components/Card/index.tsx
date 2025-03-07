@@ -4,9 +4,10 @@ import useClickableCard from '@/utilities/useClickableCard'
 import Link from 'next/link'
 import React, { Fragment } from 'react'
 
-import type { Post } from '@/payload-types'
+import type { Post, Show } from '@/payload-types'
 
 import { Media } from '@/components/Media'
+import { GradientFill } from '@/components/GradientFill/index.client'
 
 export type CardPostData = Pick<Post, 'slug' | 'categories' | 'meta' | 'title'>
 
@@ -14,7 +15,7 @@ export const Card: React.FC<{
   alignItems?: 'center'
   className?: string
   doc?: CardPostData
-  relationTo?: 'posts'
+  relationTo?: 'posts' | 'shows'
   showCategories?: boolean
   title?: string
 }> = (props) => {
@@ -24,24 +25,39 @@ export const Card: React.FC<{
   const { slug, categories, meta, title } = doc || {}
   const { description, image: metaImage } = meta || {}
 
-  const hasCategories = categories && Array.isArray(categories) && categories.length > 0
+  const hasCategories = (categories && Array.isArray(categories) && categories.length > 0)
   const titleToUse = titleFromProps || title
   const sanitizedDescription = description?.replace(/\s/g, ' ') // replace non-breaking space with white space
   const href = `/${relationTo}/${slug}`
 
+  console.log('props', props)
+  console.log('meta', meta)
+
+
   return (
     <article
       className={cn(
-        'border border-border rounded-lg overflow-hidden bg-card hover:cursor-pointer',
+        'border border-border rounded-lg overflow-hidden bg-card hover:cursor-pointer relative min-h-[250px]',
         className,
       )}
       ref={card.ref}
     >
-      <div className="relative w-full ">
-        {!metaImage && <div className="">No image</div>}
+      
+      <div className="relative">
+      {!metaImage && 
+        <div className="aspect-[4/3] w-auto">
+          <GradientFill id="" />
+          {/* <img
+            alt="The Sooke Radio Society Logo showing the word Sooke superimposed over a line drawing of a boombox with the words Radio Society beneath."
+            className="max-w-[220px] z-10"
+            src="/srs-logo-sq.png"
+            decoding = "async"
+          /> */}
+        </div>
+        }
         {metaImage && typeof metaImage !== 'string' && <Media resource={metaImage} size="33vw" />}
       </div>
-      <div className="p-4">
+      <div className="p-4 z-10">
         {showCategories && hasCategories && (
           <div className="uppercase text-sm mb-4">
             {showCategories && hasCategories && (
@@ -78,6 +94,7 @@ export const Card: React.FC<{
           </div>
         )}
         {description && <div className="mt-2">{description && <p>{sanitizedDescription}</p>}</div>}
+
       </div>
     </article>
   )

@@ -5,7 +5,7 @@ import type { Post } from '@/payload-types'
 
 import { Media } from '@/components/Media'
 import { formatAuthors } from '@/utilities/formatAuthors'
-import { GradientFill } from '@/components/GradientFill'
+import { GradientFill } from '@/components/GradientFill/index.client'
 
 export const PostHero: React.FC<{
   post: Post
