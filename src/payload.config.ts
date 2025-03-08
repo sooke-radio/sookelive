@@ -20,6 +20,8 @@ import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
 import { Hosts } from './collections/Hosts'
 
+import { default as mailer } from './plugins/mailer';
+
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
@@ -104,5 +106,6 @@ export default buildConfig({
       },
     },
     tasks: [],
-  }
+  },
+  email: mailer
 })

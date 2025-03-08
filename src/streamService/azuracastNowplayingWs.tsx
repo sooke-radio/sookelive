@@ -11,7 +11,7 @@ export const connectToWebSocket = (setNowPlaying: (data: StreamMetadata) => void
     let currentTime = 0;
 
     ws.onopen = () => {
-      console.log('WebSocket connection opened');
+      // console.log('WebSocket connection opened');
       ws?.send(JSON.stringify({
         "subs": {
           "station:sookelive": {"recover": true}
