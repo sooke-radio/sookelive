@@ -27,6 +27,8 @@ export const ContentBlock: React.FC<ContentBlockProps> = (props) => {
           columns.map((col, index) => {
             const { enableLink, link, richText, size, blocks} = col
 
+            console.log(link)
+
             return (
               <div
                 className={cn(`col-span-4 lg:col-span-${colsSpanClasses[size!]}`, {
@@ -35,8 +37,12 @@ export const ContentBlock: React.FC<ContentBlockProps> = (props) => {
                 key={index}
               >
                 {richText && <RichText data={richText} enableGutter={false} />}
-
-                {enableLink && <CMSLink {...link} />}
+                
+                {enableLink && 
+                <div className="flex justify-center">
+                  <CMSLink {...link} className="min-w-32" />
+                </div>
+                }
 
                 {blocks && <RenderBlocks blocks={blocks} />}
 
