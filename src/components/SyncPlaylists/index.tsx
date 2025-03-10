@@ -18,8 +18,6 @@ const SyncPlaylists: React.FC = () => {
   const [seeded, setSeeded] = useState(false)
   const [error, setError] = useState<null | string>(null)
 
-
-
   const handleClick = useCallback(
     async (e: React.MouseEvent<HTMLButtonElement>) => {
       e.preventDefault()
