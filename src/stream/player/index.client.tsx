@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useRef, useEffect, useState } from 'react'
-import { connectToWebSocket } from '@/streamService/azuracastNowplayingWs'
+import { connectToWebSocket } from '@/stream/azuracast/nowplaying'
 // import { AudioWaveform } from './AudioWaveform.index.client'
 import type { StreamMetadata } from './types'
 
@@ -32,7 +32,6 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
     }
   }, [audioRef, audioContext, audioSource])
 
-  // const streamSrc = 'https://stream.sooke.live/listen/sookelive/high_192kbps.mp3';
   const streamSrc = '/api/stream'; // use proxy stream to enable visualizer
 
   const [trackInfo, setNowPlaying] = useState<StreamMetadata>({

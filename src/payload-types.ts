@@ -73,6 +73,7 @@ export interface Config {
     genres: Genre;
     hosts: Host;
     users: User;
+    playlists: Playlist;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -92,6 +93,7 @@ export interface Config {
     genres: GenresSelect<false> | GenresSelect<true>;
     hosts: HostsSelect<false> | HostsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
+    playlists: PlaylistsSelect<false> | PlaylistsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -477,9 +479,9 @@ export interface Show {
   genres?: (string | Genre)[] | null;
   hosts?: (string | Host)[] | null;
   /**
-   * The playlist name of the show in Azuracast for pre-recorded shows.
+   * The playlist name of the show in Azuracast for pre-recorded shows. This is used to populate schedule data and link from the stream player. If your playlist is not loaded, refresh the playlists using the button in /admin/collections/playlists.
    */
-  stream_playlist?: string | null;
+  stream_playlist?: (string | null) | Playlist;
   /**
    * The streamer ID associated with this show in Azuracast for live streaming.
    */
@@ -527,6 +529,30 @@ export interface Host {
   title: string;
   slug?: string | null;
   slugLock?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Playlists synchronized from Azuracast.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "playlists".
+ */
+export interface Playlist {
+  id: string;
+  az_id: number;
+  name: string;
+  short_name: string;
+  schedule_items?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  lastSync: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -1091,6 +1117,10 @@ export interface PayloadLockedDocument {
         value: string | User;
       } | null)
     | ({
+        relationTo: 'playlists';
+        value: string | Playlist;
+      } | null)
+    | ({
         relationTo: 'redirects';
         value: string | Redirect;
       } | null)
@@ -1535,6 +1565,19 @@ export interface UsersSelect<T extends boolean = true> {
   hash?: T;
   loginAttempts?: T;
   lockUntil?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "playlists_select".
+ */
+export interface PlaylistsSelect<T extends boolean = true> {
+  az_id?: T;
+  name?: T;
+  short_name?: T;
+  schedule_items?: T;
+  lastSync?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

@@ -1,4 +1,4 @@
-import type { StreamMetadata } from './types';
+import type { StreamMetadata } from '../player/types';
 
 let ws: WebSocket | null = null;
 const listeners: Set<(data: StreamMetadata) => void> = new Set();

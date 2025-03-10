@@ -13,6 +13,7 @@ import { Pages } from './collections/Pages'
 import { Posts } from './collections/Posts'
 import { Users } from './collections/Users'
 import { Shows } from './collections/Shows'
+import { Playlists } from './collections/Playlists'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
 import { plugins } from './plugins'
@@ -76,7 +77,8 @@ export default buildConfig({
      Categories,
      Genres,
      Hosts,
-     Users
+     Users,
+     Playlists
     ],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [

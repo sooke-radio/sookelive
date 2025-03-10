@@ -5,7 +5,6 @@ export async function GET() {
   const headersList = await headers()
   const referer = headersList.get('referer')
   
-  // Check if request is coming from your domain
   // if (!referer?.includes('sooke.live')) {
   //   return new NextResponse('Unauthorized', { status: 401 })
   // }
