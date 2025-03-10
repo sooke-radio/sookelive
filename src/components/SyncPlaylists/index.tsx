@@ -81,8 +81,10 @@ const SyncPlaylists: React.FC = () => {
 
   return (
     <Fragment>
-      <p>Use the button below to refresh playlist and schedule data from Azuracast:</p>
-      <button className="seedButton" onClick={handleClick}>
+      <p><strong>Use the button below to refresh playlist and schedule data from Azuracast:</strong></p>
+      <button className="seedButton" onClick={handleClick}
+      style={{fontSize: '14px', 'padding': '10px', cursor: 'pointer'}}
+      >
         Refresh Playlists
       </button>
       {message}

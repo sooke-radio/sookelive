@@ -64,28 +64,55 @@ export const Playlists: CollectionConfig = {
         //   return Response.json({ error: 'forbidden' }, { status: 403 })
         // }
         const playlists = await azuracastAPI.get('playlists')
-        // console.log(req, playlists)
 
-        await req.payload.delete({
-          collection: 'playlists',
-          where: {}
-        })
         try {
-          const results = await Promise.all(
-            playlists.map(playlist => {
-              console.log('setplaylist - ', playlist)
-              req.payload.create({
-                collection: 'playlists',
-                data: {
-                  az_id: playlist.id,
-                  name: playlist.name,
-                  short_name: playlist.short_name,
-                  schedule_items: playlist.schedule_items ? playlist.schedule_items : null,
-                  lastSync: new Date().toString()
-                },
-              })
+          await req.payload.delete({
+            collection: 'playlists',
+            where: {
+              az_id: {
+                not_in: playlists.map(playlist => playlist.id)
+              }
             }
-            )
+          })
+          const results = await Promise.all(
+            playlists.map(async playlist => {
+
+              const existing = await req.payload.find({
+                collection: 'playlists',
+                where: {
+                  az_id: {
+                    equals: playlist.id
+                  }
+                }
+              })
+
+              const playlistData = {
+                az_id: playlist.id,
+                name: playlist.name,
+                short_name: playlist.short_name,
+                schedule_items: playlist.schedule_items ? playlist.schedule_items : null,
+                lastSync: new Date().toString()
+              }
+
+              if (existing.totalDocs === 0) {
+
+                return req.payload.create({
+                  collection: 'playlists',
+                  data: playlistData
+                })
+
+              } else {
+
+                return req.payload.update({
+                  collection: 'playlists',
+                  where: {
+                    az_id: playlist.id
+                  },
+                  data: playlistData
+                })
+
+              }
+            })
           )
           return Response.json({
             success: true,
