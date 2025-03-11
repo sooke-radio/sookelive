@@ -10,6 +10,13 @@ export type MediaPlayerProps = {
   className?: string
 }
 
+const LiveIndicator = () => {
+  return (
+    <div className="bg-white text-black p-1 rounded font-bold inline-block mx-2 text-sm">
+      LIVE
+    </div>
+  )
+}
 
 export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
   const audioRef = useRef<HTMLAudioElement>(null)
@@ -36,8 +43,7 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
 
   const [trackInfo, setNowPlaying] = useState<StreamMetadata>({
     title: 'Loading...',
-    artist: 'SRS',
-    show: 'Sooke Community Radio',
+    show: 'Sooke Community Radio'
   })
 
   useEffect(() => {
@@ -83,9 +89,22 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
           )}
         </button>
         <div className="flex flex-col">
-          <span className="text-xl font-bold">{trackInfo.title}</span>
-          <span className="text-lg">{trackInfo.artist}</span>
-          {trackInfo.show && <span className="text-sm">{trackInfo.show}</span>}
+          <span className="text-lg">
+            {trackInfo.showSrc ? (
+              <a href={trackInfo.showSrc} className="hover:underline">
+                {trackInfo.show}
+              </a>
+            ) : (
+              trackInfo.show
+            )}
+            {trackInfo.live && <LiveIndicator />} 
+          </span>
+
+          <span className="text-lg"></span>
+   
+            <span className="text-sm">
+              {trackInfo.artist && trackInfo.artist + " - "}{trackInfo.title}
+            </span>
         </div>
         {/* {audioSource && <AudioWaveform audioContext={audioContext} source={audioSource} />} */}
 

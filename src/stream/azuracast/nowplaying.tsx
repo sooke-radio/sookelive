@@ -55,16 +55,42 @@ export const connectToWebSocket = (setNowPlaying: (data: StreamMetadata) => void
         if (useTime && 'current_time' in jsonData) {
           currentTime = jsonData.current_time;
         }
+
+        const timeDiff = jsonData.current_time - jsonData.np.now_playing.played_at;
+        const nowDiff = Date.now() - jsonData.current_time;
+
       
-        console.log(jsonData)
+        console.log(timeDiff, nowDiff, jsonData)
+
+        let showName = 'Sooke Community Radio';
+        let showSrc = '';
+
+        function setShow() {
+          if(jsonData.np?.live?.is_live && jsonData.np?.live?.stream_name) {
+            showName = jsonData.np?.live?.streamer_name
+            showSrc = '/shows/' + jsonData.np?.live?.streamer_name.replace(/[\s_]+/g, '-').toLowerCase()
+          } else if (jsonData.np?.now_playing?.playlist) {
+            showName = jsonData.np?.now_playing?.playlist
+            showSrc = '/shows/' + jsonData.np?.now_playing?.playlist.replace(/[\s_]+/g, '-').toLowerCase()
+          }
+        }
+
+        setShow();
       
         const trackData: StreamMetadata = {
+          show: showName,
+          showSrc: showSrc, // todo: find show src from /collections/shows
           title: jsonData.np?.now_playing?.song?.title || 'Loading...',
-          artist: jsonData.np?.now_playing?.song?.artist || 'SRS',
-          show: jsonData.np?.now_playing?.playlist || 'Sooke Community Radio'
+          artist: jsonData.np?.now_playing?.song?.artist || null,
+          playlist: jsonData.np?.now_playing?.playlist?.name || 'Sooke Community Radio',
+          live: jsonData.np?.live?.is_live || false,
         }
-        setNowPlaying(trackData);
-      }
+        // compensate for stream delay
+        // TODO: make this better
+        setTimeout(() => {
+          setNowPlaying(trackData);
+        }, 1000);
+      };
     };
   }
 

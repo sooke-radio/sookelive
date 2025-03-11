@@ -1,5 +1,9 @@
 export type StreamMetadata = {
-  title: string
-  artist: string
-  show?: string
+  show: string
+  showSrc?: string | null
+  title?: string
+  playlist?: string
+  artist?: string
+  live?: boolean
+  streamer?: string
 }

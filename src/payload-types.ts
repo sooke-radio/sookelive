@@ -533,7 +533,7 @@ export interface Host {
   createdAt: string;
 }
 /**
- * Playlists synchronized from Azuracast.
+ * Playlists are synchronized from Azuracast.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "playlists".

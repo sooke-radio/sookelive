@@ -8,7 +8,7 @@ import { azuracastAPI } from '@/stream/azuracast/api'
 export const Playlists: CollectionConfig = {
   slug: 'playlists',
   admin: {
-    description: 'Playlists synchronized from Azuracast.',
+    description: 'Playlists are synchronized from Azuracast.',
     components:{
       beforeListTable: [
         '@/components/SyncPlaylists'
