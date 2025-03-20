@@ -43,7 +43,6 @@ const SyncPlaylists: React.FC = () => {
             try {
               fetch(`/api/${collection}/sync`, { method: 'POST', credentials: 'include' })
                 .then((res) => {
-                  console.log(res)
                   if (res.ok) {
                     resolve(true)
                     setSeeded(true)

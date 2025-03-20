@@ -60,7 +60,7 @@ export const connectToWebSocket = (setNowPlaying: (data: StreamMetadata) => void
         const nowDiff = Date.now() - jsonData.current_time;
 
       
-        console.log(timeDiff, nowDiff, jsonData)
+        // console.log(timeDiff, nowDiff, jsonData)
 
         let showName = 'Sooke Community Radio';
         let showSrc = '';

@@ -16,6 +16,8 @@ export const revalidateShow: CollectionAfterChangeHook<Show> = ({
       payload.logger.info(`Revalidating show at path: ${path}`)
 
       revalidatePath(path)
+      revalidatePath('/')
+      revalidatePath('/home')
       revalidateTag('shows-sitemap')
     }
 
@@ -26,6 +28,8 @@ export const revalidateShow: CollectionAfterChangeHook<Show> = ({
       payload.logger.info(`Revalidating old show at path: ${oldPath}`)
 
       revalidatePath(oldPath)
+      revalidatePath('/')
+      revalidatePath('/home')
       revalidateTag('shows-sitemap')
     }
   }
@@ -37,6 +41,8 @@ export const revalidateDelete: CollectionAfterDeleteHook<Show> = ({ doc, req: { 
     const path = `/shows/${doc?.slug}`
 
     revalidatePath(path)
+    revalidatePath('/')
+    revalidatePath('/home')
     revalidateTag('shows-sitemap')
   }
 

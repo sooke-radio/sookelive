@@ -260,4 +260,48 @@ export const Shows: CollectionConfig<'shows'> = {
     },
     maxPerDoc: 50,
   },
+  endpoints: [
+    {
+      path: '/resolve-show/:name',
+      method: 'get',
+      handler: async (req) => {
+        try {
+          const name = req.routeParams?.name;
+          if(!name){
+            throw new Error('No name provided');
+          }          
+          const response = await req.payload.find({
+            collection: 'shows',
+            depth: 0,
+            where: {
+              or: [
+                {
+                  'stream_playlist.name': {
+                    equals: name
+                  }
+                },
+                {
+                  'streamer_id': {
+                    equals: name
+                  }
+                }
+              ]
+            },
+            pagination: false,
+            limit: 10
+          })
+          if(!response.docs.length){
+            throw new Error('No show found');
+          }
+          
+          return Response.json(response);
+        } catch (error) {
+          return Response.json({ 
+            error: 'Failed to fetch show by playlist',
+            message: error.message 
+          });
+        }
+      }
+    }
+  ]
 }

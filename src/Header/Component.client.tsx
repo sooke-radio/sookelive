@@ -9,6 +9,7 @@ import type { Header } from '@/payload-types'
 import { Logo } from '@/components/Logo/Logo'
 import { HeaderNav } from './Nav'
 import { StreamPlayer } from '@/stream/player/index.client'
+import { AlignCenter, Divide } from 'lucide-react'
 
 interface HeaderClientProps {
   data: Header
@@ -19,6 +20,8 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
   const [theme, setTheme] = useState<string | null>(null)
   const { headerTheme, setHeaderTheme } = useHeaderTheme()
   const pathname = usePathname()
+
+  const streamDisabled = process.env.NEXT_PUBLIC_STREAM_DISABLED ? true : false;
 
   useEffect(() => {
     setHeaderTheme(null)
@@ -58,7 +61,12 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
           </div>
         </div>
         <div className="lg:w-2/5 flex w-full items-center justify-center basis-full lg:basis-auto">
-          <StreamPlayer  />
+          {!streamDisabled &&
+            <StreamPlayer  /> 
+          }
+          {streamDisabled && 
+            <div className="text-center p-12">Stream is offline, check back soon.</div>
+          }
         </div>
       </div>
 

@@ -27,8 +27,6 @@ export const ContentBlock: React.FC<ContentBlockProps> = (props) => {
           columns.map((col, index) => {
             const { enableLink, link, richText, size, blocks} = col
 
-            console.log(link)
-
             return (
               <div
                 className={cn(`col-span-4 lg:col-span-${colsSpanClasses[size!]}`, {

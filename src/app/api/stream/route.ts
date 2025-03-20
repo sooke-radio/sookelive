@@ -9,7 +9,9 @@ export async function GET() {
   //   return new NextResponse('Unauthorized', { status: 401 })
   // }
 
-  const response = await fetch('https://stream.sooke.live/listen/sookelive/high_192kbps.mp3')
+  const streamUrl = `${process.env.AZURACAST_URL}/listen/${process.env.AZURACAST_STATION_ID}/high_192kbps.mp3`;
+
+  const response = await fetch(streamUrl)
   
   return new NextResponse(response.body, {
     headers: {
