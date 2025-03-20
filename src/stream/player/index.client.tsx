@@ -24,8 +24,6 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
 
   const streamSrc = '/api/stream'; // use proxy stream to enable visualizer
 
-  let playerError = false;
-
   // create context for audio processing (visualizer))
   const [audioContext, setAudioContext] = useState<AudioContext | null>(null)
   const [audioSource, setAudioSource] = useState<MediaElementAudioSourceNode | null>(null)
@@ -71,11 +69,7 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
   }
 
   return (()=>{
-    if (playerError) {
-      return (
-        <div>Error.</div>
-      )
-    } else {
+    // todo: add error handling
     return (
       <div className='flex flex-wrap items-center justify-center gap-4 p-6 w-full w-max-w-xl h-[40vh] md:h-[220px]'>
           <audio ref={audioRef} src={streamSrc} />
@@ -123,7 +117,7 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
           {/* {audioSource && <AudioWaveform audioContext={audioContext} source={audioSource} />} */}
           </div>
       )
-    }
+    
   })()
   
 }
