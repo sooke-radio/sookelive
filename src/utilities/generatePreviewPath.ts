@@ -30,7 +30,9 @@ export const generatePreviewPath = ({ collection, slug, req }: Props) => {
     process.env.NODE_ENV === 'production' || Boolean(process.env.VERCEL_PROJECT_PRODUCTION_URL)
   const protocol = isProduction ? 'https:' : req.protocol
 
-  const url = `${protocol}//${req.host}/next/preview?${encodedParams.toString()}`
+  const root = process.env.NEXT_PUBLIC_SERVER_URL || `${protocol}//${req.host}`;
+
+  const url = `${root}/next/preview?${encodedParams.toString()}`
 
   return url
 }
