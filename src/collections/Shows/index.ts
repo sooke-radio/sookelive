@@ -293,7 +293,6 @@ export const Shows: CollectionConfig<'shows'> = {
           if(!response.docs.length){
             throw new Error('No show found');
           }
-          
           return Response.json(response);
         } catch (error) {
           return Response.json({ 

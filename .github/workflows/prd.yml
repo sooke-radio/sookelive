@@ -1,0 +1,42 @@
+name: Deploy STG
+
+on:
+  push:
+    branches:
+      - stg
+
+jobs:
+  stg-deploy:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create SSH key
+        run: |
+          mkdir -p ~/.ssh/
+          echo "$SSH_PRIVATE_KEY" > ../private.key
+          sudo chmod 600 ../private.key
+          echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+        shell: bash
+        env:
+          SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
+          SSH_KNOWN_HOSTS: ${{secrets.SSH_KNOWN_HOSTS}}
+          SSH_KEY_PATH: ${{ github.workspace }}/../private.key
+
+      - name: Set env
+        run: | # copy secrets to env
+          cp .env.prd .env
+          echo "DATABASE_URI=${{ secrets.SL2DB }}" >> .env
+          echo "PAYLOAD_SECRET=${{ secrets.PRD_PAYLOAD_SECRET }}" >> .env
+          echo "CRON_SECRET=${{ secrets.PRD_CRON_SECRET }}" >> .env
+          echo "AZURACAST_KEY=${{ secrets.AZURACAST_KEY }}" >> .env
+
+      - name: Deploy
+        run: rsync -avz -e "ssh -i ../private.key" --delete ./ autobot@sooke.live:/var/sl2/prd --exclude=.git
+
+      - name: Build & Run
+        run: | # build & run docker container on server
+          ssh -i ../private.key autobot@sooke.live 'cd /var/sl2/prd && docker compose -f docker-compose-prd.yml up -d --build'
