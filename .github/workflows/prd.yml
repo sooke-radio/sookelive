@@ -1,12 +1,12 @@
-name: Deploy STG
+name: Deploy PRD
 
 on:
   push:
     branches:
-      - stg
+      - prd
 
 jobs:
-  stg-deploy:
+  prd-deploy:
 
     runs-on: ubuntu-latest
 
