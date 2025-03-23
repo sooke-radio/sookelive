@@ -33,6 +33,7 @@ jobs:
           echo "PAYLOAD_SECRET=${{ secrets.PRD_PAYLOAD_SECRET }}" >> .env
           echo "CRON_SECRET=${{ secrets.PRD_CRON_SECRET }}" >> .env
           echo "AZURACAST_KEY=${{ secrets.AZURACAST_KEY }}" >> .env
+          echo "SMTP_PASS=${{ secrets.SMTP_PASS }}" >> .env
 
       - name: Deploy
         run: rsync -avz -e "ssh -i ../private.key" --delete ./ autobot@sooke.live:/var/sl2/prd --exclude=.git
