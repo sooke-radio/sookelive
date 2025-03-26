@@ -65,7 +65,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
             <StreamPlayer  /> 
           }
           {streamDisabled && 
-            <div className="text-center p-12">Stream is offline, check back soon.</div>
+            <div className="text-center p-12">Stream is offline, check back april 6th!</div>
           }
         </div>
       </div>
