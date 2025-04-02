@@ -8,7 +8,7 @@ services:
     ports:
       - '3001:3000'
     volumes:
-      - stg_media:/app/src/public/media
+      - stg_media:/app/public/media
     env_file:
       - .env
 volumes:

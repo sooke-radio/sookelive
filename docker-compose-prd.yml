@@ -8,7 +8,7 @@ services:
     ports:
       - '3003:3000'
     volumes:
-      - prd_media:/app/src/public/media
+      - prd_media:/app/public/media
     env_file:
       - .env
 volumes:
