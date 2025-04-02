@@ -35,7 +35,7 @@ jobs:
           echo "AZURACAST_KEY=${{ secrets.AZURACAST_KEY }}" >> .env
 
       - name: Deploy
-        run: rsync -avz -e "ssh -i ../private.key" --delete ./ autobot@sooke.live:/var/sl2/stg --exclude=.git --exclude=public/media
+        run: rsync -avz -e "ssh -i ../private.key" ./ autobot@sooke.live:/var/sl2/stg --exclude=.git
 
       - name: Build & Run
         run: | # build & run docker container on server

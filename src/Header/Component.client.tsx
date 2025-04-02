@@ -61,12 +61,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
           </div>
         </div>
         <div className="lg:w-2/5 flex w-full items-center justify-center basis-full lg:basis-auto">
-          {!streamDisabled &&
             <StreamPlayer  /> 
-          }
-          {streamDisabled && 
-            <div className="text-center p-12">Stream is offline, check back soon.</div>
-          }
         </div>
       </div>
 
