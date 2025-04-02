@@ -61,7 +61,8 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
           </div>
         </div>
         <div className="lg:w-2/5 flex w-full items-center justify-center basis-full lg:basis-auto">
-            <StreamPlayer  /> 
+            {/* <StreamPlayer  />  */}
+            <p>Stream coming soon!</p>
         </div>
       </div>
 
