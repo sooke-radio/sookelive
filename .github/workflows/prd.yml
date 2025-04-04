@@ -36,7 +36,7 @@ jobs:
           echo "SMTP_PASS=${{ secrets.SMTP_PASS }}" >> .env
 
       - name: Deploy
-        run: rsync -avz -e "ssh -i ../private.key" --delete ./ autobot@sooke.live:/var/sl2/prd --exclude=.git
+        run: rsync -avz -e "ssh -i ../private.key" --delete ./ autobot@sooke.live:/var/sl2/prd --exclude=.git --exclude=public/media
 
       - name: Build & Run
         run: | # build & run docker container on server

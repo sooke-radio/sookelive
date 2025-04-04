@@ -7,6 +7,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import React from 'react'
 import PageClient from './page.client'
+import { GradientFill } from '@/components/GradientFill'
 
 export const dynamic = 'force-static'
 export const revalidate = 600
@@ -28,11 +29,15 @@ export default async function Page() {
   })
 
   return (
-    <div className="pt-24 pb-24">
+    <div className="pt-24 pb-24 relative">
+      <div className="h-[33vh] w-full select-none absolute top-0 left-0 -z-10">
+        <GradientFill id="gradient-fill" />
+        <div className="absolute pointer-events-none left-0 bottom-0 w-full h-1/2 bg-gradient-to-t dark:from-black to-transparent from-white to-transparent" />
+      </div>
       <PageClient />
       <div className="container mb-16">
         <div className="prose dark:prose-invert max-w-none">
-          <h1>Posts</h1>
+          <h1>Blog</h1>
         </div>
       </div>
 
