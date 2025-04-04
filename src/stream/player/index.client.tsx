@@ -22,7 +22,9 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
   const audioRef = useRef<HTMLAudioElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
 
-  const streamSrc = '/api/stream'; // use proxy stream to enable visualizer
+  // const streamSrc = '/api/stream'; // use proxy stream to enable visualizer
+  // visualizer disabled - proxied stream prevents stats from being collected in azuracast. maybe there's a workaround?
+  let streamSrc = `${process.env.NEXT_PUBLIC_AZURACAST_URL}/listen/${process.env.NEXT_PUBLIC_AZURACAST_STATION_ID}/high_192kbps.mp3`;
 
   // create context for audio processing (visualizer))
   const [audioContext, setAudioContext] = useState<AudioContext | null>(null)
