@@ -10,6 +10,8 @@ import { Logo } from '@/components/Logo/Logo'
 import { HeaderNav } from './Nav'
 import { StreamPlayer } from '@/stream/player/index.client'
 import { AlignCenter, Divide } from 'lucide-react'
+import { Countdown } from '@/components/Countdown/index.client'
+
 
 interface HeaderClientProps {
   data: Header
@@ -61,7 +63,8 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
           </div>
         </div>
         <div className="lg:w-2/5 flex w-full items-center justify-center basis-full lg:basis-auto">
-            <StreamPlayer  /> 
+            {/* <StreamPlayer  />  */}
+            <Countdown />
         </div>
       </div>
 
