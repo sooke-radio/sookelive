@@ -36,6 +36,12 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
       const ctx = new AudioContext()
       setAudioContext(ctx)
     }
+    // Cleanup function to close the audio context when component unmounts
+    return () => {
+      if(audioContext) {
+        audioContext.close().catch(err => console.error('Error closing AudioContext:', err))
+      }
+    }
   }, [audioContext])
   useEffect(() => {
     if (audioRef.current && audioContext && !audioSource) {
@@ -62,10 +68,16 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
         audioRef.current.pause()
       } else {
         try {
-          audioRef.current.play()
-          audioContext.resume()
-        } catch (error) {
+          // Reset the audio source when starting playback
+          if (audioRef.current.readyState > 0) {
+            audioRef.current.currentTime = 0
+            audioRef.current.load() // Reload the audio stream
+          }
           
+          audioRef.current.play()
+          // audioContext.resume()
+        } catch (error) {
+          console.error('Error playing audio:', error)
         }
       }
       setIsPlaying(!isPlaying)
