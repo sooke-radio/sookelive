@@ -129,13 +129,13 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
   
           <div className="flex flex-col text-secondary dark:text-primary">
             <span className="text-lg">
-              {trackInfo.showSrc ? (
+              {/* {trackInfo.showSrc ? (
                 <a href={trackInfo.showSrc} className="hover:underline">
                   {trackInfo.show}
                 </a>
-              ) : (
+              ) : ( */}
                 trackInfo.show
-              )}
+              {/* )} */}
               {trackInfo.live && <LiveIndicator />} 
             </span>
   
