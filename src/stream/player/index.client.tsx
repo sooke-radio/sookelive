@@ -37,20 +37,24 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
       setAudioContext(ctx)
     }
     // Cleanup function to close the audio context when component unmounts
-    return () => {
-      if(audioContext) {
-        audioContext.close().catch(err => console.error('Error closing AudioContext:', err))
-      }
-    }
+    // return () => {
+    //   if(audioContext) {
+    //     audioContext.close().catch(err => console.error('Error closing AudioContext:', err))
+    //   }
+    // }
   }, [audioContext])
+
   useEffect(() => {
     if (audioRef.current && audioContext && !audioSource) {
-      const source = audioContext.createMediaElementSource(audioRef.current)
-      source.connect(audioContext.destination)
-      setAudioSource(source)
+      try {
+        const source = audioContext.createMediaElementSource(audioRef.current)
+        source.connect(audioContext.destination)
+        setAudioSource(source)
+      } catch (error) {
+        console.error("Error connecting audio source:", error)
+      }
     }
   }, [audioRef, audioContext, audioSource])
-
 
   const [trackInfo, setNowPlaying] = useState<StreamMetadata>({
     title: 'Offline',
@@ -68,13 +72,24 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
         audioRef.current.pause()
       } else {
         try {
-          // Reset the audio source when starting playback
-          if (audioRef.current.readyState > 0) {
-            audioRef.current.currentTime = 0
-            audioRef.current.load() // Reload the audio stream
+          // Make sure audio context is running
+          if (audioContext && audioContext.state === 'suspended') {
+            audioContext.resume()
           }
-          
-          audioRef.current.play()
+          // Play the audio
+          const playPromise = audioRef.current.play()
+
+          // Handle play promise
+          if (playPromise !== undefined) {
+            playPromise
+              .then(() => {
+                setIsPlaying(true)
+              })
+              .catch(error => {
+                console.error("Error playing audio:", error)
+                setIsPlaying(false)
+              })
+          }
           // audioContext.resume()
         } catch (error) {
           console.error('Error playing audio:', error)
@@ -126,8 +141,13 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
   
             <span className="text-lg "></span>
      
-              <span className="text-sm">
-                {trackInfo.artist && trackInfo.artist + " - "}{trackInfo.title}
+              <span className="text-xs">
+                {trackInfo.artist ? (
+                  <>
+                    {trackInfo.artist} <br />
+                  </>
+                ) : ''}
+                {trackInfo.title}
               </span>
           </div>
           {/* {audioSource && <AudioWaveform audioContext={audioContext} source={audioSource} />} */}
