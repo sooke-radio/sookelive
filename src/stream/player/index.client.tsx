@@ -134,7 +134,7 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
                   {trackInfo.show}
                 </a>
               ) : ( */}
-                trackInfo.show
+               { trackInfo.show }
               {/* )} */}
               {trackInfo.live && <LiveIndicator />} 
             </span>
