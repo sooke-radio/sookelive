@@ -13,6 +13,7 @@ import { ShowHero } from '@/heros/ShowHero'
 import { generateMeta } from '@/utilities/generateMeta'
 import PageClient from './page.client'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
+import { ScheduleBlock } from '@/blocks/Schedule/Component'
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
@@ -64,10 +65,12 @@ export default async function Show({ params: paramsPromise }: Args) {
           <RichText className="max-w-[48rem] mx-auto" data={show.content} enableGutter={false} />
         </div>
       </div>
+
+      {show.stream_playlist && <ScheduleBlock playlist={show.stream_playlist} />}
+      
     </article>
   )
 }
-
 export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
   const { slug = '' } = await paramsPromise
   const show = await queryShowBySlug({ slug })
