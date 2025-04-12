@@ -5,7 +5,6 @@ import { connectToWebSocket } from '@/stream/azuracast/nowplaying'
 // import { AudioWaveform } from './AudioWaveform.index.client'
 import type { StreamMetadata } from './types'
 
-
 export type MediaPlayerProps = {
   className?: string
 }
@@ -21,6 +20,7 @@ const LiveIndicator = () => {
 export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
   const audioRef = useRef<HTMLAudioElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
+  const resetTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // const streamSrc = '/api/stream'; // use proxy stream to enable visualizer
   // visualizer disabled - proxied stream prevents stats from being collected in azuracast. maybe there's a workaround?
@@ -31,29 +31,69 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
   // create context for audio processing (visualizer))
   const [audioContext, setAudioContext] = useState<AudioContext | null>(null)
   const [audioSource, setAudioSource] = useState<MediaElementAudioSourceNode | null>(null)
+
+  const connectToSource = () => {
+    console.log('Connecting to audio source...');
+    if (audioRef.current && audioContext && !audioSource) {
+      try {
+        const source = audioContext.createMediaElementSource(audioRef.current);
+        source.connect(audioContext.destination);
+        setAudioSource(source);
+        return source; // Return the source for immediate use if needed
+      } catch (error) {
+        console.error("Error connecting audio source:", error);
+        return null;
+      }
+    }
+    return null;
+  };
+  
+  const resetAudioStream = () => {
+    console.log('Resetting audio stream...');
+    
+    // Clean up existing resources
+    if (audioSource) {
+      audioSource.disconnect();
+      setAudioSource(null);
+    }
+    
+    if (audioContext) {
+      audioContext.close().catch(err => console.error('Error closing AudioContext:', err));
+      setAudioContext(null);
+    }
+    
+    // Create new audio context
+    const newContext = new AudioContext();
+    setAudioContext(newContext);
+    
+    // Reset the audio element
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.src = streamSrc;
+      audioRef.current.load();
+    }
+  };
+
+  // reset stream on pageload to ensure an updated stream is loaded
+  useEffect(() => {
+    resetAudioStream();
+  }, []);
+
   useEffect(() => {
     if(!audioContext) {
       const ctx = new AudioContext()
       setAudioContext(ctx)
-    }
+    } 
     // Cleanup function to close the audio context when component unmounts
-    // return () => {
-    //   if(audioContext) {
-    //     audioContext.close().catch(err => console.error('Error closing AudioContext:', err))
-    //   }
-    // }
+    return () => {
+      if(audioContext) {
+        audioContext.close().catch(err => console.error('Error closing AudioContext:', err))
+      }
+    }
   }, [audioContext])
 
   useEffect(() => {
-    if (audioRef.current && audioContext && !audioSource) {
-      try {
-        const source = audioContext.createMediaElementSource(audioRef.current)
-        source.connect(audioContext.destination)
-        setAudioSource(source)
-      } catch (error) {
-        console.error("Error connecting audio source:", error)
-      }
-    }
+    connectToSource();
   }, [audioRef, audioContext, audioSource])
 
   const [trackInfo, setNowPlaying] = useState<StreamMetadata>({
@@ -67,30 +107,33 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
   }, []);
 
   const togglePlay = () => {
+    // if (resetTimerRef.current) {
+    //   clearTimeout(resetTimerRef.current);
+    // }
     if (audioContext && audioRef.current) {
       if (isPlaying) {
         audioRef.current.pause()
+
+        // close audio context if stream is paused for 30 seconds
+        // resetTimerRef.current = setTimeout(() => {
+        //   console.log('Stream paused for 30 seconds, closing stream..');
+        //   audioContext.close();
+        // }, 30 * 1000);
+
       } else {
         try {
           // Make sure audio context is running
           if (audioContext && audioContext.state === 'suspended') {
+            console.log('resume stream')
             audioContext.resume()
+          } else {
+            // reconnect stream
+            
+            // connectToSource();
           }
           // Play the audio
-          const playPromise = audioRef.current.play()
-
-          // Handle play promise
-          if (playPromise !== undefined) {
-            playPromise
-              .then(() => {
-                setIsPlaying(true)
-              })
-              .catch(error => {
-                console.error("Error playing audio:", error)
-                setIsPlaying(false)
-              })
-          }
-          // audioContext.resume()
+          audioRef.current.play()
+          
         } catch (error) {
           console.error('Error playing audio:', error)
         }
