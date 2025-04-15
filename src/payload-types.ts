@@ -481,7 +481,7 @@ export interface Show {
   /**
    * The playlist name of the show in Azuracast for pre-recorded shows. This is used to populate schedule data and link from the stream player. If your playlist is not loaded, refresh the playlists using the button in /admin/collections/playlists.
    */
-  stream_playlist?: (string | null) | Playlist;
+  stream_playlist?: (string | Playlist)[] | null;
   /**
    * The streamer ID associated with this show in Azuracast for live streaming.
    */
