@@ -8,6 +8,8 @@ import { Content } from '../../blocks/Content/config'
 import { FormBlock } from '../../blocks/Form/config'
 import { MediaBlock } from '../../blocks/MediaBlock/config'
 import { TextBlock } from '../../blocks/TextBlock/config'
+import { ScheduleBlock } from '../../blocks/Schedule/config' 
+
 import { hero } from '@/heros/config'
 import { slugField } from '@/fields/slug'
 import { populatePublishedAt } from '../../hooks/populatePublishedAt'
@@ -76,7 +78,15 @@ export const Pages: CollectionConfig<'pages'> = {
             {
               name: 'layout',
               type: 'blocks',
-              blocks: [TextBlock, CallToAction, Content, MediaBlock, Archive, FormBlock],
+              blocks: [
+                TextBlock,
+                CallToAction,
+                Content,
+                MediaBlock,
+                Archive,
+                FormBlock,
+                ScheduleBlock
+              ],
               required: true,
               admin: {
                 initCollapsed: true,
@@ -131,7 +141,8 @@ export const Pages: CollectionConfig<'pages'> = {
   versions: {
     drafts: {
       autosave: {
-        interval: 100, // We set this interval for optimal live preview
+        interval: 100,
+                // We set this interval for optimal live preview
       },
       schedulePublish: true,
     },

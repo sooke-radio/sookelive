@@ -58,7 +58,7 @@ export const ShowScheduleBlock = ({ playlists }: Props) => {
           
           {Object.entries(scheduleByDay).map(([day, items]) => (
             items.length > 0 && (
-              <div key={day} className="mb-4">
+              <div key={day} className="">
                 <div className="font-medium inline-block min-w-32">{weekdays[Number(day)]}</div>
                 {items.map((item, itemIndex) => (
                     <>
