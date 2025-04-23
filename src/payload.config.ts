@@ -22,6 +22,7 @@ import { getServerSideURL } from './utilities/getURL'
 import { Hosts } from './collections/Hosts'
 
 import { default as mailer } from './plugins/mailer';
+import { syncAzuracastTask } from './tasks/syncAzuracast'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -106,8 +107,21 @@ export default buildConfig({
         const authHeader = req.headers.get('authorization')
         return authHeader === `Bearer ${process.env.CRON_SECRET}`
       },
+
     },
-    tasks: [],
+    tasks: [
+      syncAzuracastTask,
+      // other tasks...
+    ],
+    autoRun: [
+      {
+        cron: '0 * * * *', // every hour at minute 0
+        queue: 'sync-azuracast'
+      },
+    ],
+    shouldAutoRun: async (payload) => {
+      return process.env.NODE_ENV === 'production' || process.env.ENABLE_JOBS === 'true'
+    },
   },
   email: mailer
 })

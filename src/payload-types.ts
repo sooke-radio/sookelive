@@ -120,6 +120,7 @@ export interface Config {
   };
   jobs: {
     tasks: {
+      'sync-azuracast': TaskSyncAzuracast;
       schedulePublish: TaskSchedulePublish;
       inline: {
         input: unknown;
@@ -257,6 +258,7 @@ export interface Page {
     | MediaBlock
     | ArchiveBlock
     | FormBlock
+    | ScheduleBlock
   )[];
   meta?: {
     title?: string | null;
@@ -481,7 +483,7 @@ export interface Show {
   /**
    * The playlist name of the show in Azuracast for pre-recorded shows. This is used to populate schedule data and link from the stream player. If your playlist is not loaded, refresh the playlists using the button in /admin/collections/playlists.
    */
-  stream_playlist?: (string | null) | Playlist;
+  stream_playlist?: (string | Playlist)[] | null;
   /**
    * The streamer ID associated with this show in Azuracast for live streaming.
    */
@@ -914,6 +916,19 @@ export interface Form {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ScheduleBlock".
+ */
+export interface ScheduleBlock {
+  showsHeading?: string | null;
+  description?: string | null;
+  allShows?: boolean | null;
+  shows?: (string | Show)[] | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'schedule';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -1037,7 +1052,7 @@ export interface PayloadJob {
     | {
         executedAt: string;
         completedAt: string;
-        taskSlug: 'inline' | 'schedulePublish';
+        taskSlug: 'inline' | 'sync-azuracast' | 'schedulePublish';
         taskID: string;
         input?:
           | {
@@ -1070,7 +1085,7 @@ export interface PayloadJob {
         id?: string | null;
       }[]
     | null;
-  taskSlug?: ('inline' | 'schedulePublish') | null;
+  taskSlug?: ('inline' | 'sync-azuracast' | 'schedulePublish') | null;
   queue?: string | null;
   waitUntil?: string | null;
   processing?: boolean | null;
@@ -1242,6 +1257,7 @@ export interface PagesSelect<T extends boolean = true> {
         mediaBlock?: T | MediaBlockSelect<T>;
         archive?: T | ArchiveBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
+        schedule?: T | ScheduleBlockSelect<T>;
       };
   meta?:
     | T
@@ -1346,6 +1362,18 @@ export interface FormBlockSelect<T extends boolean = true> {
   form?: T;
   enableIntro?: T;
   introContent?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ScheduleBlock_select".
+ */
+export interface ScheduleBlockSelect<T extends boolean = true> {
+  showsHeading?: T;
+  description?: T;
+  allShows?: T;
+  shows?: T;
   id?: T;
   blockName?: T;
 }
@@ -1943,6 +1971,14 @@ export interface FooterSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskSync-azuracast".
+ */
+export interface TaskSyncAzuracast {
+  input?: unknown;
+  output?: unknown;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

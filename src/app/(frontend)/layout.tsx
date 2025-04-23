@@ -24,7 +24,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <head>
         <InitTheme />
         <link href="/favicon.ico" rel="icon" sizes="32x32" />
-        <link href="/favicon.svg" rel="icon" type="image/svg+xml" />
+        <link href="/favicon-solid-32.png" rel="icon" sizes="32x32" type="image/png" />
+        <link href="/favicon-solid-48.png" rel="icon" sizes="48x48" type="image/png" />
+        <link href="/favicon-solid-192.png" rel="icon" sizes="192x192" type="image/png" />
+        <link href="/favicon-solid-32.png" rel="apple-touch-icon" sizes="32x32" />
+        <link href="/favicon-solid-192.png" rel="apple-touch-icon" sizes="192x192" />
+        <link rel="manifest" href="/manifest.json" />
       </head>
       <body>
         <Providers>
