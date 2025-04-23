@@ -26,6 +26,7 @@ export default async function Page() {
       meta: true,
       genres: true,
     },
+    sort: "title"
   })
 
   return (
