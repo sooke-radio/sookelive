@@ -24,7 +24,6 @@ export const ShowScheduleBlock = ({ playlists }: Props) => {
   
   // Merge schedules from all playlists
   playlists.forEach(playlist => {
-    console.log(playlist)
     const scheduled = playlist?.schedule_items || [];
     
     scheduled.forEach(item => {
@@ -51,7 +50,6 @@ export const ShowScheduleBlock = ({ playlists }: Props) => {
     );
   });
 
-  console.log(scheduleByDay)
   
   // Check if there are any scheduled items
   const hasSchedule = Object.values(scheduleByDay).some(items => items.length > 0);
