@@ -24,10 +24,17 @@ export const ShowScheduleBlock = ({ playlists }: Props) => {
   
   // Merge schedules from all playlists
   playlists.forEach(playlist => {
+    console.log(playlist)
     const scheduled = playlist?.schedule_items || [];
     
     scheduled.forEach(item => {
+      
       item.days.forEach(day => {
+        day = day % 7; // normalize day to be in range 0-6, with sunday 7 = 0
+
+        if (!scheduleByDay[day]) {
+          return;
+        }
         scheduleByDay[day].push({
           startTime: formatTime(item.start_time),
           endTime: formatTime(item.end_time),
@@ -43,6 +50,8 @@ export const ShowScheduleBlock = ({ playlists }: Props) => {
       a.startTime.localeCompare(b.startTime)
     );
   });
+
+  console.log(scheduleByDay)
   
   // Check if there are any scheduled items
   const hasSchedule = Object.values(scheduleByDay).some(items => items.length > 0);

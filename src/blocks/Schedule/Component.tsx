@@ -66,13 +66,17 @@ export const ScheduleBlock: React.FC<Props> = async ({ shows = [], allShows = fa
       : (typeof show.stream_playlist === 'string' ? [] : show.stream_playlist ? [show.stream_playlist] : [])
     
     // Process each playlist
-    playlists.forEach((playlist: any) => {
-      if (!playlist || !playlist.schedule_items) return
+    playlists.forEach(playlist => {
+      if (!playlist.schedule_items || !Array.isArray(playlist.schedule_items)) return
       
-      // Add each scheduled item to the appropriate days
-      playlist.schedule_items.forEach((item: any) => {
-        if (Array.isArray(item.days)) {
+      try{
+        // Add each scheduled item to the appropriate days
+        playlist.schedule_items.forEach((item: any) => {
           item.days.forEach(day => {
+            day = day % 7; // normalize day to be in range 0-6, with sunday 7 = 0
+            if (!scheduleByDay[day]) {
+              return;
+            }
             scheduleByDay[day].push({
               showName: show.title || 'Untitled Show',
               playlistName: playlist.name || 'Untitled Playlist',
@@ -81,9 +85,13 @@ export const ScheduleBlock: React.FC<Props> = async ({ shows = [], allShows = fa
               slug: show.slug || '',
             })
           })
-        }
-      })
-    })  })
+        })
+      } catch(e) {
+        console.error('Error processing schedule items:', e)
+      }
+      
+    })
+  })
   
   // Sort each day's schedule by start time
   Object.keys(scheduleByDay).forEach(day => {
