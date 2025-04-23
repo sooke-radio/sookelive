@@ -4,9 +4,14 @@
 
 import type { CollectionConfig, PayloadRequest } from 'payload'
 import { azuracastAPI } from '@/stream/azuracast/api'
+import { revalidatePlaylist, revalidateDelete } from './hooks/revalidatePlaylists'
 
 export const Playlists: CollectionConfig = {
   slug: 'playlists',
+  hooks: {
+    afterChange: [revalidatePlaylist],
+    afterDelete: [revalidateDelete],
+  },
   admin: {
     description: 'Playlists are synchronized from Azuracast.',
     components:{

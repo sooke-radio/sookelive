@@ -8,11 +8,15 @@ import React, { cache } from 'react'
 import RichText from '@/components/RichText'
 
 import type { Show } from '@/payload-types'
+import { ScheduleItem } from '@/schedule/schedule-common';
+
+
 
 import { ShowHero } from '@/heros/ShowHero'
 import { generateMeta } from '@/utilities/generateMeta'
 import PageClient from './page.client'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
+import { ShowScheduleBlock } from '@/schedule/ShowSchedule/Component'
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
@@ -64,10 +68,25 @@ export default async function Show({ params: paramsPromise }: Args) {
           <RichText className="max-w-[48rem] mx-auto" data={show.content} enableGutter={false} />
         </div>
       </div>
+
+      {show.stream_playlist && (
+        <ShowScheduleBlock 
+          playlists={
+            (Array.isArray(show.stream_playlist) 
+              ? show.stream_playlist.filter(p => typeof p !== 'string') 
+              : (typeof show.stream_playlist === 'string' 
+                  ? [] 
+                  : [show.stream_playlist])) as Array<{
+                    id: string;
+                    name?: string;
+                    schedule_items?: ScheduleItem[];
+                  }>
+          }
+        />
+      )}      
     </article>
   )
 }
-
 export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
   const { slug = '' } = await paramsPromise
   const show = await queryShowBySlug({ slug })

@@ -147,7 +147,7 @@ export const Shows: CollectionConfig<'shows'> = {
               label: 'Stream Playlist',
               type: 'relationship',
               relationTo: 'playlists',
-              hasMany: false,
+              hasMany: true,
               admin: {
                 description: 'The playlist name of the show in Azuracast for pre-recorded shows. This is used to populate schedule data and link from the stream player. If your playlist is not loaded, refresh the playlists using the button in /admin/collections/playlists.',
               }
