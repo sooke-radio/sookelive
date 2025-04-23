@@ -57,7 +57,6 @@ export const ScheduleBlock: React.FC<Props> = async ({ shows = [], allShows = fa
   
   // Process each show and its playlists
   shows.forEach(show => {
-    console.log(show)
     if (!show) return
     
     // Handle single playlist or array of playlists
