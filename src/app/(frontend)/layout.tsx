@@ -30,7 +30,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <link href="/favicon-solid-32.png" rel="apple-touch-icon" sizes="32x32" />
         <link href="/favicon-solid-192.png" rel="apple-touch-icon" sizes="192x192" />
         <link rel="manifest" href="/manifest.json" />
-      </head>
+        {process.env.NEXT_PUBLIC_SITE_ENV === 'prd' && (
+          <script defer src="https://umami.sooke.live/script.js" data-website-id="fcda2793-d54f-4b8e-98d5-79ef5d457b10"></script>
+        )}
+      </head>      
       <body>
         <Providers>
           <AdminBar

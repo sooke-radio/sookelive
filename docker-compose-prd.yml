@@ -4,12 +4,13 @@ services:
       context: .
       args:
         MIGRATE: false   # run payload migrate
-        EXPOSE_PORT: 3001
+        EXPOSE_PORT: 3003
     ports:
       - '3003:3000'
     volumes:
       - prd_media:/app/public/media
     env_file:
       - .env
+    restart: always
 volumes:
   prd_media:
