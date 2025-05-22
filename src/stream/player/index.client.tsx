@@ -17,9 +17,12 @@ const LiveIndicator = () => {
   )
 }
 
+// Define a type for player states
+type PlayerState = 'stopped' | 'loading' | 'playing';
+
 export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
   const audioRef = useRef<HTMLAudioElement>(null)
-  const [isPlaying, setIsPlaying] = useState(false)
+  const [playerState, setPlayerState] = useState<PlayerState>('loading')
   const resetTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // const streamSrc = '/api/stream'; // use proxy stream to enable visualizer
@@ -34,11 +37,16 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
 
   const connectToSource = () => {
     console.log('Connecting to audio source...');
+    if(!audioContext) {
+      const ctx = new AudioContext()
+      setAudioContext(ctx)
+    }
     if (audioRef.current && audioContext && !audioSource) {
       try {
         const source = audioContext.createMediaElementSource(audioRef.current);
         source.connect(audioContext.destination);
         setAudioSource(source);
+        setPlayerState('stopped');
         return source; // Return the source for immediate use if needed
       } catch (error) {
         console.error("Error connecting audio source:", error);
@@ -47,50 +55,36 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
     }
     return null;
   };
-  
-  const resetAudioStream = () => {
-    console.log('Resetting audio stream...');
-    
-    // Clean up existing resources
+
+  const unloadAudio = () => {
+    console.log('unload audio context')
     if (audioSource) {
       audioSource.disconnect();
       setAudioSource(null);
     }
-    
     if (audioContext) {
-      audioContext.close().catch(err => console.error('Error closing AudioContext:', err));
+      audioContext.close();
       setAudioContext(null);
     }
-    
-    // Create new audio context
-    const newContext = new AudioContext();
-    setAudioContext(newContext);
-    
-    // Reset the audio element
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.src = streamSrc;
-      audioRef.current.load();
-    }
-  };
+  }
 
   // reset stream on pageload to ensure an updated stream is loaded
   useEffect(() => {
-    resetAudioStream();
+    unloadAudio();
   }, []);
 
-  useEffect(() => {
-    if(!audioContext) {
-      const ctx = new AudioContext()
-      setAudioContext(ctx)
-    } 
-    // Cleanup function to close the audio context when component unmounts
-    return () => {
-      if(audioContext) {
-        audioContext.close().catch(err => console.error('Error closing AudioContext:', err))
-      }
-    }
-  }, [audioContext])
+  // useEffect(() => {
+  //   if(!audioContext) {
+  //     const ctx = new AudioContext()
+  //     setAudioContext(ctx)
+  //   } 
+  //   // Cleanup function to close the audio context when component unmounts
+  //   return () => {
+  //     if(audioContext) {
+  //       audioContext.close().catch(err => console.error('Error closing AudioContext:', err))
+  //     }
+  //   }
+  // }, [audioContext])
 
   useEffect(() => {
     connectToSource();
@@ -107,40 +101,82 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
   }, []);
 
   const togglePlay = () => {
-    // if (resetTimerRef.current) {
-    //   clearTimeout(resetTimerRef.current);
-    // }
     if (audioContext && audioRef.current) {
-      if (isPlaying) {
+      if (playerState === 'playing') {
         audioRef.current.pause()
+        setPlayerState('stopped')
 
-        // close audio context if stream is paused for 30 seconds
-        // resetTimerRef.current = setTimeout(() => {
-        //   console.log('Stream paused for 30 seconds, closing stream..');
-        //   audioContext.close();
-        // }, 30 * 1000);
+        // set timer and unload audio afer 60 seconds
+        // const unloadTimer = setTimeout(() => {
+        //         unloadAudio();
+        //       }, 600); // 60 seconds
+        
 
       } else {
         try {
+          setPlayerState('loading') // Set state to loading when starting to play
+          
           // Make sure audio context is running
           if (audioContext && audioContext.state === 'suspended') {
             console.log('resume stream')
             audioContext.resume()
-          } else {
-            // reconnect stream
-            
-            // connectToSource();
           }
+          
           // Play the audio
           audioRef.current.play()
+            .then(() => {
+              setPlayerState('playing')
+            })
+            .catch((error) => {
+              console.error('Error playing audio:', error)
+              setPlayerState('stopped')
+            })
           
         } catch (error) {
           console.error('Error playing audio:', error)
+          setPlayerState('stopped')
         }
       }
-      setIsPlaying(!isPlaying)
+    } else {
+      setPlayerState('loading');
+      connectToSource();
+      togglePlay();
     }
   }
+
+  // Add event listeners to handle state changes
+  useEffect(() => {
+    const audio = audioRef.current;
+    
+    const handleWaiting = () => {
+      if (playerState !== 'stopped') {
+        setPlayerState('loading');
+      }
+    };
+    
+    const handlePlaying = () => {
+      setPlayerState('playing');
+    };
+    
+    const handleError = () => {
+      setPlayerState('stopped');
+      console.error('Audio stream error');
+    };
+    
+    if (audio) {
+      audio.addEventListener('waiting', handleWaiting);
+      audio.addEventListener('playing', handlePlaying);
+      audio.addEventListener('error', handleError);
+    }
+    
+    return () => {
+      if (audio) {
+        audio.removeEventListener('waiting', handleWaiting);
+        audio.removeEventListener('playing', handlePlaying);
+        audio.removeEventListener('error', handleError);
+      }
+    };
+  }, [playerState]);
 
   return (()=>{
     // todo: add error handling
@@ -160,7 +196,11 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
             hover:scale-105
             transition-transform"
           >
-            {isPlaying ? (
+            {playerState === 'loading' ? (
+              <div className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+              </div>
+            ) : playerState === 'playing' ? (
               <div className="flex gap-2 basis-full justify-center w-full">
                 <div className="w-[8px] h-[32px] bg-white rounded-sm" />
                 <div className="w-[8px] h-[32px] bg-white rounded-sm" />
