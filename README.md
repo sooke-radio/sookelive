@@ -1,5 +1,5 @@
 ### Sooke.live Web App
 
-Onine at [Sooke.live].
+Onine at [Sooke.live](Sooke.live).
 
 An online community radio station built with [Payload CMS](https://payloadcms.com) and [Azuracast](https://www.azuracast.com/).
