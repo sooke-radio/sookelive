@@ -38,7 +38,7 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
   const initializeSound = (playOnLoad: boolean = false) => {
     // Unload any existing sound
     if (sound) {
-      sound.unload()
+      unloadSound();
     }
 
     // Create new Howl instance
@@ -66,22 +66,13 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
         setPlayerState('stopped')
         // setShowVisualization(false)
         
-        // Set timeout to unload after 60 seconds
+        // Set timeout to unload after x seconds
         timeoutRef.current = setTimeout(() => {
-          console.log('Stream paused for 60 seconds, unloading...')
-          sound?.unload()
-          setSound(null)
-          
-          // Clean up audio context
-          if (audioContext) {
-            audioContext.close().catch(err => console.error('Error closing AudioContext:', err))
-            setAudioContext(null)
+          console.log('Stream paused timeout, unloading...')
+          if(sound){
+            unloadSound()
           }
-          if (audioSource) {
-            audioSource.disconnect();
-            setAudioSource(null);
-          }
-        }, 60 * 1000)
+        }, 30 * 1000)
       },
       onstop: () => {
         setPlayerState('stopped')
@@ -101,7 +92,24 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
 
     setSound(newSound)
     if(playOnLoad) {
-      newSound.play()
+      sound.play()
+    }
+  }
+
+  const unloadSound = () => {
+    // unload sound in Howler
+    if (sound) {
+      sound.unload()
+      setSound(null)
+    }
+    // Clean up audio context
+    if (audioContext) {
+      audioContext.close().catch(err => console.error('Error closing AudioContext:', err))
+      setAudioContext(null)
+    }
+    if (audioSource) {
+      audioSource.disconnect();
+      setAudioSource(null);
     }
   }
 
