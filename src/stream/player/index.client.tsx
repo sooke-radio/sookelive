@@ -81,7 +81,7 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
             audioSource.disconnect();
             setAudioSource(null);
           }
-        }, 60 )
+        }, 60 * 1000)
       },
       onstop: () => {
         setPlayerState('stopped')
