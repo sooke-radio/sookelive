@@ -1,4 +1,4 @@
-import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'payload'
+import type { CollectionAfterChangeHook, CollectionAfterDeleteHook, Payload } from 'payload'
 
 import { revalidatePath, revalidateTag } from 'next/cache'
 
@@ -9,26 +9,44 @@ export const revalidatePlaylist: CollectionAfterChangeHook<Playlist> = ({
   req: { payload, context },
 }) => {
   if (!context.disableRevalidate) {
-    payload.logger.info(`Revalidating playlists`)
-
-    // Revalidate the schedule page and any pages that might display the schedule
-    revalidatePath('/schedule')
-    
-    // Revalidate all show pages since they might display playlists
-    revalidateTag('shows')
-    
-    // Create a specific tag for playlists
-    revalidateTag('playlists')
+    revalidatePlaylistPages(payload)
   }
   return doc
 }
 
-export const revalidateDelete: CollectionAfterDeleteHook<Playlist> = ({ doc, req: { context } }) => {
+export const revalidateDelete: CollectionAfterDeleteHook<Playlist> = ({
+  doc,
+  req: { payload, context },
+}) => {
   if (!context.disableRevalidate) {
-    revalidatePath('/schedule')
-    revalidateTag('shows')
-    revalidateTag('playlists')
+    revalidatePlaylistPages(payload)
   }
 
   return doc
+}
+
+async function revalidatePlaylistPages(payload: Payload) {
+  revalidatePath('/schedule')
+  revalidateTag('shows')
+  revalidateTag('playlists')
+  payload.logger.info(`Revalidating playlists and schedule components`)
+
+  // Find all pages that contain Schedule blocks
+  const pagesWithSchedule = await payload.find({
+    collection: 'pages',
+    where: {
+      'layout.blockType': {
+        equals: 'schedule',
+      },
+    },
+    limit: 1000,
+  })
+
+  // Revalidate each page that contains a schedule block
+  pagesWithSchedule.docs.forEach((page) => {
+    if (page.slug) {
+      revalidatePath(`/${page.slug}`)
+      payload.logger.info(`Revalidated page: /${page.slug}`)
+    }
+  })
 }
