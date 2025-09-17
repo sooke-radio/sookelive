@@ -29,14 +29,14 @@ jobs:
       - name: Set env
         run: | # copy secrets to env
           cp .env.stg .env
-          echo "DATABASE_URI=${{ secrets.SL2DB }}" >> .env
+          echo "DATABASE_URI=mongodb://${{ vars.DEPLOY_IP }}:${{ vars.DB_PORT }}/${{ vars.DB_NAME }}" >> .env
           echo "PAYLOAD_SECRET=${{ secrets.STG_PAYLOAD_SECRET }}" >> .env
           echo "CRON_SECRET=${{ secrets.STG_CRON_SECRET }}" >> .env
           echo "AZURACAST_KEY=${{ secrets.AZURACAST_KEY }}" >> .env
 
       - name: Deploy
-        run: rsync -avz -e "ssh -i ../private.key" ./ autobot@sooke.live:/var/sl2/stg --exclude=.git
+        run: rsync -avz -e "ssh -i ../private.key" ./ autobot@${{ vars.DEPLOY_IP }}:${{ vars.DEPLOY_PATH }} --exclude=.git
 
       - name: Build & Run
         run: | # build & run docker container on server
-          ssh -i ../private.key autobot@sooke.live 'cd /var/sl2/stg && docker compose -f docker-compose-stg.yml up -d --build'
+          ssh -i ../private.key autobot@${{ vars.DEPLOY_IP }} 'cd ${{ vars.DEPLOY_PATH }} && docker compose -f docker-compose-stg.yml up -d --build'
