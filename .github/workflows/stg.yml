@@ -1,5 +1,6 @@
 name: Deploy STG
 
+
 on:
   push:
     branches:
@@ -9,6 +10,9 @@ jobs:
   stg-deploy:
 
     runs-on: ubuntu-latest
+
+    # todo: consolidate deploy workflows
+    environment: ${{ github.ref == 'refs/heads/main' && 'prd' || 'stg' }}
 
     steps:
       - name: Checkout repository
