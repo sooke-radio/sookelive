@@ -32,7 +32,7 @@ jobs:
 
       - name: Set env
         run: | # copy secrets to env
-          cp .env.stg .env
+          cp .env.${{ github.ref_name }} .env
           echo "DATABASE_URI=mongodb://${{ vars.DEPLOY_IP }}:${{ vars.DB_PORT }}/${{ vars.DB_NAME }}" >> .env
           echo "PAYLOAD_SECRET=${{ secrets.PAYLOAD_SECRET }}" >> .env
           echo "CRON_SECRET=${{ secrets.CRON_SECRET }}" >> .env
