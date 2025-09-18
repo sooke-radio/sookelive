@@ -1,14 +1,18 @@
-name: Deploy PRD
+name: Deploy
+
 
 on:
   push:
     branches:
-      - prd
+      - stg
+      - prd # todo: consolidate deploy workflows
 
 jobs:
-  prd-deploy:
+  stg-deploy:
 
     runs-on: ubuntu-latest
+
+    environment: ${{ github.ref == 'refs/heads/prd' && 'prd' || 'stg' }}
 
     steps:
       - name: Checkout repository
@@ -28,16 +32,17 @@ jobs:
 
       - name: Set env
         run: | # copy secrets to env
-          cp .env.prd .env
-          echo "DATABASE_URI=${{ secrets.SL2DB }}" >> .env
-          echo "PAYLOAD_SECRET=${{ secrets.PRD_PAYLOAD_SECRET }}" >> .env
-          echo "CRON_SECRET=${{ secrets.PRD_CRON_SECRET }}" >> .env
+          cp .env.stg .env
+          echo "DATABASE_URI=mongodb://${{ vars.DEPLOY_IP }}:${{ vars.DB_PORT }}/${{ vars.DB_NAME }}" >> .env
+          echo "PAYLOAD_SECRET=${{ secrets.PAYLOAD_SECRET }}" >> .env
+          echo "CRON_SECRET=${{ secrets.CRON_SECRET }}" >> .env
           echo "AZURACAST_KEY=${{ secrets.AZURACAST_KEY }}" >> .env
           echo "SMTP_PASS=${{ secrets.SMTP_PASS }}" >> .env
 
+
       - name: Deploy
-        run: rsync -avz -e "ssh -i ../private.key" --delete ./ autobot@sooke.live:/var/sl2/prd --exclude=.git --exclude=public/media
+        run: rsync -avz -e "ssh -i ../private.key" ./ autobot@${{ vars.DEPLOY_IP }}:${{ vars.DEPLOY_PATH }} --exclude=.git
 
       - name: Build & Run
         run: | # build & run docker container on server
-          ssh -i ../private.key autobot@sooke.live 'cd /var/sl2/prd && docker compose -f docker-compose-prd.yml up -d --build'
+          ssh -i ../private.key autobot@${{ vars.DEPLOY_IP }} 'cd ${{ vars.DEPLOY_PATH }} && docker compose up -d --build'
