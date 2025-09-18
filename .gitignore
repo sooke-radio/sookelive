@@ -13,3 +13,5 @@ public/robots.txt
 public/sitemap*.xml
 
 tmp/
+
+repomix-output.xml

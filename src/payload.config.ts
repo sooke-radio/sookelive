@@ -21,7 +21,7 @@ import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
 import { Hosts } from './collections/Hosts'
 
-import { default as mailer } from './plugins/mailer';
+import { default as mailer } from './plugins/mailer'
 import { syncAzuracastTask } from './tasks/syncAzuracast'
 
 const filename = fileURLToPath(import.meta.url)
@@ -36,7 +36,6 @@ export default buildConfig({
       // The `BeforeDashboard` component renders the 'welcome' block that you see after logging into your admin panel.
       // Feel free to delete this at any time. Simply remove the line below and the import `BeforeDashboard` statement on line 15.
       beforeDashboard: ['@/components/BeforeDashboard'],
-      
     },
     importMap: {
       baseDir: path.resolve(dirname),
@@ -70,22 +69,9 @@ export default buildConfig({
   db: mongooseAdapter({
     url: process.env.DATABASE_URI || '',
   }),
-  collections: [
-    Pages,
-     Posts,
-     Shows,
-     Media,
-     Categories,
-     Genres,
-     Hosts,
-     Users,
-     Playlists
-    ],
+  collections: [Pages, Posts, Shows, Media, Categories, Genres, Hosts, Users, Playlists],
   cors: [getServerSideURL()].filter(Boolean),
-  globals: [
-    Header, 
-    Footer,
-  ],
+  globals: [Header, Footer],
   plugins: [
     ...plugins,
     // storage-adapter-placeholder
@@ -107,7 +93,6 @@ export default buildConfig({
         const authHeader = req.headers.get('authorization')
         return authHeader === `Bearer ${process.env.CRON_SECRET}`
       },
-
     },
     tasks: [
       syncAzuracastTask,
@@ -115,13 +100,13 @@ export default buildConfig({
     ],
     autoRun: [
       {
-        cron: '0 * * * *', // every hour at minute 0
-        queue: 'sync-azuracast'
+        cron: '*/15 * * * *', // every hour at minute 0
+        queue: 'sync-azuracast',
       },
     ],
     shouldAutoRun: async (payload) => {
       return process.env.NODE_ENV === 'production' || process.env.ENABLE_JOBS === 'true'
     },
   },
-  email: mailer
+  email: mailer,
 })
