@@ -1,0 +1,38 @@
+# Example Caddyfile for Sooke.live
+# Copy this to Caddyfile and customize for your domain
+
+# Replace with your actual domain
+sooke.live {
+    # Reverse proxy to the payload container via container name
+    reverse_proxy sookelive-payload:3000 {
+        # Headers
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+    }
+    
+    # Enable compression
+    encode gzip zstd
+    
+    # Security headers
+    header {
+        # Security headers
+        X-Frame-Options "SAMEORIGIN"
+        X-Content-Type-Options "nosniff"
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    }
+    
+    # Logging
+    log {
+        output file /var/log/caddy/access.log
+        format json
+    }
+}
+
+# Redirect www to non-www (optional)
+www.sooke.live {
+    redir https://sooke.live{uri} permanent
+}
+

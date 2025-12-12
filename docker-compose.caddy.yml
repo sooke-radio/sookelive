@@ -1,0 +1,27 @@
+services:
+  caddy:
+    image: caddy:2-alpine
+    container_name: sookelive-caddy
+    networks:
+      - sookelive-network
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"  # For HTTP/3 (QUIC)
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - payload
+    restart: always
+
+networks:
+  sookelive-network:
+    name: sookelive-network
+    external: true
+
+volumes:
+  caddy_data:
+  caddy_config:
+

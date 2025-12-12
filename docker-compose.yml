@@ -4,12 +4,27 @@ services:
       context: .
       args:
         MIGRATE: false   # run payload migrate
-    ports:
-      - ${APP_PORT}:3000
+    container_name: sookelive-payload
+    networks:
+      - sookelive-network
+    # Port mapping removed for security - Caddy reverse proxy handles external access
+    # If you need direct access during development, uncomment the line below:
+    # ports:
+    #   - ${APP_PORT:-3000}:3000
     volumes:
       - web_media:/app/public/media
     env_file:
-      - .env
+      - .secrets/.env
+    environment:
+      # Connect to MongoDB via container name (mongodb service in docker-compose.mongodb.yml)
+      # To use external database, set DATABASE_URI in .env and this will be ignored
+      - DATABASE_URI=${DATABASE_URI:-mongodb://${MONGO_ROOT_USERNAME:-admin}:${MONGO_ROOT_PASSWORD}@mongodb:27017/${MONGO_DATABASE:-payload}?authSource=admin}
     restart: always
+
+networks:
+  sookelive-network:
+    name: sookelive-network
+    external: true
+
 volumes:
   web_media:

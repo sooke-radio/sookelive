@@ -30,19 +30,74 @@ jobs:
           SSH_KNOWN_HOSTS: ${{secrets.SSH_KNOWN_HOSTS}}
           SSH_KEY_PATH: ${{ github.workspace }}/../private.key
 
-      - name: Set env
-        run: | # copy secrets to env
-          cp .env.${{ github.ref_name }} .env
-          echo "DATABASE_URI=mongodb://${{ vars.DEPLOY_IP }}:${{ vars.DB_PORT }}/${{ vars.DB_NAME }}" >> .env
-          echo "PAYLOAD_SECRET=${{ secrets.PAYLOAD_SECRET }}" >> .env
-          echo "CRON_SECRET=${{ secrets.CRON_SECRET }}" >> .env
-          echo "AZURACAST_KEY=${{ secrets.AZURACAST_KEY }}" >> .env
-          echo "SMTP_PASS=${{ secrets.SMTP_PASS }}" >> .env
+      - name: Deploy code
+        run: rsync -avz -e "ssh -i ../private.key" ./ autobot@${{ vars.DEPLOY_IP }}:${{ vars.DEPLOY_PATH }} --exclude=.git --exclude=.secrets --exclude=.env
 
-
-      - name: Deploy
-        run: rsync -avz -e "ssh -i ../private.key" ./ autobot@${{ vars.DEPLOY_IP }}:${{ vars.DEPLOY_PATH }} --exclude=.git
+      - name: Deploy secrets securely
+        run: |
+          ssh -i ../private.key autobot@${{ vars.DEPLOY_IP }} bash << EOF
+            set -e
+            DEPLOY_PATH="${{ vars.DEPLOY_PATH }}"
+            DEPLOY_IP="${{ vars.DEPLOY_IP }}"
+            DB_PORT="${{ vars.DB_PORT }}"
+            DB_NAME="${{ vars.DB_NAME }}"
+            MONGO_ROOT_USERNAME="${{ vars.MONGO_ROOT_USERNAME || 'admin' }}"
+            MONGO_ROOT_PASSWORD="${{ secrets.MONGO_ROOT_PASSWORD }}"
+            MONGO_DATABASE="${{ vars.MONGO_DATABASE || 'payload' }}"
+            PAYLOAD_SECRET="${{ secrets.PAYLOAD_SECRET }}"
+            CRON_SECRET="${{ secrets.CRON_SECRET }}"
+            AZURACAST_KEY="${{ secrets.AZURACAST_KEY }}"
+            SMTP_PASS="${{ secrets.SMTP_PASS }}"
+            BRANCH_NAME="${{ github.ref_name }}"
+            
+            # Create .secrets directory with restricted permissions
+            mkdir -p "\$DEPLOY_PATH/.secrets"
+            chmod 700 "\$DEPLOY_PATH/.secrets"
+            
+            # Write secrets file with restricted permissions
+            {
+              echo "# Auto-generated secrets file - DO NOT EDIT MANUALLY"
+              echo "# This file is created by GitHub Actions deployment"
+              echo ""
+              echo "# Database configuration"
+              echo "DATABASE_URI=mongodb://\${DEPLOY_IP}:\${DB_PORT}/\${DB_NAME}"
+              echo "MONGO_ROOT_USERNAME=\${MONGO_ROOT_USERNAME}"
+              echo "MONGO_ROOT_PASSWORD=\${MONGO_ROOT_PASSWORD}"
+              echo "MONGO_DATABASE=\${MONGO_DATABASE}"
+              echo ""
+              echo "# Application secrets"
+              echo "PAYLOAD_SECRET=\${PAYLOAD_SECRET}"
+              echo "CRON_SECRET=\${CRON_SECRET}"
+              echo ""
+              echo "# External service keys"
+              echo "AZURACAST_KEY=\${AZURACAST_KEY}"
+              echo "SMTP_PASS=\${SMTP_PASS}"
+            } > "\$DEPLOY_PATH/.secrets/.env"
+            
+            # If .env.\$BRANCH exists, append non-secret vars (if any)
+            if [ -f "\$DEPLOY_PATH/.env.\$BRANCH_NAME" ]; then
+              # Append non-sensitive vars (filter out secrets)
+              grep -vE '^(PAYLOAD_SECRET|CRON_SECRET|AZURACAST_KEY|SMTP_PASS|MONGO_ROOT_PASSWORD|DATABASE_URI|MONGO_ROOT_USERNAME|MONGO_DATABASE)=' "\$DEPLOY_PATH/.env.\$BRANCH_NAME" >> "\$DEPLOY_PATH/.secrets/.env" || true
+            fi
+            
+            # Set restrictive permissions on secrets file
+            chmod 600 "\$DEPLOY_PATH/.secrets/.env"
+            
+            echo "Secrets deployed securely to \$DEPLOY_PATH/.secrets/.env"
+          EOF
 
       - name: Build & Run
-        run: | # build & run docker container on server
-          ssh -i ../private.key autobot@${{ vars.DEPLOY_IP }} 'cd ${{ vars.DEPLOY_PATH }} && docker compose up -d --build'
+        run: |
+          ssh -i ../private.key autobot@${{ vars.DEPLOY_IP }} << 'EOF'
+            set -e
+            cd ${{ vars.DEPLOY_PATH }}
+            
+            # Ensure MongoDB is running first
+            docker compose -f docker-compose.mongodb.yml up -d || true
+            
+            # Build and start application
+            docker compose up -d --build
+            
+            # Optionally start Caddy if using docker-compose.caddy.yml
+            # docker compose -f docker-compose.caddy.yml up -d || true
+          EOF

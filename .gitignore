@@ -3,8 +3,12 @@ dist / media
 node_modules
 .DS_Store
 .env
+.env.*
+.secrets/
+.secrets/.env
 .next
 .vercel
+Caddyfile
 
 # Payload default media upload directory
 public/media/
