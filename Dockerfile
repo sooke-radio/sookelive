@@ -11,6 +11,7 @@ ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
 ARG MIGRATE
+ARG DATABASE_URI
 
 # Install dependencies only when needed
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
@@ -30,6 +31,9 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
 # BUILD NextJS for Prod
 FROM base AS build
+
+ARG DATABASE_URI
+ENV DATABASE_URI=$DATABASE_URI
 
 RUN NODE_ENV=production
 

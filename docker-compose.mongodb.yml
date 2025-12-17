@@ -2,13 +2,15 @@ services:
   mongodb:
     image: mongo:7.0
     container_name: sookelive-mongodb
+    ports:
+      - "127.0.0.1:27017:27017" #expose port locally for building payload
     networks:
       - sookelive-network
     volumes:
       - mongodb_data:/data/db
       - mongodb_config:/data/configdb
     env_file:
-      - .secrets/.env
+      - .env
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USERNAME:-admin}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
@@ -18,7 +20,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    # No ports exposed - only accessible via container network
 
 networks:
   sookelive-network:

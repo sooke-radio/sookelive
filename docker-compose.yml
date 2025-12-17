@@ -2,8 +2,10 @@ services:
   payload:
     build:
       context: .
+      network: host
       args:
         MIGRATE: false   # run payload migrate
+        DATABASE_URI: ${DATABASE_URI:-mongodb://${MONGO_ROOT_USERNAME:-admin}:${MONGO_ROOT_PASSWORD}@mongodb:27017/${MONGO_DATABASE:-payload}?authSource=admin}
     container_name: sookelive-payload
     networks:
       - sookelive-network
@@ -14,7 +16,7 @@ services:
     volumes:
       - web_media:/app/public/media
     env_file:
-      - .secrets/.env
+      - .env
     environment:
       # Connect to MongoDB via container name (mongodb service in docker-compose.mongodb.yml)
       # To use external database, set DATABASE_URI in .env and this will be ignored
