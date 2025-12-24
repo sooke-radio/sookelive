@@ -2,7 +2,7 @@ services:
   payload:
     build:
       context: .
-      network: host
+      network: host # need this to connect to mongodb for build
       args:
         MIGRATE: false   # run payload migrate
         DATABASE_URI: ${DATABASE_URI:-mongodb://${MONGO_ROOT_USERNAME:-admin}:${MONGO_ROOT_PASSWORD}@mongodb:27017/${MONGO_DATABASE:-payload}?authSource=admin}
