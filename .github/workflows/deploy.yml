@@ -31,7 +31,7 @@ jobs:
           SSH_KEY_PATH: ${{ github.workspace }}/../private.key
 
       - name: Deploy code
-        run: rsync -avz -e "ssh -i ../private.key" ./ autobot@${{ vars.DEPLOY_IP }}:${{ vars.DEPLOY_PATH }} --exclude=.git --exclude=.secrets --exclude=.env
+        run: rsync -avz -e "ssh -i ../private.key" ./ autobot@${{ vars.DEPLOY_IP }}:${{ vars.DEPLOY_PATH }} --exclude=.git --exclude=.secrets
 
       - name: Deploy secrets securely
         run: |
@@ -49,41 +49,27 @@ jobs:
             AZURACAST_KEY="${{ secrets.AZURACAST_KEY }}"
             SMTP_PASS="${{ secrets.SMTP_PASS }}"
             BRANCH_NAME="${{ github.ref_name }}"
-            
-            # Create .secrets directory with restricted permissions
-            mkdir -p "\$DEPLOY_PATH/.secrets"
-            chmod 700 "\$DEPLOY_PATH/.secrets"
-            
-            # Write secrets file with restricted permissions
+
+            # Strip any previously written secrets from the rsync'd .env, then append fresh values
+            # This keeps non-secret vars from the repo's .env while injecting secrets idempotently
+            SECRET_KEYS="DATABASE_URI|MONGO_ROOT_USERNAME|MONGO_ROOT_PASSWORD|MONGO_DATABASE|PAYLOAD_SECRET|CRON_SECRET|AZURACAST_KEY|SMTP_PASS"
+            sed -i -E "/^($SECRET_KEYS)=/d" "\$DEPLOY_PATH/.env" 2>/dev/null || true
+
             {
-              echo "# Auto-generated secrets file - DO NOT EDIT MANUALLY"
-              echo "# This file is created by GitHub Actions deployment"
               echo ""
-              echo "# Database configuration"
+              echo "# Secrets injected by GitHub Actions - DO NOT EDIT MANUALLY"
               echo "DATABASE_URI=mongodb://\${DEPLOY_IP}:\${DB_PORT}/\${DB_NAME}"
               echo "MONGO_ROOT_USERNAME=\${MONGO_ROOT_USERNAME}"
               echo "MONGO_ROOT_PASSWORD=\${MONGO_ROOT_PASSWORD}"
               echo "MONGO_DATABASE=\${MONGO_DATABASE}"
-              echo ""
-              echo "# Application secrets"
               echo "PAYLOAD_SECRET=\${PAYLOAD_SECRET}"
               echo "CRON_SECRET=\${CRON_SECRET}"
-              echo ""
-              echo "# External service keys"
               echo "AZURACAST_KEY=\${AZURACAST_KEY}"
               echo "SMTP_PASS=\${SMTP_PASS}"
-            } > "\$DEPLOY_PATH/.secrets/.env"
-            
-            # If .env.\$BRANCH exists, append non-secret vars (if any)
-            if [ -f "\$DEPLOY_PATH/.env.\$BRANCH_NAME" ]; then
-              # Append non-sensitive vars (filter out secrets)
-              grep -vE '^(PAYLOAD_SECRET|CRON_SECRET|AZURACAST_KEY|SMTP_PASS|MONGO_ROOT_PASSWORD|DATABASE_URI|MONGO_ROOT_USERNAME|MONGO_DATABASE)=' "\$DEPLOY_PATH/.env.\$BRANCH_NAME" >> "\$DEPLOY_PATH/.secrets/.env" || true
-            fi
-            
-            # Set restrictive permissions on secrets file
-            chmod 600 "\$DEPLOY_PATH/.secrets/.env"
-            
-            echo "Secrets deployed securely to \$DEPLOY_PATH/.secrets/.env"
+            } >> "\$DEPLOY_PATH/.env"
+
+            chmod 600 "\$DEPLOY_PATH/.env"
+            echo "Secrets injected into \$DEPLOY_PATH/.env"
           EOF
 
       - name: Build & Run
@@ -91,13 +77,25 @@ jobs:
           ssh -i ../private.key autobot@${{ vars.DEPLOY_IP }} << 'EOF'
             set -e
             cd ${{ vars.DEPLOY_PATH }}
-            
+
             # Ensure MongoDB is running first
-            docker compose -f docker-compose.mongodb.yml up -d || true
-            
+            docker compose -f docker-compose.mongodb.yml up -d
+
+            # Wait for MongoDB to be healthy (up to 60s)
+            timeout 60 sh -c 'until docker inspect --format="{{.State.Health.Status}}" $(docker compose -f docker-compose.mongodb.yml ps -q mongodb) 2>/dev/null | grep -q healthy; do sleep 2; done'
+            echo "MongoDB is healthy"
+
             # Build and start application
             docker compose up -d --build
-            
+
+            # Verify container reaches running state (up to 120s)
+            timeout 120 sh -c 'until [ "$(docker inspect --format="{{.State.Status}}" sookelive-payload 2>/dev/null)" = "running" ]; do sleep 3; done'
+            echo "Deploy successful"
+
             # Optionally start Caddy if using docker-compose.caddy.yml
             # docker compose -f docker-compose.caddy.yml up -d || true
           EOF
+
+      - name: Cleanup
+        if: always()
+        run: rm -f ../private.key
