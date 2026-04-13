@@ -19,9 +19,9 @@ jobs:
       - name: Create SSH key
         run: |
           mkdir -p ~/.ssh/
-          printf "$SSH_PRIVATE_KEY" > ../private.key
+           printf '%s\n' "$SSH_PRIVATE_KEY" > ../private.key
           sudo chmod 600 ../private.key
-          printf "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
         shell: bash
         env:
           SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
