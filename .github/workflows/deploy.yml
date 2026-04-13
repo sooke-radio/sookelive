@@ -1,6 +1,5 @@
 name: Deploy
 
-
 on:
   push:
     branches:
@@ -9,7 +8,6 @@ on:
 
 jobs:
   stg-deploy:
-
     runs-on: ubuntu-latest
 
     environment: ${{ github.ref == 'refs/heads/prd' && 'prd' || 'stg' }}
@@ -31,11 +29,11 @@ jobs:
           SSH_KEY_PATH: ${{ github.workspace }}/../private.key
 
       - name: Deploy code
-        run: rsync -avz -e "ssh -i ../private.key" ./ autobot@${{ vars.DEPLOY_IP }}:${{ vars.DEPLOY_PATH }} --exclude=.git --exclude=.secrets
+        run: rsync -avz -e "ssh -i ../private.key" -p {{ vars.SSH_PORT }} ./ autobot@${{ vars.DEPLOY_IP }}:${{ vars.DEPLOY_PATH }} --exclude=.git --exclude=.secrets
 
       - name: Deploy secrets securely
         run: |
-          ssh -i ../private.key autobot@${{ vars.DEPLOY_IP }} bash << EOF
+          ssh -i ../private.key -p {{ vars.SSH_PORT }} autobot@${{ vars.DEPLOY_IP }} bash << EOF
             set -e
             DEPLOY_PATH="${{ vars.DEPLOY_PATH }}"
             DEPLOY_IP="${{ vars.DEPLOY_IP }}"
