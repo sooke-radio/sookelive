@@ -77,17 +77,18 @@ jobs:
             cd ${{ vars.DEPLOY_PATH }}
 
             # Ensure MongoDB is running first
-            # If the container exists but isn't running (stopped/errored), remove it so compose can recreate
-            MONGO_STATUS=$(docker inspect --format='{{.State.Status}}' sookelive-mongodb 2>/dev/null || echo "absent")
-            if [ "$MONGO_STATUS" != "running" ] && [ "$MONGO_STATUS" != "absent" ]; then
-              echo "Removing stopped/errored MongoDB container (status: $MONGO_STATUS)"
-              docker rm sookelive-mongodb
-            fi
-            docker compose -f docker-compose.mongodb.yml up -d
+            # -- assume this is up for now. TODO: move mongo to hosted db.
+            # # If the container exists but isn't running (stopped/errored), remove it so compose can recreate
+            # MONGO_STATUS=$(docker inspect --format='{{.State.Status}}' sookelive-mongodb 2>/dev/null || echo "absent")
+            # if [ "$MONGO_STATUS" != "running" ] && [ "$MONGO_STATUS" != "absent" ]; then
+            #   echo "Removing stopped/errored MongoDB container (status: $MONGO_STATUS)"
+            #   docker rm sookelive-mongodb
+            # fi
+            # docker compose -f docker-compose.mongodb.yml up -d
 
-            # Wait for MongoDB to be healthy (up to 60s)
-            timeout 60 sh -c 'until docker inspect --format="{{.State.Health.Status}}" $(docker compose -f docker-compose.mongodb.yml ps -q mongodb) 2>/dev/null | grep -q healthy; do sleep 2; done'
-            echo "MongoDB is healthy"
+            # # Wait for MongoDB to be healthy (up to 60s)
+            # timeout 60 sh -c 'until docker inspect --format="{{.State.Health.Status}}" $(docker compose -f docker-compose.mongodb.yml ps -q mongodb) 2>/dev/null | grep -q healthy; do sleep 2; done'
+            # echo "MongoDB is healthy"
 
             # Build and start application
             docker compose up -d --build
