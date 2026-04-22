@@ -56,7 +56,7 @@ jobs:
             {
               echo ""
               echo "# Secrets injected by GitHub Actions - DO NOT EDIT MANUALLY"
-              echo "DATABASE_URI=mongodb://\${DEPLOY_IP}:\${DB_PORT}/\${DB_NAME}"
+              echo "DATABASE_URI=mongodb://\${MONGO_ROOT_USERNAME}:\${MONGO_ROOT_PASSWORD}@localhost:27017/\${MONGO_DATABASE}?authSource=admin"
               echo "MONGO_ROOT_USERNAME=\${MONGO_ROOT_USERNAME}"
               echo "MONGO_ROOT_PASSWORD=\${MONGO_ROOT_PASSWORD}"
               echo "MONGO_DATABASE=\${MONGO_DATABASE}"
@@ -77,6 +77,12 @@ jobs:
             cd ${{ vars.DEPLOY_PATH }}
 
             # Ensure MongoDB is running first
+            # If the container exists but isn't running (stopped/errored), remove it so compose can recreate
+            MONGO_STATUS=$(docker inspect --format='{{.State.Status}}' sookelive-mongodb 2>/dev/null || echo "absent")
+            if [ "$MONGO_STATUS" != "running" ] && [ "$MONGO_STATUS" != "absent" ]; then
+              echo "Removing stopped/errored MongoDB container (status: $MONGO_STATUS)"
+              docker rm sookelive-mongodb
+            fi
             docker compose -f docker-compose.mongodb.yml up -d
 
             # Wait for MongoDB to be healthy (up to 60s)
