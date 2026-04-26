@@ -6,7 +6,7 @@ services:
       args:
         MIGRATE: false   # run payload migrate
         DATABASE_URI: ${DATABASE_URI:-mongodb://${MONGO_ROOT_USERNAME:-admin}:${MONGO_ROOT_PASSWORD}@mongodb:27017/${MONGO_DATABASE:-payload}?authSource=admin}
-    container_name: sookelive-payload
+    container_name: ${CONTAINER_NAME:-sookelive-payload}
     networks:
       - sookelive-network
     # Port mapping removed for security - Caddy reverse proxy handles external access
