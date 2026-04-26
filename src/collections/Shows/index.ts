@@ -27,6 +27,12 @@ import {
 import { slugField } from '@/fields/slug'
 // import { populatePlaylists } from './hooks/populatePlaylists'
 
+const extractMixcloudSrc = ({ value }: { value: unknown }) => {
+  if (typeof value !== 'string' || !value.trim()) return value
+  const srcMatch = value.match(/src="([^"]+)"/)
+  return srcMatch ? srcMatch[1] : value
+}
+
 export const Shows: CollectionConfig<'shows'> = {
   slug: 'shows',
   access: {
@@ -45,6 +51,7 @@ export const Shows: CollectionConfig<'shows'> = {
     hosts: true,
     streamer_id: true,
     stream_playlist: true,
+    mixcloudUrl: true,
     meta: {
       image: true,
       description: true,
@@ -159,6 +166,17 @@ export const Shows: CollectionConfig<'shows'> = {
               admin: {
                 description: 'The streamer ID associated with this show in Azuracast for live streaming.',
               }
+            },
+            {
+              name: 'mixcloudUrl',
+              label: 'Mixcloud Playlist',
+              type: 'text',
+              admin: {
+                description: 'Paste the Mixcloud embed src URL or the full <iframe> embed code.',
+              },
+              hooks: {
+                beforeChange: [extractMixcloudSrc],
+              },
             }
           ],
           label: 'Meta',

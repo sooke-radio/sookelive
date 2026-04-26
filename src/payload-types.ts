@@ -500,6 +500,10 @@ export interface Show {
    * The streamer ID associated with this show in Azuracast for live streaming.
    */
   streamer_id?: string | null;
+  /**
+   * Paste the Mixcloud embed src URL or the full <iframe> embed code.
+   */
+  mixcloudUrl?: string | null;
   meta?: {
     title?: string | null;
     /**
@@ -1448,6 +1452,7 @@ export interface ShowsSelect<T extends boolean = true> {
   hosts?: T;
   stream_playlist?: T;
   streamer_id?: T;
+  mixcloudUrl?: T;
   meta?:
     | T
     | {
