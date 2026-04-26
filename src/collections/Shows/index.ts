@@ -27,7 +27,7 @@ import {
 import { slugField } from '@/fields/slug'
 // import { populatePlaylists } from './hooks/populatePlaylists'
 
-const extractMixcloudSrc = ({ value }: { value: unknown }) => {
+const extractMixcloudSrc = ({ value }: { value?: unknown }) => {
   if (typeof value !== 'string' || !value.trim()) return value
   const srcMatch = value.match(/src="([^"]+)"/)
   return srcMatch ? srcMatch[1] : value
