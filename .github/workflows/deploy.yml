@@ -48,10 +48,8 @@ jobs:
             SMTP_PASS="${{ secrets.SMTP_PASS }}"
             BRANCH_NAME="${{ github.ref_name }}"
 
-            # Strip any previously written secrets from the rsync'd .env, then append fresh values
-            # This keeps non-secret vars from the repo's .env while injecting secrets idempotently
-            SECRET_KEYS="DATABASE_URI|MONGO_ROOT_USERNAME|MONGO_ROOT_PASSWORD|MONGO_DATABASE|PAYLOAD_SECRET|CRON_SECRET|AZURACAST_KEY|SMTP_PASS"
-            sed -i -E "/^($SECRET_KEYS)=/d" "\$DEPLOY_PATH/.env" 2>/dev/null || true
+            # Start from the branch-specific env file (overwrites any previous .env)
+            cp "\$DEPLOY_PATH/.env.\${BRANCH_NAME}" "\$DEPLOY_PATH/.env"
 
             {
               echo ""
