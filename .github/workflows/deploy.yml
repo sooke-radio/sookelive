@@ -62,6 +62,7 @@ jobs:
               echo "CRON_SECRET=\${CRON_SECRET}"
               echo "AZURACAST_KEY=\${AZURACAST_KEY}"
               echo "SMTP_PASS=\${SMTP_PASS}"
+              echo "CONTAINER_NAME=sookelive-\${BRANCH_NAME}"
             } >> "\$DEPLOY_PATH/.env"
 
             chmod 600 "\$DEPLOY_PATH/.env"
@@ -92,7 +93,7 @@ jobs:
             docker compose up -d --build
 
             # Verify container reaches running state (up to 120s)
-            timeout 120 sh -c 'until [ "$(docker inspect --format="{{.State.Status}}" sookelive-payload 2>/dev/null)" = "running" ]; do sleep 3; done'
+            timeout 120 sh -c 'until [ "$(docker inspect --format="{{.State.Status}}" sookelive-${{ github.ref_name }} 2>/dev/null)" = "running" ]; do sleep 3; done'
             echo "Deploy successful"
 
             # Optionally start Caddy if using docker-compose.caddy.yml
