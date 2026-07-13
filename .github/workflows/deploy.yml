@@ -4,10 +4,10 @@ on:
   push:
     branches:
       - stg
-      - prd # todo: consolidate deploy workflows
+      - prd
 
 jobs:
-  stg-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     environment: ${{ github.ref == 'refs/heads/prd' && 'prd' || 'stg' }}

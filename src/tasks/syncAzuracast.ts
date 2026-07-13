@@ -7,7 +7,7 @@ export const syncAzuracastTask = {
   description: 'Synchronizes playlists from Azuracast and revalidates related content',
 
   async handler({ input, job, req }) {
-    console.log('Running Azuracast playlist sync...')
+    req.payload.logger.info('Running Azuracast playlist sync...')
 
     try {
       // Deliberately goes through the real HTTP endpoint rather than
@@ -33,7 +33,7 @@ export const syncAzuracastTask = {
       }
 
       const result = await response.json()
-      console.log('Playlist sync completed successfully:', result)
+      req.payload.logger.info({ result }, 'Playlist sync completed successfully')
 
       return {
         output: {
@@ -42,7 +42,7 @@ export const syncAzuracastTask = {
         }
       }
     } catch (error) {
-      console.error('Error during playlist sync:', error)
+      req.payload.logger.error({ err: error }, 'Error during playlist sync')
       throw error
     }
   }

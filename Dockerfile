@@ -29,9 +29,6 @@ ENV NODE_ENV=production
 COPY . .
 COPY --from=install /app/node_modules ./node_modules
 
-# if migrate is true, run payload migration
-# RUN if [[ -z "$MIGRATE" ]] ; then pnpm migrate ; else echo "No migration." ; fi
-
 RUN pnpm build
 
 # Runtime stage — lean image without build tools
@@ -47,5 +44,5 @@ COPY --from=build /app/.next ./.next
 COPY --from=build /app/public ./public
 COPY package.json ./
 
-EXPOSE $EXPOSE_PORT
+EXPOSE 3000
 CMD ["pnpm", "start"]

@@ -18,7 +18,6 @@ const BASE_URL = `${AZURACAST_URL}/api/station/${AZURACAST_STATION_ID}`
 
 export const azuracastAPI = {
   request: async (path: string, options: RequestOptions = {}) => {
-    // console.log(path)
     const { method = 'GET', body } = options
     
     const config = {
@@ -31,7 +30,6 @@ export const azuracastAPI = {
     }
 
     const response = await fetch(`${BASE_URL}/${path}`, config)
-    // console.log(response)
     return response.json()
   },
 
