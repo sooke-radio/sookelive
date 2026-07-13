@@ -1,0 +1,125 @@
+# Runs a Claude Code dev container ("cc-container") for this project,
+# attached to the same sookelive-network as the app/mongodb/caddy containers
+# so it can reach them by container name (e.g. sookelive-mongodb:27017).
+#
+# Unlike docker-compose-cc-container.yml's generic example (which defines its
+# own throwaway db service), this project already runs its own mongodb
+# container via docker-compose.mongodb.yml - so cc-container just joins that
+# existing external network instead of spinning up a second database.
+#
+# Prerequisites:
+#   - sookelive-network already exists:
+#       docker compose -f docker-compose.mongodb.yml up -d
+#   - the claude-code-docker repo checked out somewhere; adjust
+#     build.context below to point at it
+#   - the shared claude-config auth volume exists (created once by
+#     claude-code-docker's own setup):
+#       docker volume create claude-code-auth
+#   - a real .env in this repo's root (copy .env.example's keys into it with
+#     real values - see README.md) - it's bind-mounted in like the rest of
+#     the repo and read directly by Next.js/Payload at runtime, same as
+#     non-Docker local dev.
+#
+# Note: SSH is expected to be blocked by this container's outbound firewall
+# (see claude-code-docker's init-firewall.sh allowlist). Run bin/sync-prod-db.sh
+# on the host, not from inside cc-container.
+#
+# On `up`, bin/cc-container-start.sh runs `pnpm ii` (if needed) and starts
+# `pnpm dev` in the background, logging to /tmp/dev-server.log inside the
+# container - so a Claude Code session started in here can read/tail that
+# file directly, and the site is already live at localhost:3000 without any
+# extra steps. This runs the dev server in the SAME container as Claude Code
+# on purpose: the alternative (a separate app container) would mean mounting
+# the Docker socket into cc-container just so Claude could reach its logs,
+# which is a much bigger privilege escalation than letting Claude run a dev
+# server inside its own already-sandboxed container.
+#
+# Usage:
+#   docker compose -f docker-compose.cc-container.yml up -d
+#   docker compose -f docker-compose.cc-container.yml exec cc-container bash
+
+services:
+  cc-container:
+    build:
+      # Path to the claude-code-docker repo's Dockerfile, relative to this
+      # file. Adjust if that repo lives elsewhere on this host.
+      context: ../../cc-container
+      args:
+        USER_UID: ${USER_UID:-1000}
+        USER_GID: ${USER_GID:-1000}
+    container_name: sookelive-cc-container
+    # bin/cc-container-start.sh installs deps if needed, starts `pnpm dev`
+    # in the background, then execs `sleep infinity` to keep the container
+    # alive for `docker compose exec` the same way the plain command used to.
+    command: ["bash", "/workspace/sookelive/bin/cc-container-start.sh"]
+    stdin_open: true
+    tty: true
+    # Claude Code keys a session's resumable conversation history off the
+    # container's absolute cwd, inside the shared claude-config auth volume -
+    # keep this "sookelive" so it doesn't collide with other projects'
+    # sessions sharing that same volume.
+    working_dir: /workspace/sookelive
+
+    # Same containment posture as the standalone cc-container setup.
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_ADMIN   # entrypoint.sh's init-firewall.sh sets up iptables rules
+      - NET_RAW
+      - SETUID      # entrypoint.sh uses gosu to drop from root to the
+      - SETGID      # claude user after the firewall is set up
+    security_opt:
+      - no-new-privileges:true
+    # mode=1777 (world-writable, like a real /tmp) because these mounts
+    # otherwise default to root:root 0755 - unwritable by the non-root
+    # claude user entrypoint.sh drops to.
+    tmpfs:
+      - /tmp:exec,size=1g,mode=1777
+      - /home/claude/.cache:size=512m,mode=1777
+      - /home/claude/.npm:size=512m,mode=1777
+      - /home/claude/.config:size=64m,mode=1777
+    mem_limit: 4g
+    pids_limit: 512
+
+    volumes:
+      - .:/workspace/sookelive
+      - claude-config:/home/claude/.claude
+
+    environment:
+      - CLAUDE_CONFIG_DIR=/home/claude/.claude
+      # mongodb is reachable as sookelive-mongodb:27017 on sookelive-network
+      # already, so no EXTRA_ALLOWED_DOMAINS entry is needed for it.
+      # This image doesn't ship pnpm; bin/cc-container-start.sh enables it
+      # via corepack on first start. Keep its package cache on the
+      # tmpfs-backed ~/.cache rather than growing the container's writable
+      # layer on every rebuild.
+      - COREPACK_HOME=/home/claude/.cache/corepack
+      # Without this, corepack's first-run "do you want to download pnpm?"
+      # prompt hangs forever - `docker compose up` doesn't forward your
+      # terminal's stdin into the container, so nothing can ever answer it.
+      - COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+
+    # App secrets aren't injected as container env vars - .env is
+    # bind-mounted in with the rest of the repo and Next.js/Payload read it
+    # directly at runtime (same as non-Docker local dev).
+
+    networks:
+      - sookelive-network
+
+    # For running `pnpm dev` (or similar) from inside the container and
+    # reaching it from the host browser. Not needed for Claude Code itself.
+    ports:
+      - "${PORT1:-3006}:3000"
+      - "${PORT2:-5175}:5173"
+
+    depends_on: []
+
+networks:
+  sookelive-network:
+    name: sookelive-network
+    external: true
+
+volumes:
+  claude-config:
+    external: true
+    name: claude-code-auth

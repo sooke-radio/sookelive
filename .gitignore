@@ -9,6 +9,7 @@ node_modules
 .next
 .vercel
 Caddyfile
+.pnpm-store
 
 # Payload default media upload directory
 public/media/
@@ -19,3 +20,9 @@ public/sitemap*.xml
 tmp/
 
 repomix-output.xml
+
+# tsc --noEmit incremental cache
+tsconfig.tsbuildinfo
+
+# vitest coverage output
+coverage/

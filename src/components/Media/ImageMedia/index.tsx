@@ -9,7 +9,6 @@ import React from 'react'
 import type { Props as MediaProps } from '../types'
 
 import { cssVariables } from '@/cssVariables'
-import { getClientSideURL } from '@/utilities/getURL'
 
 const { breakpoints } = cssVariables
 
@@ -47,7 +46,13 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
     height = fullHeight!
     alt = altFromResource || ''
 
-    src = `${getClientSideURL()}${url}`
+    // Relative, not `${getClientSideURL()}${url}` - the media is always
+    // same-origin with the page, and next/image's `remotePatterns` check
+    // (next.config.js) only applies to absolute URLs. An absolute URL
+    // built from the browser's own host/port (e.g. a LAN IP or forwarded
+    // dev port not in that allowlist) would otherwise throw instead of
+    // just rendering the image.
+    src = url ?? ''
   }
 
   const loading = loadingFromProps || (!priority ? 'lazy' : undefined)

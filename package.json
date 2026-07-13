@@ -11,12 +11,16 @@
     "dev:prod": "cross-env NODE_OPTIONS=--no-deprecation rm -rf .next && pnpm build && pnpm start",
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
-    "ii": "cross-env NODE_OPTIONS=--no-deprecation pnpm --ignore-workspace install",
+    "ii": "cross-env NODE_OPTIONS=--no-deprecation pnpm install",
     "lint": "cross-env NODE_OPTIONS=--no-deprecation next lint",
     "lint:fix": "cross-env NODE_OPTIONS=--no-deprecation next lint --fix",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
-    "reinstall": "cross-env NODE_OPTIONS=--no-deprecation rm -rf node_modules && rm pnpm-lock.yaml && pnpm --ignore-workspace install",
-    "start": "cross-env NODE_OPTIONS=--no-deprecation next start"
+    "reinstall": "cross-env NODE_OPTIONS=--no-deprecation rm -rf node_modules && rm pnpm-lock.yaml && pnpm install",
+    "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
+    "typecheck": "cross-env NODE_OPTIONS=--no-deprecation tsc --noEmit",
+    "test:unit": "cross-env NODE_OPTIONS=--no-deprecation vitest run",
+    "test:unit:watch": "cross-env NODE_OPTIONS=--no-deprecation vitest",
+    "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config vitest.int.config.ts"
   },
   "dependencies": {
     "@payloadcms/db-mongodb": "^3.67.0",
@@ -62,25 +66,20 @@
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
+    "@vitest/coverage-v8": "^4.1.10",
     "autoprefixer": "^10.4.22",
     "copyfiles": "^2.4.1",
     "eslint": "^9.39.1",
     "eslint-config-next": "^15.5.7",
+    "mongodb-memory-server": "^11.2.0",
+    "msw": "^2.15.0",
     "postcss": "^8.5.6",
     "prettier": "^3.7.4",
     "tailwindcss": "^3.4.3",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.10"
   },
   "engines": {
     "node": "^18.20.2 || >=20.9.0"
-  },
-  "pnpm": {
-    "overrides": {
-      "glob": ">=10.5.0",
-      "@babel/runtime": ">=7.26.10",
-      "js-yaml": ">=4.1.1",
-      "brace-expansion": "^2.0.2",
-      "nodemailer": ">=7.0.11"
-    }
   }
 }
