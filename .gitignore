@@ -19,3 +19,12 @@ public/sitemap*.xml
 tmp/
 
 repomix-output.xml
+
+# pnpm local store (created when no global store-dir is configured)
+.pnpm-store/
+
+# tsc --noEmit incremental cache
+tsconfig.tsbuildinfo
+
+# vitest coverage output
+coverage/
