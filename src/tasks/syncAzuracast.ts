@@ -1,8 +1,5 @@
 import type { TaskHandler } from 'payload'
 
-import { revalidatePath, revalidateTag } from 'next/cache'
-import { syncPlaylists } from '@/collections/Playlists/syncPlaylists'
-
 export const syncAzuracastTask = {
   slug: 'sync-azuracast',
   name: 'Sync Azuracast Playlists',
@@ -13,18 +10,35 @@ export const syncAzuracastTask = {
     console.log('Running Azuracast playlist sync...')
 
     try {
-      const results = await syncPlaylists(req.payload)
-      console.log('Playlist sync completed successfully:', results)
+      // Deliberately goes through the real HTTP endpoint rather than
+      // calling syncPlaylists() directly: this cron-driven task runs on a
+      // plain timer with no Next.js request context, but Playlists'
+      // afterChange/afterDelete hooks call revalidatePath/revalidateTag,
+      // which throw without one ("Invariant: static generation store
+      // missing"). Routing through the endpoint puts the sync inside a
+      // real Route Handler invocation, where those hooks work correctly -
+      // same as when a logged-in admin triggers it from the "Refresh
+      // Playlists" button. The endpoint now requires auth, so this sends
+      // the same Bearer CRON_SECRET the jobs `run` access check accepts.
+      const response = await fetch(`${process.env.NEXT_PUBLIC_SERVER_URL}/api/playlists/sync`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${process.env.CRON_SECRET}`,
+        },
+      })
 
-      // Revalidate all necessary paths and tags
-      revalidatePath('/schedule')
-      revalidateTag('shows')
-      revalidateTag('playlists')
+      if (!response.ok) {
+        throw new Error(`Sync failed with status: ${response.status}`)
+      }
+
+      const result = await response.json()
+      console.log('Playlist sync completed successfully:', result)
 
       return {
         output: {
           message: 'Playlist sync completed successfully',
-          results
+          result
         }
       }
     } catch (error) {

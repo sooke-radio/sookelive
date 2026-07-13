@@ -19,7 +19,8 @@
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "typecheck": "cross-env NODE_OPTIONS=--no-deprecation tsc --noEmit",
     "test:unit": "cross-env NODE_OPTIONS=--no-deprecation vitest run",
-    "test:unit:watch": "cross-env NODE_OPTIONS=--no-deprecation vitest"
+    "test:unit:watch": "cross-env NODE_OPTIONS=--no-deprecation vitest",
+    "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config vitest.int.config.ts"
   },
   "dependencies": {
     "@payloadcms/db-mongodb": "^3.67.0",
@@ -70,6 +71,8 @@
     "copyfiles": "^2.4.1",
     "eslint": "^9.39.1",
     "eslint-config-next": "^15.5.7",
+    "mongodb-memory-server": "^11.2.0",
+    "msw": "^2.15.0",
     "postcss": "^8.5.6",
     "prettier": "^3.7.4",
     "tailwindcss": "^3.4.3",

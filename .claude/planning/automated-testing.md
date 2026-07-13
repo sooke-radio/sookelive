@@ -12,7 +12,7 @@ Follow the official Payload 3 website template's testing setup (this repo was fo
 
 These come from `cleanup-suggestions.md` and must land first because the code can't be exercised in isolation as written:
 
-1. **Extract the playlist sync logic** out of the `POST /api/playlists/sync` endpoint handler (`src/collections/Playlists/index.ts`) into a `syncPlaylists(payload)` function. Both the endpoint and the `syncAzuracast` task call it directly — no more self-HTTP via `NEXT_PUBLIC_SERVER_URL`, and the function becomes directly testable.
+1. **Extract the playlist sync logic** out of the `POST /api/playlists/sync` endpoint handler (`src/collections/Playlists/index.ts`) into a `syncPlaylists(payload)` function, used by the endpoint and directly unit/integration-testable. ~~Both the endpoint and the `syncAzuracast` task call it directly — no more self-HTTP via `NEXT_PUBLIC_SERVER_URL`~~ **Correction, found during implementation**: the task still calls the endpoint over HTTP. That self-HTTP hop isn't cruft - it's the only way the sync runs inside a real Next.js request context, which `Playlists`' revalidate hooks (`revalidatePath`/`revalidateTag`) require to not throw. A cron-driven job task has no such context. Calling `syncPlaylists()` directly from the task looked like a clean simplification but broke the cron sync on every run; caught by a code-review sub-agent reading `next`'s source, not by this test suite (see Phase 2's test-gap note below).
 2. **Make the Azuracast client configurable**: `src/stream/azuracast/api.ts` must build its base URL from `AZURACAST_URL` + `AZURACAST_STATION_ID` instead of the hard-coded production URL, so tests can point it at a mock server.
 3. **Add a `typecheck` script** (`tsc --noEmit`) — there is currently no typecheck outside `next build`.
 
@@ -35,11 +35,13 @@ These come from `cleanup-suggestions.md` and must land first because the code ca
   - Collection hooks — `revalidate*` hooks fire on publish (mock `next/cache`).
   - The `/api/playlists/sync` endpoint rejects unauthenticated requests **once auth is added** (regression-locks the security fix).
 - Script: `pnpm test:int` → `vitest run --config vitest.int.config.ts` (separate config: node environment, longer timeouts, globalSetup that seeds the DB).
+- **Known test gap**: `tests/int/setupFiles.ts` mocks `next/cache` globally (`revalidatePath`/`revalidateTag` throw outside a real Next.js request context, which every collection write hits via `afterChange`/`afterDelete` hooks). That mock is necessary for these tests to run at all under the Local API - but it also means this suite can never catch a bug where something calls those hooks from a context that *doesn't* have a real request scope (exactly the `sync-azuracast` job task regression described in Phase 0 item 1's correction). Phase 3's e2e suite runs a real `next start` server, so it's the one place that could catch this class of bug for real - see its item below.
 
 ### Phase 3 — e2e smoke (Playwright)
 
 - Small suite, run against `pnpm build && pnpm start` with a seeded test DB and `NEXT_PUBLIC_STREAM_DISABLED=true` (Howler/audio is out of scope for CI).
 - Smoke paths: home page renders, `/posts` and `/shows` list + detail pages, `/search` returns results, `/admin` login page loads, draft preview route round-trip.
+- Add a path that exercises the `sync-azuracast` job task for real (e.g. trigger it via Payload's jobs REST endpoint with `Authorization: Bearer $CRON_SECRET`) against the real running server, asserting it completes without error - this is the only layer that can catch a regression like Phase 0 item 1's correction (revalidate hooks called outside real request context), since Phase 2 mocks `next/cache` entirely.
 - Script: `pnpm test:e2e`; keep it under ~2 minutes.
 
 ### Phase 4 — CI wiring (GitHub Actions)

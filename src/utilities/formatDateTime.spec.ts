@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { formatDateTime } from './formatDateTime'
 
 // formatDateTime reads local-time getMonth/getDate/getFullYear, so expected
@@ -26,7 +26,21 @@ describe('formatDateTime', () => {
     expect(result.split('/')[1]).toHaveLength(2)
   })
 
-  it('falls back to the current date when timestamp is falsy', () => {
-    expect(formatDateTime('')).toBe(expectedFor(new Date().toISOString()))
+  describe('falls back to the current date when timestamp is falsy', () => {
+    // Freeze the clock: formatDateTime('') and expectedFor() each call
+    // `new Date()` independently, so without a frozen clock this test is
+    // racy across a real midnight rollover between the two calls.
+    beforeEach(() => {
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date('2026-03-05T12:00:00.000Z'))
+    })
+
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    it('uses the current date', () => {
+      expect(formatDateTime('')).toBe(expectedFor(new Date().toISOString()))
+    })
   })
 })

@@ -3,6 +3,7 @@
 
 
 import type { CollectionConfig } from 'payload'
+import { isAuthenticatedOrCronSecret } from '@/access/isAuthenticatedOrCronSecret'
 import { revalidatePlaylist, revalidateDelete } from './hooks/revalidatePlaylists'
 import { syncPlaylists } from './syncPlaylists'
 
@@ -63,16 +64,16 @@ export const Playlists: CollectionConfig = {
       path: '/sync',
       method: 'post',
       handler: async (req) => {
+        if (!isAuthenticatedOrCronSecret(req)) {
+          return Response.json({ error: 'forbidden' }, { status: 401 })
+        }
 
-        // TODO: authenticate user
-        // if (!req.user) {
-        //   return Response.json({ error: 'forbidden' }, { status: 403 })
-        // }
         try {
-          const results = await syncPlaylists(req.payload)
+          const { warning, results } = await syncPlaylists(req.payload)
           return Response.json({
             success: true,
-            results: results
+            warning,
+            results,
           })
         } catch (error) {
           return Response.json({ error: error.message }, { status: 500 })

@@ -11,16 +11,19 @@ Sooke.live — an online community radio station website built with Payload CMS 
 Package manager is **pnpm** (a `yarn.lock` also exists but is stale).
 
 ```bash
-pnpm ii               # install deps (pnpm install --ignore-workspace)
+pnpm ii               # install deps (pnpm install)
 pnpm dev              # dev server at http://localhost:3000 (admin at /admin)
 pnpm build            # production build (runs next-sitemap in postbuild)
 pnpm dev:prod         # clean .next, build, and start in prod mode
 pnpm lint / lint:fix  # ESLint via next lint
+pnpm typecheck        # tsc --noEmit
+pnpm test:unit        # Vitest unit tests (src/**/*.spec.ts) — no DB needed
+pnpm test:int         # Vitest integration tests (tests/int/) — spins up mongodb-memory-server + msw-mocked Azuracast
 pnpm generate:types   # regenerate src/payload-types.ts — run after any collection/field change
 pnpm generate:importmap  # regenerate the Payload admin import map after adding admin components
 ```
 
-There is no test suite. A local `.env` is required (copy `.env.example`); `DATABASE_URI` must point at a running MongoDB.
+A local `.env` is required (copy `.env.example`); `DATABASE_URI` must point at a running MongoDB.
 
 ## Architecture
 
@@ -62,3 +65,11 @@ If you (Claude) are running inside the `cc-container` service from `docker-compo
 ## Planning notes
 
 Feature planning notes and cleanup TODOs live as markdown files in `.claude/planning/`. Check `.claude/planning/cleanup-suggestions.md` for known cruft to tidy opportunistically when touching nearby code, and add a note there rather than doing unrelated cleanup mid-feature.
+
+
+## Development Practices
+
+- After completing implemention of a feature or plan, always do a review of new changes for security flaws or vulnerabilities.
+- After completing implementation of a feature or plan, always review new changes for best practices and code smells.
+- Do not push to 'main' 'prod' 'stg' or other protected branches without express permission.
+- Never hardcode or transmit environment variables (including dev variables) to any outside services for any reason.
