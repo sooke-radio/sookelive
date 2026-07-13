@@ -11,13 +11,13 @@
     "dev:prod": "cross-env NODE_OPTIONS=--no-deprecation rm -rf .next && pnpm build && pnpm start",
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
-    "ii": "cross-env NODE_OPTIONS=--no-deprecation pnpm --ignore-workspace install",
+    "ii": "cross-env NODE_OPTIONS=--no-deprecation pnpm install",
     "lint": "cross-env NODE_OPTIONS=--no-deprecation next lint",
     "lint:fix": "cross-env NODE_OPTIONS=--no-deprecation next lint --fix",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
-    "reinstall": "cross-env NODE_OPTIONS=--no-deprecation rm -rf node_modules && rm pnpm-lock.yaml && pnpm --ignore-workspace install",
+    "reinstall": "cross-env NODE_OPTIONS=--no-deprecation rm -rf node_modules && rm pnpm-lock.yaml && pnpm install",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start"
-  },
+},
   "dependencies": {
     "@payloadcms/db-mongodb": "^3.67.0",
     "@payloadcms/email-nodemailer": "^3.67.0",
@@ -73,14 +73,5 @@
   },
   "engines": {
     "node": "^18.20.2 || >=20.9.0"
-  },
-  "pnpm": {
-    "overrides": {
-      "glob": ">=10.5.0",
-      "@babel/runtime": ">=7.26.10",
-      "js-yaml": ">=4.1.1",
-      "brace-expansion": "^2.0.2",
-      "nodemailer": ">=7.0.11"
-    }
   }
 }

@@ -1,0 +1,9 @@
+allowBuilds:
+  esbuild: true
+  sharp: true
+overrides:
+  glob: '>=10.5.0'
+  '@babel/runtime': '>=7.26.10'
+  js-yaml: '>=4.1.1'
+  brace-expansion: '^2.0.2'
+  nodemailer: '>=7.0.11'

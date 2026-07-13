@@ -1,0 +1,80 @@
+# Example: a project's own docker-compose.yml, with a cc-container service
+# built from the shared hardened Dockerfile, sharing this compose file's
+# network with the project's other services (here, a Postgres database).
+#
+# Copy this pattern into an existing project's docker-compose.yml, or use
+# it as a starting point for a new one. Adjust `build.context` to wherever
+# the claude-code-docker repo lives relative to this file.
+
+services:
+  cc-container:
+    build:
+      # Path to the claude-code-docker repo's Dockerfile, relative to this
+      # file. Adjust as needed (e.g. a sibling directory, or a git submodule).
+      context: ../claude-code-docker
+      args:
+        USER_UID: ${USER_UID:-1000}
+        USER_GID: ${USER_GID:-1000}
+    command: ["sleep", "infinity"]
+    stdin_open: true
+    tty: true
+    # Claude Code keys a session's resumable conversation history off the
+    # container's absolute cwd, inside the shared claude-config auth volume.
+    # Rename "myproject" below to this project's own name so it doesn't
+    # collide with any other project's history in that shared volume
+    # (including the standalone cc-container setup's own sessions).
+    working_dir: /workspace/sookelive
+
+    # Same containment posture as the standalone setup.
+    cap_drop:
+      - ALL
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    security_opt:
+      - no-new-privileges:true
+    read_only: false
+    tmpfs:
+      - /tmp:exec,size=1g
+      - /home/claude/.cache:size=512m
+      - /home/claude/.npm:size=512m
+      - /home/claude/.config:size=64m
+    mem_limit: 4g
+    pids_limit: 512
+
+    volumes:
+      # This project's own directory - since cc-container is defined in the
+      # project's own compose file, "." is simplest. Must match the
+      # working_dir subdir name above (myproject).
+      - .:/workspace/sookelive
+      # Reuse the SAME shared auth volume from the standalone setup, so
+      # this project's session is already logged in. Requires that volume
+      # to already exist (created by `claude-code setup` once).
+      - claude-config:/home/claude/.claude
+    environment:
+      - CLAUDE_CONFIG_DIR=/home/claude/.claude
+      # Add the db's hostname so it isn't blocked by the outbound firewall
+      # if you're also using init-firewall.sh's allowlist for anything
+      # beyond plain container-to-container traffic (usually unnecessary -
+      # traffic to other containers on the same compose network doesn't go
+      # through the OUTPUT firewall the same way as internet-bound traffic
+      # in every Docker network driver, but if you see connection issues,
+      # add the service name here).
+      # - EXTRA_ALLOWED_DOMAINS=db
+
+    ports:
+      - "${PORT1:-3000}:3000"
+      - "${PORT2:-5173}:5173"
+
+    # No explicit `networks:` needed - because `db` and `cc-container` are
+    # both defined in this same compose file, Compose puts them on one
+    # shared default network automatically. From inside cc-container, the
+    # database is reachable simply as `db:5432`.
+    depends_on:
+      - db
+
+volumes:
+  db-data:
+  claude-config:
+    external: true
+    name: claude-code-auth
