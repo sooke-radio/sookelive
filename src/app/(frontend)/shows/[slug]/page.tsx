@@ -17,6 +17,7 @@ import { generateMeta } from '@/utilities/generateMeta'
 import PageClient from './page.client'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { ShowScheduleBlock } from '@/schedule/ShowSchedule/Component'
+import { MixcloudEmbed } from '@/components/MixcloudEmbed'
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
@@ -68,6 +69,12 @@ export default async function Show({ params: paramsPromise }: Args) {
           <RichText className="max-w-[48rem] mx-auto" data={show.content} enableGutter={false} />
         </div>
       </div>
+
+      {show.mixcloudUrl && (
+        <div className="container max-w-[48rem] mx-auto pt-8">
+          <MixcloudEmbed src={show.mixcloudUrl} />
+        </div>
+      )}
 
       {show.stream_playlist && (
         <ShowScheduleBlock 

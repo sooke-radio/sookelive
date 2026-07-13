@@ -1,6 +1,5 @@
 name: Deploy
 
-
 on:
   push:
     branches:
@@ -9,7 +8,6 @@ on:
 
 jobs:
   stg-deploy:
-
     runs-on: ubuntu-latest
 
     environment: ${{ github.ref == 'refs/heads/prd' && 'prd' || 'stg' }}
@@ -21,7 +19,7 @@ jobs:
       - name: Create SSH key
         run: |
           mkdir -p ~/.ssh/
-          echo "$SSH_PRIVATE_KEY" > ../private.key
+           printf '%s\n' "$SSH_PRIVATE_KEY" > ../private.key
           sudo chmod 600 ../private.key
           echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
         shell: bash
@@ -31,11 +29,11 @@ jobs:
           SSH_KEY_PATH: ${{ github.workspace }}/../private.key
 
       - name: Deploy code
-        run: rsync -avz -e "ssh -i ../private.key" ./ autobot@${{ vars.DEPLOY_IP }}:${{ vars.DEPLOY_PATH }} --exclude=.git --exclude=.secrets --exclude=.env
+        run: rsync -avz -e "ssh -i ../private.key -p ${{ vars.SSH_PORT }}" ./ autobot@${{ vars.DEPLOY_IP }}:${{ vars.DEPLOY_PATH }} --exclude=.git --exclude=.env
 
       - name: Deploy secrets securely
         run: |
-          ssh -i ../private.key autobot@${{ vars.DEPLOY_IP }} bash << EOF
+          ssh -i ../private.key -p ${{ vars.SSH_PORT }} autobot@${{ vars.DEPLOY_IP }} bash << EOF
             set -e
             DEPLOY_PATH="${{ vars.DEPLOY_PATH }}"
             DEPLOY_IP="${{ vars.DEPLOY_IP }}"
@@ -49,55 +47,58 @@ jobs:
             AZURACAST_KEY="${{ secrets.AZURACAST_KEY }}"
             SMTP_PASS="${{ secrets.SMTP_PASS }}"
             BRANCH_NAME="${{ github.ref_name }}"
-            
-            # Create .secrets directory with restricted permissions
-            mkdir -p "\$DEPLOY_PATH/.secrets"
-            chmod 700 "\$DEPLOY_PATH/.secrets"
-            
-            # Write secrets file with restricted permissions
+
+            # Start from the branch-specific env file (overwrites any previous .env)
+            cp "\$DEPLOY_PATH/.env.\${BRANCH_NAME}" "\$DEPLOY_PATH/.env"
+
             {
-              echo "# Auto-generated secrets file - DO NOT EDIT MANUALLY"
-              echo "# This file is created by GitHub Actions deployment"
               echo ""
-              echo "# Database configuration"
-              echo "DATABASE_URI=mongodb://\${DEPLOY_IP}:\${DB_PORT}/\${DB_NAME}"
+              echo "# Secrets injected by GitHub Actions - DO NOT EDIT MANUALLY"
+              echo "DATABASE_URI=mongodb://\${MONGO_ROOT_USERNAME}:\${MONGO_ROOT_PASSWORD}@localhost:27017/\${MONGO_DATABASE}?authSource=admin"
               echo "MONGO_ROOT_USERNAME=\${MONGO_ROOT_USERNAME}"
               echo "MONGO_ROOT_PASSWORD=\${MONGO_ROOT_PASSWORD}"
               echo "MONGO_DATABASE=\${MONGO_DATABASE}"
-              echo ""
-              echo "# Application secrets"
               echo "PAYLOAD_SECRET=\${PAYLOAD_SECRET}"
               echo "CRON_SECRET=\${CRON_SECRET}"
-              echo ""
-              echo "# External service keys"
               echo "AZURACAST_KEY=\${AZURACAST_KEY}"
               echo "SMTP_PASS=\${SMTP_PASS}"
-            } > "\$DEPLOY_PATH/.secrets/.env"
-            
-            # If .env.\$BRANCH exists, append non-secret vars (if any)
-            if [ -f "\$DEPLOY_PATH/.env.\$BRANCH_NAME" ]; then
-              # Append non-sensitive vars (filter out secrets)
-              grep -vE '^(PAYLOAD_SECRET|CRON_SECRET|AZURACAST_KEY|SMTP_PASS|MONGO_ROOT_PASSWORD|DATABASE_URI|MONGO_ROOT_USERNAME|MONGO_DATABASE)=' "\$DEPLOY_PATH/.env.\$BRANCH_NAME" >> "\$DEPLOY_PATH/.secrets/.env" || true
-            fi
-            
-            # Set restrictive permissions on secrets file
-            chmod 600 "\$DEPLOY_PATH/.secrets/.env"
-            
-            echo "Secrets deployed securely to \$DEPLOY_PATH/.secrets/.env"
+            } >> "\$DEPLOY_PATH/.env"
+
+            chmod 600 "\$DEPLOY_PATH/.env"
+            echo "Secrets injected into \$DEPLOY_PATH/.env"
           EOF
 
       - name: Build & Run
         run: |
-          ssh -i ../private.key autobot@${{ vars.DEPLOY_IP }} << 'EOF'
+          ssh -i ../private.key -p ${{ vars.SSH_PORT }} autobot@${{ vars.DEPLOY_IP }} << 'EOF'
             set -e
             cd ${{ vars.DEPLOY_PATH }}
-            
+
             # Ensure MongoDB is running first
-            docker compose -f docker-compose.mongodb.yml up -d || true
-            
+            # -- assume this is up for now. TODO: move mongo to hosted db.
+            # # If the container exists but isn't running (stopped/errored), remove it so compose can recreate
+            # MONGO_STATUS=$(docker inspect --format='{{.State.Status}}' sookelive-mongodb 2>/dev/null || echo "absent")
+            # if [ "$MONGO_STATUS" != "running" ] && [ "$MONGO_STATUS" != "absent" ]; then
+            #   echo "Removing stopped/errored MongoDB container (status: $MONGO_STATUS)"
+            #   docker rm sookelive-mongodb
+            # fi
+            # docker compose -f docker-compose.mongodb.yml up -d
+
+            # # Wait for MongoDB to be healthy (up to 60s)
+            # timeout 60 sh -c 'until docker inspect --format="{{.State.Health.Status}}" $(docker compose -f docker-compose.mongodb.yml ps -q mongodb) 2>/dev/null | grep -q healthy; do sleep 2; done'
+            # echo "MongoDB is healthy"
+
             # Build and start application
             docker compose up -d --build
-            
+
+            # Verify container reaches running state (up to 120s)
+            timeout 120 sh -c 'until [ "$(docker inspect --format="{{.State.Status}}" sookelive-payload 2>/dev/null)" = "running" ]; do sleep 3; done'
+            echo "Deploy successful"
+
             # Optionally start Caddy if using docker-compose.caddy.yml
             # docker compose -f docker-compose.caddy.yml up -d || true
           EOF
+
+      - name: Cleanup
+        if: always()
+        run: rm -f ../private.key

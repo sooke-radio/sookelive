@@ -9,6 +9,7 @@ node_modules
 .next
 .vercel
 Caddyfile
+.pnpm-store
 
 # Payload default media upload directory
 public/media/
@@ -19,9 +20,6 @@ public/sitemap*.xml
 tmp/
 
 repomix-output.xml
-
-# pnpm local store (created when no global store-dir is configured)
-.pnpm-store/
 
 # tsc --noEmit incremental cache
 tsconfig.tsbuildinfo

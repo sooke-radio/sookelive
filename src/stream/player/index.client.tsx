@@ -12,33 +12,31 @@ export type MediaPlayerProps = {
 
 const LiveIndicator = () => {
   return (
-    <div className="bg-white text-black p-1 rounded font-bold inline-block mx-2 text-sm">
-      LIVE
-    </div>
+    <div className="bg-white text-black p-1 rounded font-bold inline-block mx-2 text-sm">LIVE</div>
   )
 }
 
 // Define a type for player states
-type PlayerState = 'stopped' | 'loading' | 'playing';
+type PlayerState = 'stopped' | 'loading' | 'playing'
 
 export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
   const [playerState, setPlayerState] = useState<PlayerState>('stopped')
   const [sound, setSound] = useState<Howl | null>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
   const analyzerRef = useRef<AnalyserNode | null>(null)
-  
+
   // For visualization
   const [audioContext, setAudioContext] = useState<AudioContext | null>(null)
   const [audioSource, setAudioSource] = useState<MediaElementAudioSourceNode | null>(null)
   const [showVisualization, setShowVisualization] = useState(false)
 
-  const streamSrc = `${process.env.NEXT_PUBLIC_AZURACAST_URL}/listen/${process.env.NEXT_PUBLIC_AZURACAST_STATION_ID}/high_192kbps.mp3`
+  const streamSrc = `${process.env.NEXT_PUBLIC_AZURACAST_URL}/listen/${process.env.NEXT_PUBLIC_AZURACAST_STATION_ID}/high_192kbps.mp3?nocache=${Date.now()}`
 
   // Initialize Howler sound object
   const initializeSound = (playOnLoad: boolean = false) => {
     // Unload any existing sound
     if (sound) {
-      unloadSound();
+      unloadSound()
     }
 
     // Create new Howl instance
@@ -58,18 +56,18 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
           clearTimeout(timeoutRef.current)
           timeoutRef.current = null
         }
-        
+
         // Setup visualization when playing starts
         // setupVisualization()
       },
       onpause: () => {
         setPlayerState('stopped')
         // setShowVisualization(false)
-        
+
         // Set timeout to unload after x seconds
         timeoutRef.current = setTimeout(() => {
           console.log('Stream paused timeout, unloading...')
-          if(sound){
+          if (sound) {
             unloadSound()
           }
         }, 30 * 1000)
@@ -87,11 +85,11 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
         setPlayerState('stopped')
         // Try to recover by reinitializing
         setTimeout(initializeSound, 1000)
-      }
+      },
     })
 
     setSound(newSound)
-    if(playOnLoad) {
+    if (playOnLoad) {
       sound.play()
     }
   }
@@ -104,38 +102,38 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
     }
     // Clean up audio context
     if (audioContext) {
-      audioContext.close().catch(err => console.error('Error closing AudioContext:', err))
+      audioContext.close().catch((err) => console.error('Error closing AudioContext:', err))
       setAudioContext(null)
     }
     if (audioSource) {
-      audioSource.disconnect();
-      setAudioSource(null);
+      audioSource.disconnect()
+      setAudioSource(null)
     }
   }
 
   // Setup visualization
   const setupVisualization = () => {
     if (!sound || !Howl.ctx) return
-    
+
     // If we don't have an audio context yet, use Howler's
     if (!audioContext) {
       setAudioContext(Howl.ctx)
     }
-    
+
     // Get the Howler sound node
     const node = sound.node
     if (!node) return
-    
+
     // Create a MediaElementAudioSourceNode for the AudioWaveform component
     // Note: This is a bit of a hack since we don't have direct access to the audio element
     // with Howler, but we can use the node to create an analyzer
     if (!audioSource && audioContext) {
       const analyzer = audioContext.createAnalyser()
       analyzer.fftSize = 256
-      
+
       // Connect the Howler node to our analyzer
       node.connect(analyzer)
-      
+
       // We'll use this analyzer as our "source" for the AudioWaveform component
       // by wrapping it in an object that mimics MediaElementAudioSourceNode
       const fakeSource = {
@@ -145,9 +143,9 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
         },
         disconnect: () => {
           analyzer.disconnect()
-        }
+        },
       } as unknown as MediaElementAudioSourceNode
-      
+
       setAudioSource(fakeSource)
       setShowVisualization(true)
     } else {
@@ -158,7 +156,7 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
   // Initialize on component mount
   useEffect(() => {
     initializeSound()
-    
+
     // Cleanup on unmount
     return () => {
       if (timeoutRef.current) {
@@ -168,17 +166,17 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
         sound.unload()
       }
       if (audioContext) {
-        audioContext.close().catch(err => console.error('Error closing AudioContext:', err))
+        audioContext.close().catch((err) => console.error('Error closing AudioContext:', err))
       }
       if (audioSource) {
-        audioSource.disconnect();
+        audioSource.disconnect()
       }
     }
   }, [])
 
   const [trackInfo, setNowPlaying] = useState<StreamMetadata>({
     title: 'Offline',
-    show: 'Sooke Community Radio'
+    show: 'Sooke Community Radio',
   })
 
   useEffect(() => {
@@ -202,8 +200,8 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
   }
 
   return (
-    <div className='flex flex-wrap items-center justify-center gap-4 p-6 w-full w-max-w-xl h-[40vh] md:h-[220px]'>
-      <button 
+    <div className="flex flex-wrap items-center justify-center gap-4 p-6 w-full w-max-w-xl h-[40vh] md:h-[220px]">
+      <button
         onClick={togglePlay}
         className="w-32 h-32
         rounded-full
@@ -233,21 +231,23 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
       <div className="flex flex-col text-secondary dark:text-primary">
         <span className="text-lg">
           {trackInfo.show}
-          {trackInfo.live && <LiveIndicator />} 
+          {trackInfo.live && <LiveIndicator />}
         </span>
 
         <span className="text-lg"></span>
- 
+
         <span className="text-xs">
           {trackInfo.artist ? (
             <>
               {trackInfo.artist} <br />
             </>
-          ) : ''}
+          ) : (
+            ''
+          )}
           {trackInfo.title}
         </span>
       </div>
-      
+
       {/* Visualization component */}
       {showVisualization && audioContext && audioSource && (
         <AudioWaveform audioContext={audioContext} source={audioSource} />
