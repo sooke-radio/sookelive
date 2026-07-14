@@ -89,6 +89,14 @@ jobs:
             # timeout 60 sh -c 'until docker inspect --format="{{.State.Health.Status}}" $(docker compose -f docker-compose.mongodb.yml ps -q mongodb) 2>/dev/null | grep -q healthy; do sleep 2; done'
             # echo "MongoDB is healthy"
 
+            # BuildKit's RUN --network only supports default/none/host, not
+            # arbitrary bridge networks, so the payload image's build (which
+            # needs to reach the mongodb container for DATABASE_URI) requires
+            # a buildx builder that is itself attached to sookelive-network.
+            docker buildx inspect sookelive-builder >/dev/null 2>&1 || \
+              docker buildx create --name sookelive-builder --driver docker-container --driver-opt network=sookelive-network
+            docker buildx use sookelive-builder
+
             # Build and start application
             docker compose up -d --build
 

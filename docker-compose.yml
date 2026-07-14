@@ -2,11 +2,13 @@ services:
   payload:
     build:
       context: .
-      # Join the same bridge network mongodb is on (rather than "host") so
-      # RUN steps can resolve the "mongodb" service name via Docker's
-      # embedded DNS - matching the hostname used at runtime below, so a
-      # single DATABASE_URI works for both.
-      network: sookelive-network
+      # RUN steps need to resolve the "mongodb" service name (via Docker's
+      # embedded DNS) to match the hostname used at runtime below, so a
+      # single DATABASE_URI works for both. BuildKit's build.network only
+      # accepts default/none/host - not arbitrary bridge networks - so
+      # reaching sookelive-network requires the active buildx builder
+      # itself to be attached to it (see the "ensure buildx builder" step
+      # in deploy.yml), and this is left as the (buildkit) default.
       args:
         MIGRATE: false   # run payload migrate
         DATABASE_URI: ${DATABASE_URI:-mongodb://${MONGO_ROOT_USERNAME:-admin}:${MONGO_ROOT_PASSWORD}@mongodb:27017/${MONGO_DATABASE:-payload}?authSource=admin}
