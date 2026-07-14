@@ -36,11 +36,10 @@ RUN pnpm build
 
 # Runtime stage — lean image without build tools
 FROM node:22-alpine AS run
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable && apk add --no-cache libc6-compat
+RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
+ENV NODE_OPTIONS=--no-deprecation
 
 COPY --from=install /app/node_modules ./node_modules
 COPY --from=build /app/.next ./.next
@@ -48,4 +47,9 @@ COPY --from=build /app/public ./public
 COPY package.json ./
 
 EXPOSE $EXPOSE_PORT
-CMD ["pnpm", "start"]
+# Invoke next directly instead of `pnpm start` — pnpm's implicit
+# "verify deps before run" check re-triggers a real `pnpm install` on every
+# container start (this stage has no pnpm-lock.yaml/pnpm-workspace.yaml to
+# satisfy it), which re-downloads pnpm via corepack and re-hits the
+# ignored-builds gate. Dependencies are already baked into node_modules above.
+CMD ["node_modules/.bin/next", "start"]
