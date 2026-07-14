@@ -54,4 +54,4 @@ docker compose -f "$COMPOSE_CC" up -d --build
 # only one to pick), and just starts a fresh session if none exist - so this
 # always drops you straight into Claude Code rather than an intermediate shell.
 echo "==> Attaching as the claude user..."
-exec docker compose -f "$COMPOSE_CC" exec --user claude cc-container claude --resume
+exec docker compose -f "$COMPOSE_CC" exec --user claude cc-container claude
