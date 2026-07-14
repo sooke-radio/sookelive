@@ -54,7 +54,7 @@ jobs:
             {
               echo ""
               echo "# Secrets injected by GitHub Actions - DO NOT EDIT MANUALLY"
-              echo "DATABASE_URI=mongodb://\${MONGO_ROOT_USERNAME}:\${MONGO_ROOT_PASSWORD}@localhost:27017/\${MONGO_DATABASE}?authSource=admin"
+              echo "DATABASE_URI=mongodb://\${MONGO_ROOT_USERNAME}:\${MONGO_ROOT_PASSWORD}@mongodb:27017/\${MONGO_DATABASE}?authSource=admin"
               echo "MONGO_ROOT_USERNAME=\${MONGO_ROOT_USERNAME}"
               echo "MONGO_ROOT_PASSWORD=\${MONGO_ROOT_PASSWORD}"
               echo "MONGO_DATABASE=\${MONGO_DATABASE}"
