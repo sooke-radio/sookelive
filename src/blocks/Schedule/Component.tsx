@@ -4,7 +4,6 @@ import { Show } from '@/payload-types'
 import { Card } from '@/components/ui/card'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
-import { unstable_cache } from 'next/cache'
 
 interface Props {
   shows?: Show[]
@@ -28,32 +27,6 @@ export const ScheduleBlock: React.FC<Props> = async ({
   description = '',
 }) => {
   const payload = await getPayload({ config: configPromise })
-  const getShows = await unstable_cache(
-    async () => {
-      if (allShows || shows.length < 1) {
-        const getShows = await payload.find({
-          collection: 'shows',
-          draft: false,
-          limit: 1000,
-          depth: 3,
-          overrideAccess: false,
-          pagination: false,
-          select: {
-            slug: true,
-            stream_playlist: true,
-            title: true,
-          },
-        })
-
-        shows = ((await getShows?.docs) as Show[]) || []
-      }
-    },
-    ['shows'],
-    {
-      tags: ['shows', 'schedule', 'playlists'],
-      revalidate: 60 * 60, // 1 hour
-    },
-  )
 
   if (allShows || shows.length < 1) {
     const getShows = await payload.find({

@@ -29,7 +29,9 @@ export const ThemeSelector: React.FC = () => {
   }
 
   React.useEffect(() => {
+    // localStorage isn't available during SSR, so this can't be computed during render.
     const preference = window.localStorage.getItem(themeLocalStorageKey)
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setValue(preference ?? 'auto')
   }, [])
 

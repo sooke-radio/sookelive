@@ -43,6 +43,7 @@ export const Countdown: React.FC = () => {
     }
     
     // Initial calculation
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setTimeLeft(calculateTimeLeft())
     
     // Update every second

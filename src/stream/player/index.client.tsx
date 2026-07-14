@@ -30,7 +30,12 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className }) => {
   const [audioSource, setAudioSource] = useState<MediaElementAudioSourceNode | null>(null)
   const [showVisualization, setShowVisualization] = useState(false)
 
-  const streamSrc = `${process.env.NEXT_PUBLIC_AZURACAST_URL}/listen/${process.env.NEXT_PUBLIC_AZURACAST_STATION_ID}/high_192kbps.mp3?nocache=${Date.now()}`
+  // Lazy initializer runs exactly once (on mount), so the cache-busting
+  // query param doesn't change every time this component re-renders.
+  const [streamSrc] = useState(
+    () =>
+      `${process.env.NEXT_PUBLIC_AZURACAST_URL}/listen/${process.env.NEXT_PUBLIC_AZURACAST_STATION_ID}/high_192kbps.mp3?nocache=${Date.now()}`,
+  )
 
   // Initialize Howler sound object
   const initializeSound = (playOnLoad: boolean = false) => {

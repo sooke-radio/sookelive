@@ -27,8 +27,8 @@ describe('Playlists revalidate hooks', () => {
     })
 
     expect(revalidatePath).toHaveBeenCalledWith('/schedule')
-    expect(revalidateTag).toHaveBeenCalledWith('shows')
-    expect(revalidateTag).toHaveBeenCalledWith('playlists')
+    expect(revalidateTag).toHaveBeenCalledWith('shows', 'max')
+    expect(revalidateTag).toHaveBeenCalledWith('playlists', 'max')
   })
 
   it('revalidates the same targets when a playlist is deleted', async () => {
@@ -49,8 +49,8 @@ describe('Playlists revalidate hooks', () => {
     await payload.delete({ collection: 'playlists', id: created.id })
 
     expect(revalidatePath).toHaveBeenCalledWith('/schedule')
-    expect(revalidateTag).toHaveBeenCalledWith('shows')
-    expect(revalidateTag).toHaveBeenCalledWith('playlists')
+    expect(revalidateTag).toHaveBeenCalledWith('shows', 'max')
+    expect(revalidateTag).toHaveBeenCalledWith('playlists', 'max')
   })
 
   it('skips revalidation when context.disableRevalidate is set', async () => {
