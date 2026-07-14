@@ -2,7 +2,11 @@ services:
   payload:
     build:
       context: .
-      network: host # need this to connect to mongodb for build
+      # Join the same bridge network mongodb is on (rather than "host") so
+      # RUN steps can resolve the "mongodb" service name via Docker's
+      # embedded DNS - matching the hostname used at runtime below, so a
+      # single DATABASE_URI works for both.
+      network: sookelive-network
       args:
         MIGRATE: false   # run payload migrate
         DATABASE_URI: ${DATABASE_URI:-mongodb://${MONGO_ROOT_USERNAME:-admin}:${MONGO_ROOT_PASSWORD}@mongodb:27017/${MONGO_DATABASE:-payload}?authSource=admin}

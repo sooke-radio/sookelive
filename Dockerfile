@@ -10,7 +10,6 @@ FROM node:22-alpine AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
-ARG DATABASE_URI
 RUN apk add --no-cache libc6-compat build-base gcc autoconf automake zlib-dev libpng-dev nasm
 
 WORKDIR /app
