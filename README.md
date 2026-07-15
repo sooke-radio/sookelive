@@ -192,6 +192,18 @@ PROD_SSH_HOST=autobot@1.2.3.4 PROD_DEPLOY_PATH=/home/autobot/sookelive bin/sync-
 
 This requires SSH access to the target host (the same key/user the GitHub Actions deploy workflow uses - see `.github/workflows/deploy.yml`) and a running local mongodb container. It prompts for confirmation before dropping local data; set `FORCE=1` to skip the prompt.
 
+### Syncing local media from production
+
+`bin/sync-prod-media.sh` pulls `public/media` (image uploads) from a deployed host (stg or prd) over SSH into this repo's local `public/media/`, for reproducing/debugging real images during development. Media lives in a Docker volume, so this goes through `docker exec` + `tar` on the remote container rather than reading the volume's files directly. **Run this on the host, not inside cc-container** (SSH is expected to be blocked there):
+
+```bash
+bin/sync-prod-media.sh <user@host>
+# or
+PROD_SSH_HOST=autobot@1.2.3.4 bin/sync-prod-media.sh
+```
+
+By default it only adds/overwrites files, never deleting local-only ones; set `CLEAN=1` to wipe local `public/media/` first for an exact mirror (prompts for confirmation unless `FORCE=1` is also set).
+
 ### Security Features
 
 - ✅ No database ports exposed to host
