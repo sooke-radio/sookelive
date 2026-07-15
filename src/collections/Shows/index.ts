@@ -272,7 +272,7 @@ export const Shows: CollectionConfig<'shows'> = {
   versions: {
     drafts: {
       autosave: {
-        interval: 100, // We set this interval for optimal live preview
+        interval: 2000, // Live preview freshness vs. not fighting typing
       },
       schedulePublish: true,
     },
