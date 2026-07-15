@@ -1,4 +1,7 @@
 # fix known bugs
 - the pagination on the 'shows' page links to 'posts' instead
-- nodemailer auth / transport error
--
+- nodemailer auth / transport error — the hang/timeout part is fixed (see `src/plugins/mailer.ts`, 2026-07-15); whether SMTP creds actually work for real delivery is still unverified, needs a live send test against real `.env` SMTP_* values.
+- **Live preview doesn't refresh in the admin panel iframe** (reported 2026-07-15, testing via `10.0.0.142:3006` in cc-container). Investigated, not fixed:
+  - Confirmed fixed as part of this: Shows was missing from `generatePreviewPath.ts`'s `collectionPrefixMap`, so its preview URL resolved to `undefined/<slug>` (commit 8b085eff).
+  - Confirmed still correctly wired: `LivePreviewListener` (`RefreshRouteOnSave` from `@payloadcms/live-preview-react`) is mounted in all three frontend templates (`posts/[slug]`, `shows/[slug]`, `[slug]`); `/next/preview/route.ts` already awaits `draftMode()` (Next 16-compatible).
+  - Prime suspect, unconfirmed: `.env`'s `NEXT_PUBLIC_SERVER_URL=http://localhost:3000` is hardcoded, but admin was being accessed via `10.0.0.142:3006` (the cc-container LAN port mapping). The preview iframe src / live-preview postMessage handshake is built from that env var, so it likely points at the wrong origin when accessed via the LAN IP — probably fails silently client-side (no server log entry, matches what was observed). Needs a live browser check: (1) does preview work when accessed via `localhost:3000` directly instead of the LAN IP, confirming the theory; (2) if so, decide the real fix — e.g. drop `NEXT_PUBLIC_SERVER_URL` from dev `.env` so `generatePreviewPath`'s `req.host` fallback takes over, vs. documenting "use localhost for preview testing" as a constraint.
