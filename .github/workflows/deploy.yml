@@ -54,7 +54,11 @@ jobs:
             {
               echo ""
               echo "# Secrets injected by GitHub Actions - DO NOT EDIT MANUALLY"
-              echo "DATABASE_URI=mongodb://\${MONGO_ROOT_USERNAME}:\${MONGO_ROOT_PASSWORD}@mongodb:27017/\${MONGO_DATABASE}?authSource=admin"
+              # DATABASE_URI is intentionally not set here: docker-compose.yml
+              # derives its own default from the MONGO_* vars below, using the
+              # right hostname for each context (localhost for the build,
+              # which runs on the host network; mongodb for the runtime
+              # container, which runs on sookelive-network).
               echo "MONGO_ROOT_USERNAME=\${MONGO_ROOT_USERNAME}"
               echo "MONGO_ROOT_PASSWORD=\${MONGO_ROOT_PASSWORD}"
               echo "MONGO_DATABASE=\${MONGO_DATABASE}"
@@ -88,14 +92,6 @@ jobs:
             # # Wait for MongoDB to be healthy (up to 60s)
             # timeout 60 sh -c 'until docker inspect --format="{{.State.Health.Status}}" $(docker compose -f docker-compose.mongodb.yml ps -q mongodb) 2>/dev/null | grep -q healthy; do sleep 2; done'
             # echo "MongoDB is healthy"
-
-            # BuildKit's RUN --network only supports default/none/host, not
-            # arbitrary bridge networks, so the payload image's build (which
-            # needs to reach the mongodb container for DATABASE_URI) requires
-            # a buildx builder that is itself attached to sookelive-network.
-            docker buildx inspect sookelive-builder >/dev/null 2>&1 || \
-              docker buildx create --name sookelive-builder --driver docker-container --driver-opt network=sookelive-network
-            docker buildx use sookelive-builder
 
             # Build and start application
             docker compose up -d --build
