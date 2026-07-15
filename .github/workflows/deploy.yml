@@ -93,6 +93,18 @@ jobs:
             # timeout 60 sh -c 'until docker inspect --format="{{.State.Health.Status}}" $(docker compose -f docker-compose.mongodb.yml ps -q mongodb) 2>/dev/null | grep -q healthy; do sleep 2; done'
             # echo "MongoDB is healthy"
 
+            # An earlier deploy attempt left a "sookelive-builder" buildx
+            # builder active (docker-container driver, attached only to
+            # sookelive-network). docker buildx use persists across runs, so
+            # without this the build below would still use it - and since
+            # that builder's BuildKit daemon runs inside its own container,
+            # network: host in docker-compose.yml would resolve to that
+            # container's loopback, not the real host, breaking the build's
+            # connection to mongodb on localhost:27017. Force back to the
+            # default builder, which runs BuildKit in dockerd itself.
+            docker buildx use default
+            docker buildx rm sookelive-builder >/dev/null 2>&1 || true
+
             # Build and start application
             docker compose up -d --build
 
