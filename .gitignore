@@ -26,3 +26,6 @@ tsconfig.tsbuildinfo
 
 # vitest coverage output
 coverage/
+
+# personal Claude Code overrides, not shared project settings
+.claude/settings.local.json
