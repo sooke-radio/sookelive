@@ -28,9 +28,6 @@ ENV NODE_ENV=production
 COPY . .
 COPY --from=install /app/node_modules ./node_modules
 
-# if migrate is true, run payload migration
-# RUN if [[ -z "$MIGRATE" ]] ; then pnpm migrate ; else echo "No migration." ; fi
-
 RUN pnpm build
 
 # Runtime stage — lean image without build tools
@@ -49,7 +46,7 @@ COPY package.json ./
 # that restricts images.qualities to [75], 400-ing every q=100 image URL.
 COPY next.config.js redirects.js ./
 
-EXPOSE $EXPOSE_PORT
+EXPOSE 3000
 # Invoke next directly instead of `pnpm start` — pnpm's implicit
 # "verify deps before run" check re-triggers a real `pnpm install` on every
 # container start (this stage has no pnpm-lock.yaml/pnpm-workspace.yaml to
