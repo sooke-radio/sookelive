@@ -52,6 +52,7 @@ function copyViaExecCommand(text: string) {
 type PlayerState = 'stopped' | 'loading' | 'playing'
 
 const PREFERRED_MOUNT_STORAGE_KEY = 'sookelive:preferredMountId'
+const VOLUME_STORAGE_KEY = 'sookelive:volume'
 
 // If we're supposedly playing but haven't heard a now-playing update in this
 // long, assume the connection died silently (common on a network handoff -
@@ -104,6 +105,27 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className, chatUrl })
     activeMountRef.current = activeMount
   }, [activeMount])
 
+  const [volume, setVolumeState] = useState<number>(() => {
+    if (typeof window === 'undefined') return 1
+    const stored = window.localStorage.getItem(VOLUME_STORAGE_KEY)
+    const parsed = stored ? Number(stored) : NaN
+    return Number.isFinite(parsed) ? Math.min(1, Math.max(0, parsed)) : 1
+  })
+  const volumeRef = useRef(volume)
+
+  useEffect(() => {
+    volumeRef.current = volume
+    soundRef.current?.volume(volume)
+  }, [volume])
+
+  const setVolume = useCallback((next: number) => {
+    const clamped = Math.min(1, Math.max(0, next))
+    setVolumeState(clamped)
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(VOLUME_STORAGE_KEY, String(clamped))
+    }
+  }, [])
+
   useEffect(() => {
     playerStateRef.current = playerState
   }, [playerState])
@@ -154,6 +176,7 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className, chatUrl })
         html5: true, // Required for streaming
         format: [mount.format],
         autoplay: false,
+        volume: volumeRef.current,
         onload: () => {
           console.log('Stream loaded')
           setPlayerState('stopped')
@@ -414,6 +437,8 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className, chatUrl })
         onSelectMount={setPreferredMount}
         onCopyUrl={copyStreamUrl}
         copied={copied}
+        volume={volume}
+        onVolumeChange={setVolume}
       />
 
       {/* Visualization component */}

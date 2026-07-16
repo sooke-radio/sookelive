@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useRef, useState } from 'react'
-import { Settings, Check, Copy } from 'lucide-react'
+import { Settings, Check, Copy, Volume2, VolumeX } from 'lucide-react'
 import type { AzuracastMount } from '@/stream/azuracast/types'
 
 export type QualityMenuProps = {
@@ -10,6 +10,8 @@ export type QualityMenuProps = {
   onSelectMount: (mountId: number) => void
   onCopyUrl: () => void
   copied: boolean
+  volume: number
+  onVolumeChange: (volume: number) => void
 }
 
 export const QualityMenu: React.FC<QualityMenuProps> = ({
@@ -18,6 +20,8 @@ export const QualityMenu: React.FC<QualityMenuProps> = ({
   onSelectMount,
   onCopyUrl,
   copied,
+  volume,
+  onVolumeChange,
 }) => {
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
@@ -46,6 +50,28 @@ export const QualityMenu: React.FC<QualityMenuProps> = ({
 
       {open && (
         <div className="absolute right-0 top-full z-30 mt-2 w-56 rounded-md bg-black border border-white/10 shadow-lg p-2 text-secondary dark:text-primary">
+          <div className="mb-2">
+            <div className="px-2 pb-1 text-xs uppercase tracking-wide opacity-60">Volume</div>
+            <div className="flex items-center gap-2 px-2 py-1.5">
+              {volume === 0 ? (
+                <VolumeX size={14} className="shrink-0 opacity-70" />
+              ) : (
+                <Volume2 size={14} className="shrink-0 opacity-70" />
+              )}
+              <input
+                type="range"
+                min={0}
+                max={1}
+                step={0.01}
+                value={volume}
+                onChange={(e) => onVolumeChange(Number(e.target.value))}
+                aria-label="Volume"
+                className="w-full h-[3px] cursor-pointer accent-[#6834FD]"
+              />
+            </div>
+            <div className="my-2 border-t border-white/10" />
+          </div>
+
           {mounts.length > 1 && (
             <div className="mb-2">
               <div className="px-2 pb-1 text-xs uppercase tracking-wide opacity-60">Quality</div>
