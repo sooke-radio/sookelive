@@ -23,7 +23,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
   const { headerTheme, setHeaderTheme } = useHeaderTheme()
   const pathname = usePathname()
 
-  const streamDisabled = process.env.NEXT_PUBLIC_STREAM_DISABLED ? true : false;
+  const streamDisabled = process.env.NEXT_PUBLIC_STREAM_DISABLED === 'true'
 
   useEffect(() => {
     setHeaderTheme(null)
@@ -66,7 +66,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
           </div>
         </div>
         <div className="lg:w-2/5 flex w-full items-center justify-center basis-full lg:basis-auto">
-            <StreamPlayer  /> 
+            {!streamDisabled && <StreamPlayer chatUrl={data.chatUrl} />}
             {/* <Countdown /> */}
         </div>
       </div>

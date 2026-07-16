@@ -1930,6 +1930,10 @@ export interface Header {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Links the player's LIVE indicator to live chat when a show is live. Leave blank to hide it. For a general chat link in the main menu, add it to Nav Items above instead.
+   */
+  chatUrl?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1985,6 +1989,7 @@ export interface HeaderSelect<T extends boolean = true> {
             };
         id?: T;
       };
+  chatUrl?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

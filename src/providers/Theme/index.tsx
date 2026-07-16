@@ -34,18 +34,11 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   }, [])
 
   useEffect(() => {
-    let themeToSet: Theme = defaultTheme
+    // Dark by default - only an explicit stored preference (set via the theme
+    // selector) overrides it. Unlike the "Auto" option below, this initial
+    // load intentionally does NOT consult prefers-color-scheme.
     const preference = window.localStorage.getItem(themeLocalStorageKey)
-
-    if (themeIsValid(preference)) {
-      themeToSet = preference
-    } else {
-      const implicitPreference = getImplicitPreference()
-
-      if (implicitPreference) {
-        themeToSet = implicitPreference
-      }
-    }
+    const themeToSet: Theme = themeIsValid(preference) ? preference : defaultTheme
 
     document.documentElement.setAttribute('data-theme', themeToSet)
     // localStorage/DOM state isn't available during SSR, so this can't be computed during render.
