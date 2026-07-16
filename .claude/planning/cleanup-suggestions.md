@@ -22,7 +22,10 @@ Running list of cruft found in the codebase (2026-07-07 audit). Fix these opport
 ## Docker / deploy
 
 - [ ] **Dockerfile dead lines** — `RUN NODE_ENV=production` is a no-op (sets a var in a throwaway shell); `EXPOSE $EXPOSE_PORT` references an undefined ARG; the commented-out migrate step and the `COPY . /app` in the *base* stage (defeats layer caching for installs) are worth revisiting. Also revisit Next standalone output, which the header comment says is disabled — it would shrink the runtime image a lot.
-- [ ] **`deploy.yml` TODO** — the workflow's own comment says "consolidate deploy workflows"; the single job is named `stg-deploy` but serves both stg and prd. Rename the job and parameterize cleanly.
+- [x] **`deploy.yml` TODO** — fixed in the deploy-overhaul rework: jobs are now `quality` + `deploy`, environment selection is `environment: ${{ github.ref_name }}` (branch name == GitHub Environment name), secrets are assembled into `.env` on the runner and streamed over SSH stdin (no more secret interpolation into remote script text), rsync got a proper exclude list (no `--delete` — the user hand-edits files on the server, esp. stg; stale repo-deleted files therefore linger until cleaned manually), and the deploy is gated by typecheck + unit tests, an in-container HTTP health check, and public-URL smoke tests. `DB_PORT`/`DB_NAME` env vars were dropped (unused) — delete them from the GitHub Environments too.
+- [ ] **Pin `packageManager` in `package.json`** — CI pins pnpm 11 via `pnpm/action-setup`; adding `"packageManager": "pnpm@11.x"` would make CI/local/Docker resolve identically. Affects the Docker build's corepack resolution, so land it as its own change.
+- [ ] **Compose healthcheck for the payload service** — the deploy workflow polls with `docker exec ... wget`; a proper `healthcheck` + `docker compose up --wait` would be cleaner and also inform `restart` behavior.
+- [ ] **Buildx legacy guard in `deploy.yml`** — the `docker buildx use default` / `rm sookelive-builder` lines only exist because of a stale builder left on the server; delete them once confirmed gone (`docker buildx ls` on the server).
 - [ ] **`bin/mongodump.sh` vs `bin/backup-db.sh`** — overlapping purpose; `mongodump.sh` has a typo ("taekes"), no `set -e`, and unquoted args. Fold it into `backup-db.sh` or delete it.
 
 ## Polish

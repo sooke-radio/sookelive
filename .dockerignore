@@ -1,0 +1,10 @@
+# Keep server-local and generated files out of the build context.
+# NOTE: .env must NOT be listed - the build stage's COPY . . relies on it
+# for NEXT_PUBLIC_* values at `next build` time.
+.git
+node_modules
+.next
+db
+Caddyfile
+tmp
+coverage
