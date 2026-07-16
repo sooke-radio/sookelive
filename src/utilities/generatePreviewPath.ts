@@ -31,7 +31,12 @@ export const generatePreviewPath = ({ collection, slug, req }: Props) => {
     process.env.NODE_ENV === 'production' || Boolean(process.env.VERCEL_PROJECT_PRODUCTION_URL)
   const protocol = isProduction ? 'https:' : req.protocol
 
-  const root = process.env.NEXT_PUBLIC_SERVER_URL || `${protocol}//${req.host}`;
+  // Prefer the host the browser actually used to reach us over
+  // NEXT_PUBLIC_SERVER_URL: the preview iframe/link is loaded by that same
+  // browser, so it needs an origin the browser can reach. NEXT_PUBLIC_SERVER_URL
+  // is a fixed value (e.g. localhost:3000) that's wrong whenever the admin is
+  // accessed via a different host, like a LAN IP in cc-container dev.
+  const root = req.host ? `${protocol}//${req.host}` : process.env.NEXT_PUBLIC_SERVER_URL || ''
 
   const url = `${root}/next/preview?${encodedParams.toString()}`
 
