@@ -28,7 +28,7 @@ Running list of cruft found in the codebase (2026-07-07 audit). Fix these opport
 ## Polish
 
 - [ ] **Typo "Coummunity"** — in `generateTitle` in `src/plugins/index.ts` (twice); this string ends up in every page's SEO title.
-- [ ] **Leftover debug noise** — commented-out `console.log`s in `src/stream/azuracast/api.ts` and `console.log`s in `src/tasks/syncAzuracast.ts`; prefer `req.payload.logger`.
+- [ ] **Leftover debug noise** — commented-out `console.log`s in `src/stream/azuracast/api.ts`, `src/plugins/mailer.ts`, and `console.log`s in `src/tasks/syncAzuracast.ts`; prefer `req.payload.logger`.
 - [ ] **`payload-docs.md` (repo root, ~15 KB)** — pasted reference docs. Move under `docs/` or delete if it just mirrors payloadcms.com.
 - [ ] **`db/` backups directory** — empty and untracked but not in `.gitignore`; add `db/` so a database dump is never accidentally committed.
 - [ ] **`.gitignore` vs tracked env files** — `.env.*` is ignored, yet `.env.example`, `.env.stg`, and `.env.prd` are tracked (added before/despite the rule) and the deploy workflow depends on the branch files. Replace the blanket `.env.*` with explicit ignores (e.g. `.env`, `.env.local`) so the intent is clear and changes to the tracked files aren't silently masked in some tools.

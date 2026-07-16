@@ -24,6 +24,7 @@ import { isAuthenticatedOrCronSecret } from '@/access/isAuthenticatedOrCronSecre
 
 import { default as mailer } from './plugins/mailer'
 import { syncAzuracastTask } from './tasks/syncAzuracast'
+import { revalidateAllEndpoint } from './endpoints/revalidateAll'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -78,6 +79,7 @@ export default buildConfig({
     // storage-adapter-placeholder
   ],
   secret: process.env.PAYLOAD_SECRET,
+  endpoints: [revalidateAllEndpoint],
   sharp,
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),

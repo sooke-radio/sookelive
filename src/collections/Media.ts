@@ -22,6 +22,11 @@ export const Media: CollectionConfig = {
     read: anyone,
     update: authenticated,
   },
+  admin: {
+    components: {
+      beforeListTable: ['@/components/RevalidateAll'],
+    },
+  },
   fields: [
     {
       name: 'alt',
