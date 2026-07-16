@@ -218,8 +218,20 @@ jobs:
               || { echo "::error::Smoke test failed: $BASE_URL$path"; exit 1; }
             echo "OK $code $BASE_URL$path"
           done
-          curl -fsSL --max-time 30 "$BASE_URL/" | grep -qi 'sooke' \
+          home=$(mktemp)
+          curl -fsSL --max-time 30 "$BASE_URL/" -o "$home"
+          grep -qi 'sooke' "$home" \
             || { echo "::error::Homepage content check failed for $BASE_URL/"; exit 1; }
+          # Image optimizer check: a real /_next/image URL from the rendered page
+          # must serve (catches runtime config regressions, e.g. images.qualities).
+          img=$(grep -oP 'src="\K/_next/image\?[^"]*' "$home" | head -1 | sed 's/&amp;/\&/g')
+          if [ -n "$img" ]; then
+            curl -fsS -o /dev/null --max-time 30 "$BASE_URL$img" \
+              || { echo "::error::Image optimizer check failed: $BASE_URL$img"; exit 1; }
+            echo "OK image $img"
+          else
+            echo "No /_next/image URL found on homepage; skipping image check"
+          fi
 
       - name: Cleanup
         if: always()

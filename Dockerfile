@@ -44,6 +44,10 @@ COPY --from=install /app/node_modules ./node_modules
 COPY --from=build /app/.next ./.next
 COPY --from=build /app/public ./public
 COPY package.json ./
+# next start reads next.config.js at runtime (it is NOT baked into .next).
+# Without it, production falls back to Next's default config — under Next 16
+# that restricts images.qualities to [75], 400-ing every q=100 image URL.
+COPY next.config.js redirects.js ./
 
 EXPOSE $EXPOSE_PORT
 # Invoke next directly instead of `pnpm start` — pnpm's implicit
