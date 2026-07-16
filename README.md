@@ -204,6 +204,18 @@ PROD_SSH_HOST=autobot@1.2.3.4 bin/sync-prod-media.sh
 
 By default it only adds/overwrites files, never deleting local-only ones; set `CLEAN=1` to wipe local `public/media/` first for an exact mirror (prompts for confirmation unless `FORCE=1` is also set).
 
+### Syncing stg from prd (on the server)
+
+`bin/sync-prd-to-stg.sh` copies prd's database and media into stg for testing against real data. prd and stg run as separate app containers on the same host and share one mongodb container, so this runs entirely via local `docker exec` - no SSH, and it's meant to be run **on the server** (from the stg deploy checkout), not from a dev machine or cc-container:
+
+```bash
+bin/sync-prd-to-stg.sh
+# or override defaults (sl2db -> stg, sookelive-prd -> sookelive-stg)
+PRD_DB=sl2db STG_DB=stg PRD_CONTAINER=sookelive-prd STG_CONTAINER=sookelive-stg bin/sync-prd-to-stg.sh
+```
+
+The database copy goes through `bin/copy-db.sh`, which backs up stg's previous database to `./db/` before dropping it. Media sync only adds/overwrites files by default; set `CLEAN=1` to wipe stg's media first for an exact mirror. Prompts for confirmation unless `FORCE=1` is set.
+
 ### Security Features
 
 - ✅ No database ports exposed to host
