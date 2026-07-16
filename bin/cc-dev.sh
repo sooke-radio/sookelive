@@ -7,7 +7,8 @@
 set -euo pipefail
 
 REBUILD=0
-LAUNCH_CMD="claude"
+BASH_SHELL=0
+RESUME=0
 
 for arg in "$@"; do
   case "$arg" in
@@ -15,12 +16,16 @@ for arg in "$@"; do
       REBUILD=1
       ;;
     --bash)
-      LAUNCH_CMD="bash"
+      BASH_SHELL=1
+      ;;
+    --resume)
+      RESUME=1
       ;;
     -h|--help)
-      echo "Usage: $(basename "${BASH_SOURCE[0]}") [--rebuild] [--bash]"
+      echo "Usage: $(basename "${BASH_SOURCE[0]}") [--rebuild] [--bash|--resume]"
       echo "  --rebuild  force-rebuild and recreate cc-container even if already running"
       echo "  --bash     attach with a bash shell instead of launching claude"
+      echo "  --resume   launch claude with --resume for this attach"
       exit 0
       ;;
     *)
@@ -29,6 +34,19 @@ for arg in "$@"; do
       ;;
   esac
 done
+
+if [[ "$BASH_SHELL" == "1" ]] && [[ "$RESUME" == "1" ]]; then
+  echo "Error: --bash and --resume are mutually exclusive." >&2
+  exit 1
+fi
+
+if [[ "$BASH_SHELL" == "1" ]]; then
+  LAUNCH_CMD=(bash)
+elif [[ "$RESUME" == "1" ]]; then
+  LAUNCH_CMD=(claude --resume)
+else
+  LAUNCH_CMD=(claude)
+fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
@@ -89,7 +107,8 @@ fi
 # read files it doesn't own - like the claude-config volume's credentials -
 # so without this flag you'd hit a fresh login prompt every time.
 # Plain `claude` (no --resume) always starts a fresh session - see
-# .claude/planning/cc-container-dev-setup.md. --bash swaps this for a plain
+# .claude/planning/cc-container-dev-setup.md. --resume opts back into
+# `claude --resume` for this attach only; --bash swaps this for a plain
 # shell instead.
-echo "==> Attaching as the claude user ($LAUNCH_CMD)..."
-exec docker compose -f "$COMPOSE_CC" exec --user claude cc-container "$LAUNCH_CMD"
+echo "==> Attaching as the claude user (${LAUNCH_CMD[*]})..."
+exec docker compose -f "$COMPOSE_CC" exec --user claude cc-container "${LAUNCH_CMD[@]}"
