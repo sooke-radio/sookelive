@@ -36,7 +36,7 @@ Everything is wired together in `src/payload.config.ts`: collections, globals (H
 
 ### Content model
 
-Collections live in `src/collections/` — Pages, Posts, Shows, Media, Categories, Genres, Hosts, Users, Playlists. Larger collections are directories with an `index.ts` plus `hooks/` (mostly `revalidate*` hooks that call Next's `revalidatePath`/`revalidateTag` on change — draft-aware content is statically rendered and depends on these for freshness).
+Collections live in `src/collections/` — Pages, Posts, Shows, Media, Categories, Genres, Hosts, Users, Playlists. Larger collections are directories with an `index.ts` plus `hooks/` (mostly `revalidate*` hooks that call Next's `revalidatePath`/`revalidateTag` on change — draft-aware content is statically rendered and depends on these for freshness). Those hooks only fire on real Payload document mutations — anything that changes the database directly (e.g. `bin/sync-prd-to-stg.sh`'s `mongorestore`) bypasses them, leaving stale cached pages. `POST /api/revalidate-all` (`src/endpoints/revalidateAll.ts`, same `isAuthenticatedOrCronSecret` auth as the jobs/playlists-sync endpoints) force-revalidates every page in one call; there's also a "Revalidate All Pages" button on the Media admin list view for manual use.
 
 Pages and Shows are built from **blocks** (`src/blocks/`, rendered by `RenderBlocks.tsx`) and **heros** (`src/heros/`, rendered by `RenderHero.tsx`). Access control helpers are in `src/access/` (`anyone`, `authenticated`, `authenticatedOrPublished`).
 

@@ -57,4 +57,23 @@ echo "==> Syncing media: '$PRD_CONTAINER' -> '$STG_CONTAINER'..."
 docker exec "$PRD_CONTAINER" tar -cf - -C /app/public/media . \
   | docker exec -i "$STG_CONTAINER" tar -xf - -C /app/public/media
 
+# The mongorestore above swaps stg's whole database directly, bypassing
+# Payload's application layer entirely - so none of the collections'
+# afterChange revalidate hooks fire, and stg's Next.js cache keeps serving
+# whatever was rendered before the sync (stale/missing images included).
+# Hit stg's own /api/revalidate-all (src/endpoints/revalidateAll.ts) from
+# inside its container so it busts every page in one call. Uses Node's
+# built-in fetch and the container's own CRON_SECRET (already present via
+# its .env) rather than depending on curl/wget being installed in the image.
+echo "==> Revalidating stg's Next.js cache..."
+docker exec "$STG_CONTAINER" node -e "
+  fetch('http://localhost:3000/api/revalidate-all', {
+    method: 'POST',
+    headers: { Authorization: 'Bearer ' + process.env.CRON_SECRET },
+  }).then(async (res) => {
+    if (!res.ok) throw new Error('revalidate-all failed: ' + res.status + ' ' + (await res.text()))
+    console.log('Revalidated.')
+  })
+"
+
 echo "Done. stg's '$STG_DB' database and public/media now reflect prd ('$PRD_DB' / $PRD_CONTAINER)."
