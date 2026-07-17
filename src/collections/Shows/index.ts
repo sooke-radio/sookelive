@@ -9,8 +9,11 @@ import {
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
 
-import { authenticated } from '../../access/authenticated'
-import { authenticatedOrPublished } from '../../access/authenticatedOrPublished'
+import type { Access, Where } from 'payload'
+
+import { isAdmin, isAdminField } from '../../access/byRole'
+import { getHostId, isAdminOrShowHost } from '../../access/assignedShows'
+import { isAdminUser } from '../../access/roles'
 import { Banner } from '../../blocks/Banner/config'
 import { Code } from '../../blocks/Code/config'
 import { MediaBlock } from '../../blocks/MediaBlock/config'
@@ -33,13 +36,34 @@ const extractMixcloudSrc = ({ value }: { value?: unknown }) => {
   return srcMatch ? srcMatch[1] : value
 }
 
+// Admins see everything (including drafts); hosts see published shows plus
+// their own assigned (possibly-draft) shows; everyone else sees published only.
+const readShows: Access = ({ req: { user } }) => {
+  if (isAdminUser(user)) return true
+
+  const hostId = getHostId(user)
+  if (hostId) {
+    const hostOrPublished: Where = {
+      or: [{ hosts: { in: [hostId] } }, { _status: { equals: 'published' } }],
+    }
+    return hostOrPublished
+  }
+
+  const publishedOnly: Where = {
+    _status: {
+      equals: 'published',
+    },
+  }
+  return publishedOnly
+}
+
 export const Shows: CollectionConfig<'shows'> = {
   slug: 'shows',
   access: {
-    create: authenticated,
-    delete: authenticated,
-    read: authenticatedOrPublished,
-    update: authenticated,
+    create: isAdmin,
+    delete: isAdmin,
+    read: readShows,
+    update: isAdminOrShowHost,
   },
   // This config controls what's populated by default when a post is referenced
   // https://payloadcms.com/docs/queries/select#defaultpopulate-collection-config-property
@@ -147,25 +171,37 @@ export const Shows: CollectionConfig<'shows'> = {
             {
               name: 'hosts',
               type: 'relationship',
+              access: {
+                update: isAdminField,
+              },
               hasMany: true,
               relationTo: 'hosts',
+              admin: {
+                description: 'Also grants edit access to this show for any hosts assigned here. Admin-only.',
+              },
             },
             {
               name: 'stream_playlist',
               label: 'Stream Playlist',
               type: 'relationship',
+              access: {
+                update: isAdminField,
+              },
               relationTo: 'playlists',
               hasMany: true,
               admin: {
-                description: 'The playlist name of the show in Azuracast for pre-recorded shows. This is used to populate schedule data and link from the stream player. If your playlist is not loaded, refresh the playlists using the button in /admin/collections/playlists.',
+                description: 'The playlist name of the show in Azuracast for pre-recorded shows. This is used to populate schedule data and link from the stream player. If your playlist is not loaded, refresh the playlists using the button in /admin/collections/playlists. Admin-only.',
               }
             },
             {
               name: 'streamer_id',
               label: 'Streamer ID',
               type: 'text',
+              access: {
+                update: isAdminField,
+              },
               admin: {
-                description: 'The streamer ID associated with this show in Azuracast for live streaming.',
+                description: 'The streamer ID associated with this show in Azuracast for live streaming. Admin-only.',
               }
             },
             {
@@ -243,6 +279,9 @@ export const Shows: CollectionConfig<'shows'> = {
     {
       name: 'authors',
       type: 'relationship',
+      access: {
+        update: isAdminField,
+      },
       admin: {
         position: 'sidebar',
       },

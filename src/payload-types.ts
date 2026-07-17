@@ -70,6 +70,8 @@ export interface Config {
     pages: Page;
     posts: Post;
     shows: Show;
+    episodes: Episode;
+    'episode-audio': EpisodeAudio;
     media: Media;
     categories: Category;
     genres: Genre;
@@ -91,6 +93,8 @@ export interface Config {
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     shows: ShowsSelect<false> | ShowsSelect<true>;
+    episodes: EpisodesSelect<false> | EpisodesSelect<true>;
+    'episode-audio': EpisodeAudioSelect<false> | EpisodeAudioSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     genres: GenresSelect<false> | GenresSelect<true>;
@@ -449,6 +453,18 @@ export interface Category {
 export interface User {
   id: string;
   name?: string | null;
+  /**
+   * Controls what this user can access in the admin panel.
+   */
+  roles: ('admin' | 'host')[];
+  /**
+   * Discord user ID, for linking a Discord account to this user. Not yet used for login.
+   */
+  discordId?: string | null;
+  /**
+   * Links this user to a Hosts profile, granting access to that host’s assigned shows.
+   */
+  host?: (string | null) | Host;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -467,6 +483,18 @@ export interface User {
     | null;
   password?: string | null;
   collection: 'users';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "hosts".
+ */
+export interface Host {
+  id: string;
+  title: string;
+  slug?: string | null;
+  slugLock?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -493,13 +521,16 @@ export interface Show {
     [k: string]: unknown;
   };
   genres?: (string | Genre)[] | null;
+  /**
+   * Also grants edit access to this show for any hosts assigned here. Admin-only.
+   */
   hosts?: (string | Host)[] | null;
   /**
-   * The playlist name of the show in Azuracast for pre-recorded shows. This is used to populate schedule data and link from the stream player. If your playlist is not loaded, refresh the playlists using the button in /admin/collections/playlists.
+   * The playlist name of the show in Azuracast for pre-recorded shows. This is used to populate schedule data and link from the stream player. If your playlist is not loaded, refresh the playlists using the button in /admin/collections/playlists. Admin-only.
    */
   stream_playlist?: (string | Playlist)[] | null;
   /**
-   * The streamer ID associated with this show in Azuracast for live streaming.
+   * The streamer ID associated with this show in Azuracast for live streaming. Admin-only.
    */
   streamer_id?: string | null;
   /**
@@ -537,18 +568,6 @@ export interface Show {
  * via the `definition` "genres".
  */
 export interface Genre {
-  id: string;
-  title: string;
-  slug?: string | null;
-  slugLock?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "hosts".
- */
-export interface Host {
   id: string;
   title: string;
   slug?: string | null;
@@ -947,6 +966,84 @@ export interface ScheduleBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "episodes".
+ */
+export interface Episode {
+  id: string;
+  title: string;
+  image?: (string | null) | Media;
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * The audio file for this episode.
+   */
+  audio?: (string | null) | EpisodeAudio;
+  tracklist?:
+    | {
+        artist: string;
+        title: string;
+        /**
+         * e.g. 1:23:45
+         */
+        startTime?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  meta?: {
+    title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (string | null) | Media;
+    description?: string | null;
+  };
+  show: string | Show;
+  /**
+   * The date this episode aired, or will air.
+   */
+  dateAired: string;
+  publishedAt?: string | null;
+  slug?: string | null;
+  slugLock?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "episode-audio".
+ */
+export interface EpisodeAudio {
+  id: string;
+  title?: string | null;
+  uploadedBy?: (string | null) | User;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -1145,6 +1242,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'shows';
         value: string | Show;
+      } | null)
+    | ({
+        relationTo: 'episodes';
+        value: string | Episode;
+      } | null)
+    | ({
+        relationTo: 'episode-audio';
+        value: string | EpisodeAudio;
       } | null)
     | ({
         relationTo: 'media';
@@ -1478,6 +1583,58 @@ export interface ShowsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "episodes_select".
+ */
+export interface EpisodesSelect<T extends boolean = true> {
+  title?: T;
+  image?: T;
+  description?: T;
+  audio?: T;
+  tracklist?:
+    | T
+    | {
+        artist?: T;
+        title?: T;
+        startTime?: T;
+        id?: T;
+      };
+  meta?:
+    | T
+    | {
+        title?: T;
+        image?: T;
+        description?: T;
+      };
+  show?: T;
+  dateAired?: T;
+  publishedAt?: T;
+  slug?: T;
+  slugLock?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "episode-audio_select".
+ */
+export interface EpisodeAudioSelect<T extends boolean = true> {
+  title?: T;
+  uploadedBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media_select".
  */
 export interface MediaSelect<T extends boolean = true> {
@@ -1617,6 +1774,9 @@ export interface HostsSelect<T extends boolean = true> {
  */
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
+  roles?: T;
+  discordId?: T;
+  host?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -2065,6 +2225,10 @@ export interface TaskSchedulePublish {
       | ({
           relationTo: 'shows';
           value: string | Show;
+        } | null)
+      | ({
+          relationTo: 'episodes';
+          value: string | Episode;
         } | null);
     global?: string | null;
     user?: (string | null) | User;

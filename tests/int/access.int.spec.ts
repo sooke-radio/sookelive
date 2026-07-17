@@ -77,7 +77,7 @@ describe('Playlists collection access control (read-only via the API)', () => {
   })
 })
 
-describe('authenticatedOrPublished on Shows drafts', () => {
+describe('Shows read access on drafts (readShows in src/collections/Shows/index.ts)', () => {
   afterEach(async () => {
     const payload = await getTestPayload()
     await deleteAll(payload, 'shows')
@@ -99,7 +99,7 @@ describe('authenticatedOrPublished on Shows drafts', () => {
     expect(docs).toHaveLength(0)
   })
 
-  it('shows a draft show to an authenticated request', async () => {
+  it('shows a draft show to an admin request', async () => {
     const payload = await getTestPayload()
     await payload.create({
       collection: 'shows',
@@ -111,11 +111,27 @@ describe('authenticatedOrPublished on Shows drafts', () => {
       collection: 'shows',
       overrideAccess: false,
       draft: true,
-      // Passing any truthy `user` is enough to exercise the access-control
-      // branch - authenticatedOrPublished only checks req.user's presence,
-      // it doesn't re-verify the session.
-      user: { collection: 'users', id: 'fake-user-id' } as any,
+      // roles: ['admin'] is required now - a plain authenticated user with
+      // no roles (e.g. an unassigned host) only sees published shows.
+      user: { collection: 'users', id: 'fake-admin-id', roles: ['admin'] } as any,
     })
     expect(docs).toHaveLength(1)
+  })
+
+  it('hides a draft show from an authenticated non-admin, non-host user', async () => {
+    const payload = await getTestPayload()
+    await payload.create({
+      collection: 'shows',
+      data: { title: 'Unpublished Show', _status: 'draft' },
+      draft: true,
+    })
+
+    const { docs } = await payload.find({
+      collection: 'shows',
+      overrideAccess: false,
+      draft: true,
+      user: { collection: 'users', id: 'fake-host-id', roles: ['host'] } as any,
+    })
+    expect(docs).toHaveLength(0)
   })
 })
