@@ -1,5 +1,9 @@
+'use client'
+
 import React from 'react'
 import { weekdays, timeToMinutes } from '@/schedule/schedule-common'
+import { Button } from '@/components/ui/button'
+import { openPrintableSchedule } from './printSchedule'
 import { ScheduleByDay, ScheduleEntry } from './types'
 
 interface Props {
@@ -62,58 +66,66 @@ export const ScheduleCalendar: React.FC<Props> = ({ scheduleByDay }) => {
   })
 
   return (
-    <div className="grid" style={{ gridTemplateColumns: '4rem repeat(7, 1fr)' }}>
-      <div />
-      {weekdays.map((day) => (
-        <div key={day} className="text-sm font-semibold text-center pb-2 border-b">
-          {day}
-        </div>
-      ))}
+    <div>
+      <div className="grid" style={{ gridTemplateColumns: '4rem repeat(7, 1fr)' }}>
+        <div />
+        {weekdays.map((day) => (
+          <div key={day} className="text-sm font-semibold text-center pb-2 border-b">
+            {day}
+          </div>
+        ))}
 
-      <div className="relative" style={{ height: totalMinutes * PX_PER_MIN }}>
-        {hourMarks.map((minutes) => (
+        <div className="relative" style={{ height: totalMinutes * PX_PER_MIN }}>
+          {hourMarks.map((minutes) => (
+            <div
+              key={minutes}
+              className="absolute right-2 text-xs text-gray-500"
+              style={{ top: (minutes - rangeStart) * PX_PER_MIN }}
+            >
+              {formatHour(minutes)}
+            </div>
+          ))}
+        </div>
+
+        {weekdays.map((_, dayIndex) => (
           <div
-            key={minutes}
-            className="absolute right-2 text-xs text-gray-500"
-            style={{ top: (minutes - rangeStart) * PX_PER_MIN }}
+            key={dayIndex}
+            className="relative border-l border-white/10 bg-black dark:bg-card"
+            style={{ height: totalMinutes * PX_PER_MIN }}
           >
-            {formatHour(minutes)}
+            {hourMarks.map((minutes) => (
+              <div
+                key={minutes}
+                className="absolute left-0 right-0 border-t border-dotted border-white/10"
+                style={{ top: (minutes - rangeStart) * PX_PER_MIN }}
+              />
+            ))}
+
+            {positionedByDay[dayIndex].length === 0 ? (
+              <div className="absolute inset-0 flex items-center justify-center text-gray-400 italic text-xs">
+                No shows
+              </div>
+            ) : (
+              positionedByDay[dayIndex].map((entry, entryIndex) => (
+                <a
+                  key={entryIndex}
+                  href={`/shows/${entry.slug}`}
+                  className="absolute left-1 right-1 rounded bg-white/10 border border-white/30 px-2 py-1 text-xs font-medium text-white overflow-hidden hover:bg-white/20"
+                  style={{ top: entry.top, height: entry.height }}
+                >
+                  {entry.playlistName}
+                </a>
+              ))
+            )}
           </div>
         ))}
       </div>
 
-      {weekdays.map((_, dayIndex) => (
-        <div
-          key={dayIndex}
-          className="relative border-l border-white/10 bg-black dark:bg-card"
-          style={{ height: totalMinutes * PX_PER_MIN }}
-        >
-          {hourMarks.map((minutes) => (
-            <div
-              key={minutes}
-              className="absolute left-0 right-0 border-t border-dotted border-white/10"
-              style={{ top: (minutes - rangeStart) * PX_PER_MIN }}
-            />
-          ))}
-
-          {positionedByDay[dayIndex].length === 0 ? (
-            <div className="absolute inset-0 flex items-center justify-center text-gray-400 italic text-xs">
-              No shows
-            </div>
-          ) : (
-            positionedByDay[dayIndex].map((entry, entryIndex) => (
-              <a
-                key={entryIndex}
-                href={`/shows/${entry.slug}`}
-                className="absolute left-1 right-1 rounded bg-white/10 border border-white/30 px-2 py-1 text-xs font-medium text-white overflow-hidden hover:bg-white/20"
-                style={{ top: entry.top, height: entry.height }}
-              >
-                {entry.playlistName}
-              </a>
-            ))
-          )}
-        </div>
-      ))}
+      <div className="flex justify-end mt-4">
+        <Button type="button" size="sm" variant="outline" onClick={() => openPrintableSchedule(scheduleByDay)}>
+          Print
+        </Button>
+      </div>
     </div>
   )
 }
