@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useSyncExternalStore } from 'react'
 import { Button } from '@/components/ui/button'
 import { ScheduleList } from './ScheduleList'
 import { ScheduleCalendar } from './ScheduleCalendar'
@@ -14,8 +14,26 @@ interface Props {
 
 type View = 'list' | 'calendar'
 
+// Matches the Tailwind `lg` breakpoint (see tailwind.config.mjs)
+const DESKTOP_QUERY = '(min-width: 1024px)'
+
+const subscribeToDesktopQuery = (callback: () => void) => {
+  const mql = window.matchMedia(DESKTOP_QUERY)
+  mql.addEventListener('change', callback)
+  return () => mql.removeEventListener('change', callback)
+}
+
+const getIsDesktop = () => window.matchMedia(DESKTOP_QUERY).matches
+const getIsDesktopServerSnapshot = () => false
+
 export const ScheduleViews: React.FC<Props> = ({ scheduleByDay, title, description }) => {
-  const [view, setView] = useState<View>('list')
+  const isDesktop = useSyncExternalStore(
+    subscribeToDesktopQuery,
+    getIsDesktop,
+    getIsDesktopServerSnapshot,
+  )
+  const [manualView, setManualView] = useState<View | null>(null)
+  const view = manualView ?? (isDesktop ? 'calendar' : 'list')
 
   return (
     <div className="container mt-8">
@@ -30,7 +48,7 @@ export const ScheduleViews: React.FC<Props> = ({ scheduleByDay, title, descripti
             type="button"
             size="sm"
             variant={view === 'list' ? 'default' : 'outline'}
-            onClick={() => setView('list')}
+            onClick={() => setManualView('list')}
           >
             List
           </Button>
@@ -38,7 +56,7 @@ export const ScheduleViews: React.FC<Props> = ({ scheduleByDay, title, descripti
             type="button"
             size="sm"
             variant={view === 'calendar' ? 'default' : 'outline'}
-            onClick={() => setView('calendar')}
+            onClick={() => setManualView('calendar')}
           >
             Calendar
           </Button>

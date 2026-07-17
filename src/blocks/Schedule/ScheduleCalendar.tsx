@@ -84,11 +84,15 @@ export const ScheduleCalendar: React.FC<Props> = ({ scheduleByDay }) => {
         </div>
 
         {weekdays.map((_, dayIndex) => (
-          <div key={dayIndex} className="relative border-l" style={{ height: totalMinutes * PX_PER_MIN }}>
+          <div
+            key={dayIndex}
+            className="relative border-l border-white/10 bg-black dark:bg-card"
+            style={{ height: totalMinutes * PX_PER_MIN }}
+          >
             {hourMarks.map((minutes) => (
               <div
                 key={minutes}
-                className="absolute left-0 right-0 border-t border-dotted"
+                className="absolute left-0 right-0 border-t border-dotted border-white/10"
                 style={{ top: (minutes - rangeStart) * PX_PER_MIN }}
               />
             ))}
@@ -102,7 +106,7 @@ export const ScheduleCalendar: React.FC<Props> = ({ scheduleByDay }) => {
                 <a
                   key={entryIndex}
                   href={`/shows/${entry.slug}`}
-                  className="absolute left-1 right-1 rounded bg-primary/10 border border-primary/30 px-2 py-1 text-xs font-medium overflow-hidden hover:bg-primary/20"
+                  className="absolute left-1 right-1 rounded bg-white/10 border border-white/30 px-2 py-1 text-xs font-medium text-white overflow-hidden hover:bg-white/20"
                   style={{ top: entry.top, height: entry.height }}
                 >
                   {entry.playlistName}
