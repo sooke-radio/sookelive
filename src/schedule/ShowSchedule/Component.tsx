@@ -13,7 +13,6 @@ export const ShowScheduleBlock = ({ playlists }: Props) => {
   // Create a map to organize schedule items by day
   const scheduleByDay: Record<number, Array<{
     startTime: string,
-    endTime: string,
     playlistName?: string
   }>> = {};
   
@@ -36,7 +35,6 @@ export const ShowScheduleBlock = ({ playlists }: Props) => {
         }
         scheduleByDay[day].push({
           startTime: formatTime(item.start_time),
-          endTime: formatTime(item.end_time),
           playlistName: playlist.name
         });
       });
@@ -66,16 +64,22 @@ export const ShowScheduleBlock = ({ playlists }: Props) => {
           {Object.entries(scheduleByDay).map(([day, items]) => (
             items.length > 0 && (
               <div key={day} className="">
-                <div className="font-medium inline-block min-w-32">{weekdays[Number(day)]}</div>
-                {items.map((item, itemIndex) => (
-                    <React.Fragment key={itemIndex}>
-                        <span className="inline-block">
-                            {item.playlistName && <span className="font-medium">{item.playlistName}: </span>}
-                            {item.startTime} - {item.endTime}
-                        </span>
-                        {itemIndex < items.length - 1 && <span>, </span>}
-                    </React.Fragment>
-                ))}
+                <div className="font-medium inline-block min-w-32 align-top">{weekdays[Number(day)]}</div>
+                {items.length > 1 ? (
+                    <div className="inline-block align-top">
+                        {items.map((item, itemIndex) => (
+                            <div key={itemIndex}>
+                                {item.startTime}
+                                {item.playlistName && <span className="font-medium"> {item.playlistName}</span>}
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <span className="inline-block">
+                        {items[0].startTime}
+                        {items[0].playlistName && <span className="font-medium"> {items[0].playlistName}</span>}
+                    </span>
+                )}
               </div>
             )
           ))}
