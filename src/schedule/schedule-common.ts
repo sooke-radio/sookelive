@@ -33,6 +33,17 @@ export const weekdays = [
   'Saturday',
 ]
 
+// Convert a time like 1630 (4:30 PM) into minutes since midnight (990)
+export const timeToMinutes = (time: number): number => {
+  if (!time) return 0
+
+  const timeStr = time.toString().padStart(4, '0')
+  const hours = parseInt(timeStr.substring(0, 2), 10)
+  const minutes = parseInt(timeStr.substring(2, 4), 10)
+
+  return hours * 60 + minutes
+}
+
 export const formatTime = (time: number): string => {
   if (!time) return ''
 
