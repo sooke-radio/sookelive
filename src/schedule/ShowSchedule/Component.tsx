@@ -1,11 +1,12 @@
 import React from 'react'
-import { ScheduleItem, weekdays, formatTime } from '@/schedule/schedule-common'
+import { ScheduleItem, weekdays, formatTime, isScheduleItemActive } from '@/schedule/schedule-common'
 
 interface Props {
   playlists: Array<{
     id: string
     name?: string
     schedule_items?: ScheduleItem[]
+    is_enabled?: boolean
   }>
 }
 
@@ -23,10 +24,13 @@ export const ShowScheduleBlock = ({ playlists }: Props) => {
   
   // Merge schedules from all playlists
   playlists.forEach(playlist => {
+    if (playlist.is_enabled === false) return;
+
     const scheduled = playlist?.schedule_items || [];
     
     scheduled.forEach(item => {
-      
+      if (!isScheduleItemActive(item)) return;
+
       item.days.forEach(day => {
         day = day % 7; // normalize day to be in range 0-6, with sunday 7 = 0
 

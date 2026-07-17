@@ -87,6 +87,7 @@ export default async function Show({ params: paramsPromise }: Args) {
                     id: string;
                     name?: string;
                     schedule_items?: ScheduleItem[];
+                    is_enabled?: boolean;
                   }>
           }
         />

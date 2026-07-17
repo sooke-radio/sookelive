@@ -48,7 +48,7 @@ export const openPrintableCalendar = (scheduleByDay: ScheduleByDay): void => {
       const entriesHtml = positionedByDay[dayIndex]
         .map(
           (entry) => `
-            <div class="entry" style="top:${entry.top}px;height:${entry.height}px">
+            <div class="entry${entry.shuffle ? ' shuffle' : ''}" style="top:${entry.top}px;height:${entry.height}px">
               ${escapeHtml(entry.playlistName)}
             </div>`,
         )
@@ -116,6 +116,13 @@ export const openPrintableCalendar = (scheduleByDay: ScheduleByDay): void => {
         font-weight: 600;
         padding: 1px 3px;
         overflow: hidden;
+        z-index: 1;
+      }
+      .entry.shuffle {
+        background: #d0d0d0;
+        border-color: #888;
+        color: #555;
+        z-index: 0;
       }
     </style>
   </head>

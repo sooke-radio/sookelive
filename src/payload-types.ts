@@ -503,6 +503,10 @@ export interface Show {
    */
   streamer_id?: string | null;
   /**
+   * Shuffle shows are shown darker in the schedule and sit behind regular shows when they overlap in the calendar view.
+   */
+  shuffle?: boolean | null;
+  /**
    * Paste the Mixcloud embed src URL or the full <iframe> embed code.
    */
   mixcloudUrl?: string | null;
@@ -572,6 +576,10 @@ export interface Playlist {
     | number
     | boolean
     | null;
+  /**
+   * Mirrors the playlist enabled/disabled toggle in Azuracast.
+   */
+  is_enabled: boolean;
   lastSync: string;
   updatedAt: string;
   createdAt: string;
@@ -1445,6 +1453,7 @@ export interface ShowsSelect<T extends boolean = true> {
   hosts?: T;
   stream_playlist?: T;
   streamer_id?: T;
+  shuffle?: T;
   mixcloudUrl?: T;
   meta?:
     | T
@@ -1634,6 +1643,7 @@ export interface PlaylistsSelect<T extends boolean = true> {
   name?: T;
   short_name?: T;
   schedule_items?: T;
+  is_enabled?: T;
   lastSync?: T;
   updatedAt?: T;
   createdAt?: T;

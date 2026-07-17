@@ -24,6 +24,7 @@ describe('Playlists collection access control (read-only via the API)', () => {
           az_id: 999,
           name: 'Blocked',
           short_name: 'blocked',
+          is_enabled: true,
           lastSync: new Date().toISOString(),
         },
       }),
@@ -34,7 +35,13 @@ describe('Playlists collection access control (read-only via the API)', () => {
     const payload = await getTestPayload()
     const created = await payload.create({
       collection: 'playlists',
-      data: { az_id: 998, name: 'Seed', short_name: 'seed-update', lastSync: new Date().toISOString() },
+      data: {
+        az_id: 998,
+        name: 'Seed',
+        short_name: 'seed-update',
+        is_enabled: true,
+        lastSync: new Date().toISOString(),
+      },
     })
 
     await expect(
@@ -51,7 +58,13 @@ describe('Playlists collection access control (read-only via the API)', () => {
     const payload = await getTestPayload()
     const created = await payload.create({
       collection: 'playlists',
-      data: { az_id: 997, name: 'Seed', short_name: 'seed-delete', lastSync: new Date().toISOString() },
+      data: {
+        az_id: 997,
+        name: 'Seed',
+        short_name: 'seed-delete',
+        is_enabled: true,
+        lastSync: new Date().toISOString(),
+      },
     })
 
     await expect(

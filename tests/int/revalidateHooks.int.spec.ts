@@ -22,6 +22,7 @@ describe('Playlists revalidate hooks', () => {
         az_id: 1,
         name: 'Morning Show',
         short_name: 'morning_show',
+        is_enabled: true,
         lastSync: new Date().toISOString(),
       },
     })
@@ -39,6 +40,7 @@ describe('Playlists revalidate hooks', () => {
         az_id: 2,
         name: 'Evening Mix',
         short_name: 'evening_mix',
+        is_enabled: true,
         lastSync: new Date().toISOString(),
       },
     })
@@ -62,6 +64,7 @@ describe('Playlists revalidate hooks', () => {
         az_id: 3,
         name: 'No Revalidate',
         short_name: 'no_revalidate',
+        is_enabled: true,
         lastSync: new Date().toISOString(),
       },
       context: { disableRevalidate: true },

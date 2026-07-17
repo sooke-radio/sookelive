@@ -51,6 +51,7 @@ export const Shows: CollectionConfig<'shows'> = {
     hosts: true,
     streamer_id: true,
     stream_playlist: true,
+    shuffle: true,
     mixcloudUrl: true,
     meta: {
       image: true,
@@ -165,6 +166,15 @@ export const Shows: CollectionConfig<'shows'> = {
               type: 'text',
               admin: {
                 description: 'The streamer ID associated with this show in Azuracast for live streaming.',
+              }
+            },
+            {
+              name: 'shuffle',
+              label: 'Shuffle',
+              type: 'checkbox',
+              defaultValue: false,
+              admin: {
+                description: 'Shuffle shows are shown darker in the schedule and sit behind regular shows when they overlap in the calendar view.',
               }
             },
             {

@@ -1,5 +1,5 @@
 import React from 'react'
-import { weekdays } from '@/schedule/schedule-common'
+import { weekdays, isScheduleItemActive } from '@/schedule/schedule-common'
 import { Show } from '@/payload-types'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
@@ -33,6 +33,7 @@ export const ScheduleBlock: React.FC<Props> = async ({
         slug: true,
         stream_playlist: true,
         title: true,
+        shuffle: true,
       },
     })
 
@@ -67,11 +68,14 @@ export const ScheduleBlock: React.FC<Props> = async ({
 
     // Process each playlist
     playlists.forEach((playlist) => {
+      if (playlist.is_enabled === false) return
       if (!playlist.schedule_items || !Array.isArray(playlist.schedule_items)) return
 
       try {
         // Add each scheduled item to the appropriate days
         playlist.schedule_items.forEach((item: any) => {
+          if (!isScheduleItemActive(item)) return
+
           item.days.forEach((day) => {
             day = day % 7 // normalize day to be in range 0-6, with sunday 7 = 0
             if (!scheduleByDay[day]) {
@@ -82,6 +86,7 @@ export const ScheduleBlock: React.FC<Props> = async ({
               startTime: item.start_time,
               endTime: item.end_time,
               slug: show.slug || '',
+              shuffle: Boolean(show.shuffle),
             })
           })
         })

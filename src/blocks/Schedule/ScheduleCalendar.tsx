@@ -66,8 +66,12 @@ export const ScheduleCalendar: React.FC<Props> = ({ scheduleByDay }) => {
                 <a
                   key={entryIndex}
                   href={`/shows/${entry.slug}`}
-                  className="absolute left-1 right-1 rounded bg-white/10 border border-white/30 px-2 py-1 text-xs font-medium text-white overflow-hidden hover:bg-white/20"
-                  style={{ top: entry.top, height: entry.height }}
+                  className={
+                    entry.shuffle
+                      ? 'absolute left-1 right-1 rounded bg-white/5 border border-white/15 px-2 py-1 text-xs font-medium text-white/60 overflow-hidden hover:bg-white/10'
+                      : 'absolute left-1 right-1 rounded bg-white/10 border border-white/30 px-2 py-1 text-xs font-medium text-white overflow-hidden hover:bg-white/20'
+                  }
+                  style={{ top: entry.top, height: entry.height, zIndex: entry.shuffle ? 0 : 10 }}
                 >
                   {entry.playlistName}
                 </a>

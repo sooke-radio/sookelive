@@ -56,6 +56,7 @@ export async function syncPlaylists(payload: Payload) {
         name: playlist.name,
         short_name: playlist.short_name,
         schedule_items: playlist.schedule_items ? playlist.schedule_items : null,
+        is_enabled: playlist.is_enabled ?? true,
         lastSync: new Date().toString(),
       }
 
