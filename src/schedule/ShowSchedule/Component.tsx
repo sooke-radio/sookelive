@@ -68,10 +68,13 @@ export const ShowScheduleBlock = ({ playlists }: Props) => {
               <div key={day} className="">
                 <div className="font-medium inline-block min-w-32">{weekdays[Number(day)]}</div>
                 {items.map((item, itemIndex) => (
-                    <>
-                        <span key={itemIndex} className="inline-block">{item.startTime} - {item.endTime}</span>
+                    <React.Fragment key={itemIndex}>
+                        <span className="inline-block">
+                            {item.playlistName && <span className="font-medium">{item.playlistName}: </span>}
+                            {item.startTime} - {item.endTime}
+                        </span>
                         {itemIndex < items.length - 1 && <span>, </span>}
-                    </>
+                    </React.Fragment>
                 ))}
               </div>
             )
