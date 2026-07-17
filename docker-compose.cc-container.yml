@@ -52,6 +52,10 @@ services:
     # in the background, then execs `sleep infinity` to keep the container
     # alive for `docker compose exec` the same way the plain command used to.
     command: ["bash", "/workspace/sookelive/bin/cc-container-start.sh"]
+    # Run Docker's init (tini) as PID 1 so exited processes get reaped -
+    # `sleep infinity` never wait()s, so without this every process that
+    # dies in the container lingers as a zombie until the container restarts.
+    init: true
     stdin_open: true
     tty: true
     # Claude Code keys a session's resumable conversation history off the
