@@ -12,7 +12,7 @@ interface Props {
 export const ShowScheduleBlock = ({ playlists }: Props) => {
   // Create a map to organize schedule items by day
   const scheduleByDay: Record<number, Array<{
-    startTime: string,
+    startTime: number,
     playlistName?: string
   }>> = {};
   
@@ -34,7 +34,7 @@ export const ShowScheduleBlock = ({ playlists }: Props) => {
           return;
         }
         scheduleByDay[day].push({
-          startTime: formatTime(item.start_time),
+          startTime: item.start_time,
           playlistName: playlist.name
         });
       });
@@ -43,9 +43,7 @@ export const ShowScheduleBlock = ({ playlists }: Props) => {
   
   // Sort schedule items by start time for each day
   Object.keys(scheduleByDay).forEach(day => {
-    scheduleByDay[Number(day)].sort((a, b) => 
-      a.startTime.localeCompare(b.startTime)
-    );
+    scheduleByDay[Number(day)].sort((a, b) => a.startTime - b.startTime);
   });
 
   
@@ -69,15 +67,15 @@ export const ShowScheduleBlock = ({ playlists }: Props) => {
                     <div className="inline-block align-top">
                         {items.map((item, itemIndex) => (
                             <div key={itemIndex}>
-                                {item.startTime}
-                                {item.playlistName && <span className="font-medium"> {item.playlistName}</span>}
+                                {formatTime(item.startTime)}
+                                {item.playlistName && <span className="font-medium"> - {item.playlistName}</span>}
                             </div>
                         ))}
                     </div>
                 ) : (
                     <span className="inline-block">
-                        {items[0].startTime}
-                        {items[0].playlistName && <span className="font-medium"> {items[0].playlistName}</span>}
+                        {formatTime(items[0].startTime)}
+                        {items[0].playlistName && <span className="font-medium"> - {items[0].playlistName}</span>}
                     </span>
                 )}
               </div>
