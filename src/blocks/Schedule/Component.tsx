@@ -13,7 +13,6 @@ interface Props {
 }
 
 interface ScheduleEntry {
-  showName: string
   playlistName: string
   startTime: number
   endTime: number
@@ -85,7 +84,6 @@ export const ScheduleBlock: React.FC<Props> = async ({
               return
             }
             scheduleByDay[day].push({
-              showName: show.title || 'Untitled Show',
               playlistName: playlist.name || 'Untitled Playlist',
               startTime: item.start_time,
               endTime: item.end_time,
@@ -134,7 +132,7 @@ export const ScheduleBlock: React.FC<Props> = async ({
                           {formatTime(entry.startTime)} - {formatTime(entry.endTime)}
                         </span>
                         <div className="text-sm font-bold">
-                          <a href={`/shows/${entry.slug}`}>{entry.showName}</a>
+                          <a href={`/shows/${entry.slug}`}>{entry.playlistName}</a>
                         </div>
                       </div>
                     </div>
