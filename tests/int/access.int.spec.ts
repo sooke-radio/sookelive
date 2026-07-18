@@ -135,3 +135,47 @@ describe('Shows read access on drafts (readShows in src/collections/Shows/index.
     expect(docs).toHaveLength(0)
   })
 })
+
+describe.each(['header', 'footer'] as const)('%s global access control', (slug) => {
+  it('allows unauthenticated reads', async () => {
+    const payload = await getTestPayload()
+    await expect(
+      payload.findGlobal({ slug, overrideAccess: false }),
+    ).resolves.toBeDefined()
+  })
+
+  it('rejects update from an unauthenticated request', async () => {
+    const payload = await getTestPayload()
+    await expect(
+      payload.updateGlobal({
+        slug,
+        overrideAccess: false,
+        data: {},
+      }),
+    ).rejects.toThrow()
+  })
+
+  it('rejects update from a host user', async () => {
+    const payload = await getTestPayload()
+    await expect(
+      payload.updateGlobal({
+        slug,
+        overrideAccess: false,
+        data: {},
+        user: { collection: 'users', id: 'fake-host-id', roles: ['host'] } as any,
+      }),
+    ).rejects.toThrow()
+  })
+
+  it('allows update from an admin user', async () => {
+    const payload = await getTestPayload()
+    await expect(
+      payload.updateGlobal({
+        slug,
+        overrideAccess: false,
+        data: {},
+        user: { collection: 'users', id: 'fake-admin-id', roles: ['admin'] } as any,
+      }),
+    ).resolves.toBeDefined()
+  })
+})

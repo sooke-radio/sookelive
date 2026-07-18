@@ -25,17 +25,23 @@ import {
 } from '@payloadcms/plugin-seo/fields'
 import { slugField } from '@/fields/slug'
 
-// Admins see everything; hosts see published episodes plus episodes of
-// their own assigned (possibly-draft) shows; everyone else sees published only.
+// Admins see everything; hosts see published episodes, episodes of their own
+// assigned (possibly-draft) shows, and their own still-showless drafts (an
+// episode autosaved before `show` is picked - see the `createdBy` field);
+// everyone else sees published only.
 const readEpisodes: Access = async ({ req }) => {
   const { user } = req
   if (isAdminUser(user)) return true
 
   const hostId = getHostId(user)
-  if (hostId) {
+  if (hostId && user) {
     const showIds = await getAssignedShowIds(req)
     const hostOrPublished: Where = {
-      or: [{ show: { in: showIds } }, { _status: { equals: 'published' } }],
+      or: [
+        { show: { in: showIds } },
+        { _status: { equals: 'published' } },
+        { and: [{ show: { exists: false } }, { createdBy: { equals: user.id } }] },
+      ],
     }
     return hostOrPublished
   }
@@ -233,6 +239,36 @@ export const Episodes: CollectionConfig<'episodes'> = {
           ({ siblingData, value }) => {
             if (siblingData._status === 'published' && !value) {
               return new Date()
+            }
+            return value
+          },
+        ],
+      },
+    },
+    // Lets a host read/update/delete their own episode while it's still a
+    // showless draft (autosave can persist one before `show` is picked,
+    // and `show` isn't required until publish) - without this, readEpisodes
+    // and isAdminOrEpisodeOfAssignedShow have no way to recognize it as
+    // theirs, so the host gets a false "document not found" right after
+    // creating it. Always server-set, never client-writable.
+    {
+      // Plain text (not a `relationship`) since it's only ever compared for
+      // equality in access control, never populated/displayed - and a
+      // relationship would require every acting user to be a real Users doc.
+      name: 'createdBy',
+      type: 'text',
+      access: {
+        create: () => false,
+        update: () => false,
+      },
+      admin: {
+        hidden: true,
+      },
+      hooks: {
+        beforeChange: [
+          ({ operation, req, value }) => {
+            if (operation === 'create') {
+              return req.user ? String(req.user.id) : undefined
             }
             return value
           },

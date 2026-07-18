@@ -37,6 +37,14 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
     user: Users.slug,
+    components: {
+      Nav: '@/components/HostNav',
+      views: {
+        dashboard: {
+          Component: '@/components/HostDashboard',
+        },
+      },
+    },
     livePreview: {
       breakpoints: [
         {

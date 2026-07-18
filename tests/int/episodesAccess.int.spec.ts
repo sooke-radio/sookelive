@@ -108,6 +108,96 @@ describe('Episodes access control and show-ownership enforcement', () => {
     ).rejects.toThrow()
   })
 
+  it('lets a host read back their own draft episode created before a show was picked', async () => {
+    const payload = await getTestPayload()
+    const hostA = await payload.create({ collection: 'hosts', data: { title: 'Host A' } })
+    const hostUserA = { collection: 'users', id: 'fake-host-a', roles: ['host'], host: hostA.id } as any
+
+    // Mirrors what autosave does: title filled in, `show` not chosen yet.
+    const draft = await payload.create({
+      collection: 'episodes',
+      draft: true,
+      overrideAccess: false,
+      user: hostUserA,
+      data: {
+        title: 'Episode before show picked',
+        dateAired: new Date().toISOString(),
+      },
+    })
+
+    await expect(
+      payload.findByID({
+        collection: 'episodes',
+        id: draft.id,
+        draft: true,
+        overrideAccess: false,
+        user: hostUserA,
+      }),
+    ).resolves.toMatchObject({ id: draft.id })
+  })
+
+  it('hides another host\'s still-showless draft episode', async () => {
+    const payload = await getTestPayload()
+    const hostA = await payload.create({ collection: 'hosts', data: { title: 'Host A' } })
+    const hostB = await payload.create({ collection: 'hosts', data: { title: 'Host B' } })
+    const hostUserA = { collection: 'users', id: 'fake-host-a', roles: ['host'], host: hostA.id } as any
+    const hostUserB = { collection: 'users', id: 'fake-host-b', roles: ['host'], host: hostB.id } as any
+
+    const draft = await payload.create({
+      collection: 'episodes',
+      draft: true,
+      overrideAccess: false,
+      user: hostUserA,
+      data: {
+        title: 'Episode before show picked',
+        dateAired: new Date().toISOString(),
+      },
+    })
+
+    await expect(
+      payload.findByID({
+        collection: 'episodes',
+        id: draft.id,
+        draft: true,
+        overrideAccess: false,
+        user: hostUserB,
+      }),
+    ).rejects.toThrow()
+  })
+
+  it('lets a host set the show on their own draft after the fact', async () => {
+    const payload = await getTestPayload()
+    const hostA = await payload.create({ collection: 'hosts', data: { title: 'Host A' } })
+    const showA = await payload.create({
+      collection: 'shows',
+      data: { title: 'Show A', hosts: [hostA.id], _status: 'draft' },
+      draft: true,
+    })
+    const hostUserA = { collection: 'users', id: 'fake-host-a', roles: ['host'], host: hostA.id } as any
+
+    const draft = await payload.create({
+      collection: 'episodes',
+      draft: true,
+      overrideAccess: false,
+      user: hostUserA,
+      data: {
+        title: 'Episode before show picked',
+        dateAired: new Date().toISOString(),
+      },
+    })
+
+    const updated = await payload.update({
+      collection: 'episodes',
+      id: draft.id,
+      draft: true,
+      overrideAccess: false,
+      user: hostUserA,
+      data: { show: showA.id },
+    })
+
+    expect(typeof updated.show === 'object' ? updated.show?.id : updated.show).toBe(showA.id)
+  })
+
   it('shows only published episodes to anonymous requests, and all to admin', async () => {
     const payload = await getTestPayload()
     const show = await payload.create({

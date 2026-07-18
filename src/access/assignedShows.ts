@@ -1,4 +1,4 @@
-import type { Access, PayloadRequest } from 'payload'
+import type { Access, PayloadRequest, Where } from 'payload'
 
 import { isAdminUser } from './roles'
 
@@ -46,18 +46,23 @@ export const isAdminOrShowHost: Access = ({ req: { user } }) => {
 }
 
 // Pre-queried show ids (not a nested `show.hosts` path) so this stays
-// deterministic against drafts/versions queries.
+// deterministic against drafts/versions queries. Also lets a host
+// update/delete their own still-showless draft (see the `createdBy` field on
+// Episodes) - otherwise they'd have no way to add a show to (or discard) an
+// episode autosaved before they picked one.
 export const isAdminOrEpisodeOfAssignedShow: Access = async ({ req }) => {
   const { user } = req
   if (!user) return false
   if (isAdminUser(user)) return true
 
   const showIds = await getAssignedShowIds(req)
-  if (showIds.length === 0) return false
 
-  return {
-    show: {
-      in: showIds,
-    },
+  const conditions: Where[] = [
+    { and: [{ show: { exists: false } }, { createdBy: { equals: user.id } }] },
+  ]
+  if (showIds.length > 0) {
+    conditions.push({ show: { in: showIds } })
   }
+
+  return { or: conditions }
 }

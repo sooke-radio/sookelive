@@ -1016,6 +1016,7 @@ export interface Episode {
    */
   dateAired: string;
   publishedAt?: string | null;
+  createdBy?: string | null;
   slug?: string | null;
   slugLock?: boolean | null;
   updatedAt: string;
@@ -1608,6 +1609,7 @@ export interface EpisodesSelect<T extends boolean = true> {
   show?: T;
   dateAired?: T;
   publishedAt?: T;
+  createdBy?: T;
   slug?: T;
   slugLock?: T;
   updatedAt?: T;
