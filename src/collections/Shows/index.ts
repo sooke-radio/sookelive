@@ -30,12 +30,6 @@ import {
 import { slugField } from '@/fields/slug'
 // import { populatePlaylists } from './hooks/populatePlaylists'
 
-const extractMixcloudSrc = ({ value }: { value?: unknown }) => {
-  if (typeof value !== 'string' || !value.trim()) return value
-  const srcMatch = value.match(/src="([^"]+)"/)
-  return srcMatch ? srcMatch[1] : value
-}
-
 // Admins see everything (including drafts); hosts see published shows plus
 // their own assigned (possibly-draft) shows; everyone else sees published only.
 const readShows: Access = ({ req: { user } }) => {
@@ -76,7 +70,6 @@ export const Shows: CollectionConfig<'shows'> = {
     streamer_id: true,
     stream_playlist: true,
     shuffle: true,
-    mixcloudUrl: true,
     meta: {
       image: true,
       description: true,
@@ -213,17 +206,6 @@ export const Shows: CollectionConfig<'shows'> = {
                 description: 'Shuffle shows are shown darker in the schedule and sit behind regular shows when they overlap in the calendar view.',
               }
             },
-            {
-              name: 'mixcloudUrl',
-              label: 'Mixcloud Playlist',
-              type: 'text',
-              admin: {
-                description: 'Paste the Mixcloud embed src URL or the full <iframe> embed code.',
-              },
-              hooks: {
-                beforeChange: [extractMixcloudSrc],
-              },
-            }
           ],
           label: 'Meta',
         },

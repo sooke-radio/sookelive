@@ -17,7 +17,7 @@ import { generateMeta } from '@/utilities/generateMeta'
 import PageClient from './page.client'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { ShowScheduleBlock } from '@/schedule/ShowSchedule/Component'
-import { MixcloudEmbed } from '@/components/MixcloudEmbed'
+import { CollectionArchive } from '@/components/CollectionArchive'
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
@@ -53,6 +53,8 @@ export default async function Show({ params: paramsPromise }: Args) {
 
   if (!show) return <PayloadRedirects url={url} />
 
+  const episodes = await queryEpisodesByShow({ showId: show.id })
+
   return (
     <article className="pt-16 pb-16">
       <PageClient />
@@ -64,34 +66,37 @@ export default async function Show({ params: paramsPromise }: Args) {
 
       <ShowHero show={show} />
 
-      <div className="flex flex-col items-center gap-4 pt-8">
-        <div className="container">
-          <RichText className="max-w-[48rem] mx-auto" data={show.content} enableGutter={false} />
+      <div className="container pt-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+          <RichText data={show.content} enableGutter={false} />
+
+          {show.stream_playlist && (
+            <ShowScheduleBlock
+              playlists={
+                (Array.isArray(show.stream_playlist)
+                  ? show.stream_playlist.filter(p => typeof p !== 'string')
+                  : (typeof show.stream_playlist === 'string'
+                      ? []
+                      : [show.stream_playlist])) as Array<{
+                        id: string;
+                        name?: string;
+                        schedule_items?: ScheduleItem[];
+                        is_enabled?: boolean;
+                      }>
+              }
+            />
+          )}
         </div>
       </div>
 
-      {show.mixcloudUrl && (
-        <div className="container max-w-[48rem] mx-auto pt-8">
-          <MixcloudEmbed src={show.mixcloudUrl} />
+      {episodes.length > 0 && (
+        <div className="pt-8">
+          <div className="container">
+            <h2 className="mb-8 text-2xl">Episodes</h2>
+          </div>
+          <CollectionArchive posts={episodes} relationTo="episodes" />
         </div>
       )}
-
-      {show.stream_playlist && (
-        <ShowScheduleBlock 
-          playlists={
-            (Array.isArray(show.stream_playlist) 
-              ? show.stream_playlist.filter(p => typeof p !== 'string') 
-              : (typeof show.stream_playlist === 'string' 
-                  ? [] 
-                  : [show.stream_playlist])) as Array<{
-                    id: string;
-                    name?: string;
-                    schedule_items?: ScheduleItem[];
-                    is_enabled?: boolean;
-                  }>
-          }
-        />
-      )}      
     </article>
   )
 }
@@ -121,4 +126,26 @@ const queryShowBySlug = cache(async ({ slug }: { slug: string }) => {
   })
 
   return result.docs?.[0] || null
+})
+
+const queryEpisodesByShow = cache(async ({ showId }: { showId: string }) => {
+  const payload = await getPayload({ config: configPromise })
+
+  const result = await payload.find({
+    collection: 'episodes',
+    depth: 1,
+    limit: 12,
+    overrideAccess: false,
+    sort: '-dateAired',
+    where: {
+      show: {
+        equals: showId,
+      },
+      _status: {
+        equals: 'published',
+      },
+    },
+  })
+
+  return result.docs
 })

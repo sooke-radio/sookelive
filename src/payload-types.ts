@@ -199,6 +199,10 @@ export interface Page {
               | ({
                   relationTo: 'shows';
                   value: string | Show;
+                } | null)
+              | ({
+                  relationTo: 'episodes';
+                  value: string | Episode;
                 } | null);
             url?: string | null;
             label: string;
@@ -248,6 +252,10 @@ export interface Page {
                   | ({
                       relationTo: 'shows';
                       value: string | Show;
+                    } | null)
+                  | ({
+                      relationTo: 'episodes';
+                      value: string | Episode;
                     } | null);
                 url?: string | null;
                 label: string;
@@ -537,10 +545,6 @@ export interface Show {
    * Shuffle shows are shown darker in the schedule and sit behind regular shows when they overlap in the calendar view.
    */
   shuffle?: boolean | null;
-  /**
-   * Paste the Mixcloud embed src URL or the full <iframe> embed code.
-   */
-  mixcloudUrl?: string | null;
   meta?: {
     title?: string | null;
     /**
@@ -605,6 +609,89 @@ export interface Playlist {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "episodes".
+ */
+export interface Episode {
+  id: string;
+  title: string;
+  image?: (string | null) | Media;
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * The audio file for this episode.
+   */
+  audio?: (string | null) | EpisodeAudio;
+  /**
+   * Paste the Mixcloud embed src URL or the full <iframe> embed code. Stand-in audio player until file uploads (audio field, above) are wired up to storage.
+   */
+  mixcloudUrl?: string | null;
+  tracklist?:
+    | {
+        artist: string;
+        title: string;
+        /**
+         * e.g. 1:23:45
+         */
+        startTime?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  meta?: {
+    title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (string | null) | Media;
+    description?: string | null;
+  };
+  show: string | Show;
+  /**
+   * The date this episode aired, or will air.
+   */
+  dateAired: string;
+  publishedAt?: string | null;
+  createdBy?: string | null;
+  slug?: string | null;
+  slugLock?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "episode-audio".
+ */
+export interface EpisodeAudio {
+  id: string;
+  title?: string | null;
+  uploadedBy?: (string | null) | User;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "CallToActionBlock".
  */
 export interface CallToActionBlock {
@@ -640,6 +727,10 @@ export interface CallToActionBlock {
             | ({
                 relationTo: 'shows';
                 value: string | Show;
+              } | null)
+            | ({
+                relationTo: 'episodes';
+                value: string | Episode;
               } | null);
           url?: string | null;
           label: string;
@@ -694,6 +785,10 @@ export interface ContentBlock {
             | ({
                 relationTo: 'shows';
                 value: string | Show;
+              } | null)
+            | ({
+                relationTo: 'episodes';
+                value: string | Episode;
               } | null);
           url?: string | null;
           label: string;
@@ -741,7 +836,7 @@ export interface ArchiveBlock {
     [k: string]: unknown;
   } | null;
   populateBy?: ('collection' | 'selection') | null;
-  relationTo?: ('posts' | 'shows') | null;
+  relationTo?: ('posts' | 'shows' | 'episodes') | null;
   categories?: (string | Category)[] | null;
   limit?: number | null;
   selectedDocs?:
@@ -753,6 +848,10 @@ export interface ArchiveBlock {
         | {
             relationTo: 'shows';
             value: string | Show;
+          }
+        | {
+            relationTo: 'episodes';
+            value: string | Episode;
           }
       )[]
     | null;
@@ -963,85 +1062,6 @@ export interface ScheduleBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'schedule';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "episodes".
- */
-export interface Episode {
-  id: string;
-  title: string;
-  image?: (string | null) | Media;
-  description?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  /**
-   * The audio file for this episode.
-   */
-  audio?: (string | null) | EpisodeAudio;
-  tracklist?:
-    | {
-        artist: string;
-        title: string;
-        /**
-         * e.g. 1:23:45
-         */
-        startTime?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  meta?: {
-    title?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (string | null) | Media;
-    description?: string | null;
-  };
-  show: string | Show;
-  /**
-   * The date this episode aired, or will air.
-   */
-  dateAired: string;
-  publishedAt?: string | null;
-  createdBy?: string | null;
-  slug?: string | null;
-  slugLock?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "episode-audio".
- */
-export interface EpisodeAudio {
-  id: string;
-  title?: string | null;
-  uploadedBy?: (string | null) | User;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1560,7 +1580,6 @@ export interface ShowsSelect<T extends boolean = true> {
   stream_playlist?: T;
   streamer_id?: T;
   shuffle?: T;
-  mixcloudUrl?: T;
   meta?:
     | T
     | {
@@ -1591,6 +1610,7 @@ export interface EpisodesSelect<T extends boolean = true> {
   image?: T;
   description?: T;
   audio?: T;
+  mixcloudUrl?: T;
   tracklist?:
     | T
     | {
@@ -2095,6 +2115,10 @@ export interface Header {
             | ({
                 relationTo: 'shows';
                 value: string | Show;
+              } | null)
+            | ({
+                relationTo: 'episodes';
+                value: string | Episode;
               } | null);
           url?: string | null;
           label: string;
@@ -2132,6 +2156,10 @@ export interface Footer {
             | ({
                 relationTo: 'shows';
                 value: string | Show;
+              } | null)
+            | ({
+                relationTo: 'episodes';
+                value: string | Episode;
               } | null);
           url?: string | null;
           label: string;

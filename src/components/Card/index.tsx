@@ -15,7 +15,7 @@ export const Card: React.FC<{
   alignItems?: 'center'
   className?: string
   doc?: CardPostData
-  relationTo?: 'posts' | 'shows'
+  relationTo?: 'episodes' | 'posts' | 'shows'
   showCategories?: boolean
   title?: string
 }> = (props) => {
@@ -53,7 +53,21 @@ export const Card: React.FC<{
           /> */}
         </div>
         }
-        {metaImage && typeof metaImage !== 'string' && <Media resource={metaImage} size="33vw" />}
+        {metaImage && typeof metaImage !== 'string' && (
+          <div
+            className={cn(
+              'relative w-full overflow-hidden',
+              !(metaImage.width && metaImage.height) && 'aspect-square',
+            )}
+            style={
+              metaImage.width && metaImage.height
+                ? { aspectRatio: `${metaImage.width} / ${Math.min(metaImage.width, metaImage.height)}` }
+                : undefined
+            }
+          >
+            <Media fill imgClassName="object-cover object-center" resource={metaImage} size="33vw" />
+          </div>
+        )}
       </div>
       <div className="p-4 z-10">
         {showCategories && hasCategories && (

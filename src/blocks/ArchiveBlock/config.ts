@@ -57,7 +57,11 @@ export const Archive: Block = {
         {
           label: 'Shows',
           value: 'shows',
-        }
+        },
+        {
+          label: 'Episodes',
+          value: 'episodes',
+        },
       ],
     },
     {
@@ -88,7 +92,7 @@ export const Archive: Block = {
       },
       hasMany: true,
       label: 'Selection',
-      relationTo: ['posts', 'shows'],
+      relationTo: ['posts', 'shows', 'episodes'],
     },
   ],
   labels: {
