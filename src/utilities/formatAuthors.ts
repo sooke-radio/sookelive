@@ -24,5 +24,5 @@ export const formatAuthors = (
   return `${filteredAuthors
     .slice(0, -1)
     .map((author) => author?.name)
-    .join(', ')} and ${filteredAuthors[authors.length - 1].name}`
+    .join(', ')}, and ${filteredAuthors[filteredAuthors.length - 1].name}`
 }

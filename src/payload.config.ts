@@ -19,24 +19,19 @@ import { Header } from './Header/config'
 import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
+import { getDatabaseURI } from './utilities/getDatabaseURI'
 import { Hosts } from './collections/Hosts'
+import { isAuthenticatedOrCronSecret } from '@/access/isAuthenticatedOrCronSecret'
 
 import { default as mailer } from './plugins/mailer'
 import { syncAzuracastTask } from './tasks/syncAzuracast'
+import { revalidateAllEndpoint } from './endpoints/revalidateAll'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 export default buildConfig({
   admin: {
-    components: {
-      // The `BeforeLogin` component renders a message that you see while logging into your admin panel.
-      // Feel free to delete this at any time. Simply remove the line below and the import `BeforeLogin` statement on line 15.
-      beforeLogin: ['@/components/BeforeLogin'],
-      // The `BeforeDashboard` component renders the 'welcome' block that you see after logging into your admin panel.
-      // Feel free to delete this at any time. Simply remove the line below and the import `BeforeDashboard` statement on line 15.
-      beforeDashboard: ['@/components/BeforeDashboard'],
-    },
     importMap: {
       baseDir: path.resolve(dirname),
     },
@@ -67,7 +62,7 @@ export default buildConfig({
   // This config helps us configure global or default features that the other editors can inherit
   editor: defaultLexical,
   db: mongooseAdapter({
-    url: process.env.DATABASE_URI || '',
+    url: getDatabaseURI(),
   }),
   collections: [Pages, Posts, Shows, Media, Categories, Genres, Hosts, Users, Playlists],
   cors: [getServerSideURL()].filter(Boolean),
@@ -77,22 +72,14 @@ export default buildConfig({
     // storage-adapter-placeholder
   ],
   secret: process.env.PAYLOAD_SECRET,
+  endpoints: [revalidateAllEndpoint],
   sharp,
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
   jobs: {
     access: {
-      run: ({ req }: { req: PayloadRequest }): boolean => {
-        // Allow logged in users to execute this endpoint (default)
-        if (req.user) return true
-
-        // If there is no logged in user, then check
-        // for the Vercel Cron secret to be present as an
-        // Authorization header:
-        const authHeader = req.headers.get('authorization')
-        return authHeader === `Bearer ${process.env.CRON_SECRET}`
-      },
+      run: ({ req }: { req: PayloadRequest }): boolean => isAuthenticatedOrCronSecret(req),
     },
     tasks: [
       syncAzuracastTask,
@@ -100,7 +87,7 @@ export default buildConfig({
     ],
     autoRun: [
       {
-        cron: '*/15 * * * *', // every hour at minute 0
+        cron: '*/15 * * * *', // every 15 minutes
         queue: 'sync-azuracast',
       },
     ],

@@ -18,10 +18,10 @@ export const revalidateShow: CollectionAfterChangeHook<Show> = ({
       revalidatePath(path)
       revalidatePath('/')
       revalidatePath('/home')
-      revalidateTag('shows-sitemap')
+      revalidateTag('shows-sitemap', 'max')
       revalidatePath('/schedule')
-      revalidateTag('shows')
-      revalidateTag('schedule')
+      revalidateTag('shows', 'max')
+      revalidateTag('schedule', 'max')
     }
 
     // If the show was previously published, we need to revalidate the old path
@@ -33,10 +33,10 @@ export const revalidateShow: CollectionAfterChangeHook<Show> = ({
       revalidatePath(oldPath)
       revalidatePath('/')
       revalidatePath('/home')
-      revalidateTag('shows-sitemap')
+      revalidateTag('shows-sitemap', 'max')
       revalidatePath('/schedule')
-      revalidateTag('shows')
-      revalidateTag('schedule')
+      revalidateTag('shows', 'max')
+      revalidateTag('schedule', 'max')
     }
   }
   return doc
@@ -49,10 +49,10 @@ export const revalidateDelete: CollectionAfterDeleteHook<Show> = ({ doc, req: { 
     revalidatePath(path)
     revalidatePath('/')
     revalidatePath('/home')
-    revalidateTag('shows-sitemap')
+    revalidateTag('shows-sitemap', 'max')
     revalidatePath('/schedule')
-    revalidateTag('shows')
-    revalidateTag('schedule')
+    revalidateTag('shows', 'max')
+    revalidateTag('schedule', 'max')
   }
 
   return doc

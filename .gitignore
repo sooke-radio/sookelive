@@ -3,8 +3,16 @@ dist / media
 node_modules
 .DS_Store
 .env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.secrets/
+.secrets/.env
 .next
 .vercel
+Caddyfile
+.pnpm-store
 
 # Payload default media upload directory
 public/media/
@@ -15,3 +23,15 @@ public/sitemap*.xml
 tmp/
 
 repomix-output.xml
+
+# tsc --noEmit incremental cache
+tsconfig.tsbuildinfo
+
+# vitest coverage output
+coverage/
+
+# personal Claude Code overrides, not shared project settings
+.claude/settings.local.json
+
+# mongodump backups (bin/backup-db.sh)
+db/

@@ -27,6 +27,12 @@ import {
 import { slugField } from '@/fields/slug'
 // import { populatePlaylists } from './hooks/populatePlaylists'
 
+const extractMixcloudSrc = ({ value }: { value?: unknown }) => {
+  if (typeof value !== 'string' || !value.trim()) return value
+  const srcMatch = value.match(/src="([^"]+)"/)
+  return srcMatch ? srcMatch[1] : value
+}
+
 export const Shows: CollectionConfig<'shows'> = {
   slug: 'shows',
   access: {
@@ -45,6 +51,8 @@ export const Shows: CollectionConfig<'shows'> = {
     hosts: true,
     streamer_id: true,
     stream_playlist: true,
+    shuffle: true,
+    mixcloudUrl: true,
     meta: {
       image: true,
       description: true,
@@ -159,6 +167,26 @@ export const Shows: CollectionConfig<'shows'> = {
               admin: {
                 description: 'The streamer ID associated with this show in Azuracast for live streaming.',
               }
+            },
+            {
+              name: 'shuffle',
+              label: 'Shuffle',
+              type: 'checkbox',
+              defaultValue: false,
+              admin: {
+                description: 'Shuffle shows are shown darker in the schedule and sit behind regular shows when they overlap in the calendar view.',
+              }
+            },
+            {
+              name: 'mixcloudUrl',
+              label: 'Mixcloud Playlist',
+              type: 'text',
+              admin: {
+                description: 'Paste the Mixcloud embed src URL or the full <iframe> embed code.',
+              },
+              hooks: {
+                beforeChange: [extractMixcloudSrc],
+              },
             }
           ],
           label: 'Meta',
@@ -254,7 +282,7 @@ export const Shows: CollectionConfig<'shows'> = {
   versions: {
     drafts: {
       autosave: {
-        interval: 100, // We set this interval for optimal live preview
+        interval: 2000, // Live preview freshness vs. not fighting typing
       },
       schedulePublish: true,
     },

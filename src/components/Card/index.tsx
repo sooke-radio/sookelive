@@ -36,6 +36,8 @@ export const Card: React.FC<{
         'border border-border rounded-lg overflow-hidden bg-card hover:cursor-pointer relative min-h-[250px]',
         className,
       )}
+      // card.ref is a RefObject forwarded from useClickableCard, not read here
+      // eslint-disable-next-line react-hooks/refs
       ref={card.ref}
     >
       
@@ -51,7 +53,21 @@ export const Card: React.FC<{
           /> */}
         </div>
         }
-        {metaImage && typeof metaImage !== 'string' && <Media resource={metaImage} size="33vw" />}
+        {metaImage && typeof metaImage !== 'string' && (
+          <div
+            className={cn(
+              'relative w-full overflow-hidden',
+              !(metaImage.width && metaImage.height) && 'aspect-square',
+            )}
+            style={
+              metaImage.width && metaImage.height
+                ? { aspectRatio: `${metaImage.width} / ${Math.min(metaImage.width, metaImage.height)}` }
+                : undefined
+            }
+          >
+            <Media fill imgClassName="object-cover object-center" resource={metaImage} size="33vw" />
+          </div>
+        )}
       </div>
       <div className="p-4 z-10">
         {showCategories && hasCategories && (
@@ -83,7 +99,13 @@ export const Card: React.FC<{
         {titleToUse && (
           <div className="prose">
             <h3>
-              <Link className="not-prose" href={href} ref={link.ref}>
+              <Link
+                className="not-prose"
+                href={href}
+                // link.ref is a RefObject forwarded from useClickableCard, not read here
+                // eslint-disable-next-line react-hooks/refs
+                ref={link.ref}
+              >
                 {titleToUse}
               </Link>
             </h3>

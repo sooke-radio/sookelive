@@ -2,7 +2,11 @@ declare global {
   namespace NodeJS {
     interface ProcessEnv {
       PAYLOAD_SECRET: string
-      DATABASE_URI: string
+      DATABASE_URI?: string
+      MONGO_ROOT_USERNAME?: string
+      MONGO_ROOT_PASSWORD?: string
+      MONGO_HOST?: string
+      MONGO_DATABASE?: string
       NEXT_PUBLIC_SERVER_URL: string
       VERCEL_PROJECT_PRODUCTION_URL: string
     }

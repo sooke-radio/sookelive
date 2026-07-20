@@ -1,4 +1,3 @@
-import { payloadCloudPlugin } from '@payloadcms/payload-cloud'
 import { formBuilderPlugin } from '@payloadcms/plugin-form-builder'
 import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
 import { redirectsPlugin } from '@payloadcms/plugin-redirects'
@@ -15,7 +14,7 @@ import { Page, Post } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
 
 const generateTitle: GenerateTitle<Post | Page> = ({ doc }) => {
-  return doc?.title ? `${doc.title} | Sooke.live Coummunity Radio` : 'Sooke.live Coummunity Radio'
+  return doc?.title ? `${doc.title} | Sooke.live Community Radio` : 'Sooke.live Community Radio'
 }
 
 const generateURL: GenerateURL<Post | Page> = ({ doc }) => {
@@ -90,5 +89,4 @@ export const plugins: Plugin[] = [
       },
     },
   }),
-  payloadCloudPlugin()
 ]

@@ -1,19 +1,19 @@
 import React from 'react'
-import { ScheduleItem, weekdays, formatTime } from '@/schedule/schedule-common'
+import { ScheduleItem, weekdays, formatTime, isScheduleItemActive } from '@/schedule/schedule-common'
 
 interface Props {
   playlists: Array<{
     id: string
     name?: string
     schedule_items?: ScheduleItem[]
+    is_enabled?: boolean
   }>
 }
 
 export const ShowScheduleBlock = ({ playlists }: Props) => {
   // Create a map to organize schedule items by day
   const scheduleByDay: Record<number, Array<{
-    startTime: string,
-    endTime: string,
+    startTime: number,
     playlistName?: string
   }>> = {};
   
@@ -24,10 +24,13 @@ export const ShowScheduleBlock = ({ playlists }: Props) => {
   
   // Merge schedules from all playlists
   playlists.forEach(playlist => {
+    if (playlist.is_enabled === false) return;
+
     const scheduled = playlist?.schedule_items || [];
     
     scheduled.forEach(item => {
-      
+      if (!isScheduleItemActive(item)) return;
+
       item.days.forEach(day => {
         day = day % 7; // normalize day to be in range 0-6, with sunday 7 = 0
 
@@ -35,8 +38,7 @@ export const ShowScheduleBlock = ({ playlists }: Props) => {
           return;
         }
         scheduleByDay[day].push({
-          startTime: formatTime(item.start_time),
-          endTime: formatTime(item.end_time),
+          startTime: item.start_time,
           playlistName: playlist.name
         });
       });
@@ -45,9 +47,7 @@ export const ShowScheduleBlock = ({ playlists }: Props) => {
   
   // Sort schedule items by start time for each day
   Object.keys(scheduleByDay).forEach(day => {
-    scheduleByDay[Number(day)].sort((a, b) => 
-      a.startTime.localeCompare(b.startTime)
-    );
+    scheduleByDay[Number(day)].sort((a, b) => a.startTime - b.startTime);
   });
 
   
@@ -66,13 +66,22 @@ export const ShowScheduleBlock = ({ playlists }: Props) => {
           {Object.entries(scheduleByDay).map(([day, items]) => (
             items.length > 0 && (
               <div key={day} className="">
-                <div className="font-medium inline-block min-w-32">{weekdays[Number(day)]}</div>
-                {items.map((item, itemIndex) => (
-                    <>
-                        <span key={itemIndex} className="inline-block">{item.startTime} - {item.endTime}</span>
-                        {itemIndex < items.length - 1 && <span>, </span>}
-                    </>
-                ))}
+                <div className="font-medium inline-block min-w-32 align-top">{weekdays[Number(day)]}</div>
+                {items.length > 1 ? (
+                    <div className="inline-block align-top">
+                        {items.map((item, itemIndex) => (
+                            <div key={itemIndex}>
+                                {formatTime(item.startTime)}
+                                {item.playlistName && <span className="font-medium"> - {item.playlistName}</span>}
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <span className="inline-block">
+                        {formatTime(items[0].startTime)}
+                        {items[0].playlistName && <span className="font-medium"> - {items[0].playlistName}</span>}
+                    </span>
+                )}
               </div>
             )
           ))}

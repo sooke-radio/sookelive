@@ -23,7 +23,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
   const { headerTheme, setHeaderTheme } = useHeaderTheme()
   const pathname = usePathname()
 
-  const streamDisabled = process.env.NEXT_PUBLIC_STREAM_DISABLED ? true : false;
+  const streamDisabled = process.env.NEXT_PUBLIC_STREAM_DISABLED === 'true'
 
   useEffect(() => {
     setHeaderTheme(null)
@@ -31,6 +31,9 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
   }, [pathname])
 
   useEffect(() => {
+    // Deferred to an effect (rather than computed during render) to avoid a
+    // hydration mismatch, since the server always renders with theme === null.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (headerTheme && headerTheme !== theme) setTheme(headerTheme)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [headerTheme])
@@ -63,7 +66,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
           </div>
         </div>
         <div className="lg:w-2/5 flex w-full items-center justify-center basis-full lg:basis-auto">
-            <StreamPlayer  /> 
+            {!streamDisabled && <StreamPlayer chatUrl={data.chatUrl} />}
             {/* <Countdown /> */}
         </div>
       </div>
