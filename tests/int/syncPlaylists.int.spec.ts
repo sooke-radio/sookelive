@@ -9,6 +9,7 @@ type AzuracastPlaylist = {
   name: string
   short_name: string
   schedule_items?: unknown[]
+  is_enabled?: boolean
 }
 
 function mockAzuracastPlaylists(playlists: AzuracastPlaylist[]) {
@@ -110,5 +111,19 @@ describe('syncPlaylists', () => {
     const { docs } = await payload.find({ collection: 'playlists', sort: 'az_id' })
     expect(docs[0].schedule_items).toEqual([{ start_time: 900, end_time: 1100, days: [1] }])
     expect(docs[1].schedule_items).toBeNull()
+  })
+
+  it('syncs is_enabled from Azuracast, defaulting to true when absent', async () => {
+    mockAzuracastPlaylists([
+      { id: 1, name: 'Morning Show', short_name: 'morning_show', is_enabled: false },
+      { id: 2, name: 'Evening Mix', short_name: 'evening_mix' },
+    ])
+
+    const payload = await getTestPayload()
+    await syncPlaylists(payload)
+
+    const { docs } = await payload.find({ collection: 'playlists', sort: 'az_id' })
+    expect(docs[0].is_enabled).toBe(false)
+    expect(docs[1].is_enabled).toBe(true)
   })
 })

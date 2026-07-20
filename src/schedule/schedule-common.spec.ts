@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatTime, weekdays } from './schedule-common'
+import { formatTime, isScheduleItemActive, weekdays } from './schedule-common'
 
 describe('weekdays', () => {
   it('has seven days starting with Sunday', () => {
@@ -36,5 +36,49 @@ describe('formatTime', () => {
   it('pads single-digit hour values in the raw time number', () => {
     // 5 -> "0005" -> 00:05 -> 12:05 AM
     expect(formatTime(5)).toBe('12:05 AM')
+  })
+})
+
+describe('isScheduleItemActive', () => {
+  const referenceDate = new Date(2026, 5, 15) // 2026-06-15
+
+  it('is active with no start_date or end_date (a permanently recurring slot)', () => {
+    expect(isScheduleItemActive({ start_date: null, end_date: null }, referenceDate)).toBe(true)
+  })
+
+  it('is active when the reference date is within the start/end range', () => {
+    expect(
+      isScheduleItemActive({ start_date: '2026-06-01', end_date: '2026-06-30' }, referenceDate),
+    ).toBe(true)
+  })
+
+  it('is active on the exact start_date and end_date boundaries', () => {
+    expect(
+      isScheduleItemActive({ start_date: '2026-06-15', end_date: '2026-06-15' }, referenceDate),
+    ).toBe(true)
+  })
+
+  it('is inactive before start_date', () => {
+    expect(isScheduleItemActive({ start_date: '2026-07-01', end_date: null }, referenceDate)).toBe(
+      false,
+    )
+  })
+
+  it('is inactive after end_date', () => {
+    expect(isScheduleItemActive({ start_date: null, end_date: '2026-06-01' }, referenceDate)).toBe(
+      false,
+    )
+  })
+
+  it('is active with only a start_date in the past', () => {
+    expect(isScheduleItemActive({ start_date: '2026-01-01', end_date: null }, referenceDate)).toBe(
+      true,
+    )
+  })
+
+  it('is active with only an end_date in the future', () => {
+    expect(isScheduleItemActive({ start_date: null, end_date: '2026-12-31' }, referenceDate)).toBe(
+      true,
+    )
   })
 })

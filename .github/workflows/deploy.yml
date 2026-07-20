@@ -2,103 +2,237 @@ name: Deploy
 
 on:
   push:
-    branches:
-      - stg
-      - prd # todo: consolidate deploy workflows
+    # A future environment = add its branch here + create a same-named GitHub
+    # Environment (Settings > Environments) with the secrets/vars listed below.
+    branches: [stg, prd]
+
+concurrency:
+  group: deploy-${{ github.ref_name }}
+  cancel-in-progress: false # queue per env; never kill an in-flight server build
 
 jobs:
-  stg-deploy:
+  quality:
+    name: Quality gate
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
 
-    environment: ${{ github.ref == 'refs/heads/prd' && 'prd' || 'stg' }}
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 11 # matches server corepack resolution
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Unit tests
+        run: pnpm test:unit
+
+  deploy:
+    name: Deploy ${{ github.ref_name }}
+    needs: quality
+    runs-on: ubuntu-latest
+    # Branch name == GitHub Environment name; all vars/secrets below are
+    # scoped to that Environment.
+    environment: ${{ github.ref_name }}
+    env:
+      DEPLOY_HOST: ${{ vars.DEPLOY_IP }}
+      DEPLOY_PORT: ${{ vars.SSH_PORT }}
+      DEPLOY_USER: ${{ vars.DEPLOY_USER || 'autobot' }}
+      DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}
+      BRANCH_NAME: ${{ github.ref_name }}
+      CONTAINER_NAME: sookelive-${{ github.ref_name }}
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
-      - name: Create SSH key
-        run: |
-          mkdir -p ~/.ssh/
-           printf '%s\n' "$SSH_PRIVATE_KEY" > ../private.key
-          sudo chmod 600 ../private.key
-          echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
-        shell: bash
+      - name: Validate environment configuration
         env:
-          SSH_PRIVATE_KEY: ${{secrets.SSH_PRIVATE_KEY}}
-          SSH_KNOWN_HOSTS: ${{secrets.SSH_KNOWN_HOSTS}}
-          SSH_KEY_PATH: ${{ github.workspace }}/../private.key
-
-      - name: Deploy code
-        run: rsync -avz -e "ssh -i ../private.key -p ${{ vars.SSH_PORT }}" ./ autobot@${{ vars.DEPLOY_IP }}:${{ vars.DEPLOY_PATH }} --exclude=.git --exclude=.env
-
-      - name: Deploy secrets securely
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+          MONGO_ROOT_PASSWORD: ${{ secrets.MONGO_ROOT_PASSWORD }}
+          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          AZURACAST_KEY: ${{ secrets.AZURACAST_KEY }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
         run: |
-          ssh -i ../private.key -p ${{ vars.SSH_PORT }} autobot@${{ vars.DEPLOY_IP }} bash << EOF
-            set -e
-            DEPLOY_PATH="${{ vars.DEPLOY_PATH }}"
-            DEPLOY_IP="${{ vars.DEPLOY_IP }}"
-            DB_PORT="${{ vars.DB_PORT }}"
-            DB_NAME="${{ vars.DB_NAME }}"
-            MONGO_ROOT_USERNAME="${{ vars.MONGO_ROOT_USERNAME || 'admin' }}"
-            MONGO_ROOT_PASSWORD="${{ secrets.MONGO_ROOT_PASSWORD }}"
-            MONGO_DATABASE="${{ vars.MONGO_DATABASE || 'payload' }}"
-            PAYLOAD_SECRET="${{ secrets.PAYLOAD_SECRET }}"
-            CRON_SECRET="${{ secrets.CRON_SECRET }}"
-            AZURACAST_KEY="${{ secrets.AZURACAST_KEY }}"
-            SMTP_PASS="${{ secrets.SMTP_PASS }}"
-            BRANCH_NAME="${{ github.ref_name }}"
+          missing=""
+          for v in DEPLOY_HOST DEPLOY_PORT DEPLOY_PATH \
+                   SSH_PRIVATE_KEY SSH_KNOWN_HOSTS \
+                   MONGO_ROOT_PASSWORD PAYLOAD_SECRET CRON_SECRET AZURACAST_KEY SMTP_PASS; do
+            [ -n "${!v}" ] || missing="$missing $v"
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::GitHub Environment '$BRANCH_NAME' is missing:$missing (set under Settings > Environments > $BRANCH_NAME)"
+            exit 1
+          fi
+          if [ ! -f ".env.$BRANCH_NAME" ]; then
+            echo "::error::No .env.$BRANCH_NAME file in the repo"
+            exit 1
+          fi
 
-            # Start from the branch-specific env file (overwrites any previous .env)
-            cp "\$DEPLOY_PATH/.env.\${BRANCH_NAME}" "\$DEPLOY_PATH/.env"
+      - name: Set up SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          cat >> ~/.ssh/config <<CFG
+          Host deploy
+            HostName $DEPLOY_HOST
+            Port $DEPLOY_PORT
+            User $DEPLOY_USER
+            IdentityFile ~/.ssh/deploy_key
+            IdentitiesOnly yes
+            StrictHostKeyChecking yes
+            BatchMode yes
+          CFG
 
-            {
-              echo ""
-              echo "# Secrets injected by GitHub Actions - DO NOT EDIT MANUALLY"
-              echo "DATABASE_URI=mongodb://\${MONGO_ROOT_USERNAME}:\${MONGO_ROOT_PASSWORD}@localhost:27017/\${MONGO_DATABASE}?authSource=admin"
-              echo "MONGO_ROOT_USERNAME=\${MONGO_ROOT_USERNAME}"
-              echo "MONGO_ROOT_PASSWORD=\${MONGO_ROOT_PASSWORD}"
-              echo "MONGO_DATABASE=\${MONGO_DATABASE}"
-              echo "PAYLOAD_SECRET=\${PAYLOAD_SECRET}"
-              echo "CRON_SECRET=\${CRON_SECRET}"
-              echo "AZURACAST_KEY=\${AZURACAST_KEY}"
-              echo "SMTP_PASS=\${SMTP_PASS}"
-            } >> "\$DEPLOY_PATH/.env"
+      - name: Assemble .env on the runner
+        # Secrets only ever pass through env vars and this local file (mode
+        # 600, streamed to the server over SSH stdin) - they never appear in
+        # command lines or remote script text.
+        env:
+          MONGO_ROOT_USERNAME: ${{ vars.MONGO_ROOT_USERNAME || 'admin' }}
+          MONGO_DATABASE: ${{ vars.MONGO_DATABASE || 'payload' }}
+          COMPOSE_PROJECT_NAME_VAR: ${{ vars.COMPOSE_PROJECT_NAME }}
+          MONGO_ROOT_PASSWORD: ${{ secrets.MONGO_ROOT_PASSWORD }}
+          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          AZURACAST_KEY: ${{ secrets.AZURACAST_KEY }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+        run: |
+          umask 077
+          {
+            cat ".env.$BRANCH_NAME"
+            echo ""
+            echo "# --- Generated by GitHub Actions ($BRANCH_NAME) - DO NOT EDIT ---"
+            # DATABASE_URI intentionally unset: docker-compose.yml derives the
+            # build-time (localhost) and runtime (mongodb) URIs from MONGO_* below.
+            printf '%s=%s\n' MONGO_ROOT_USERNAME "$MONGO_ROOT_USERNAME"
+            printf '%s=%s\n' MONGO_ROOT_PASSWORD "$MONGO_ROOT_PASSWORD"
+            printf '%s=%s\n' MONGO_DATABASE "$MONGO_DATABASE"
+            printf '%s=%s\n' PAYLOAD_SECRET "$PAYLOAD_SECRET"
+            printf '%s=%s\n' CRON_SECRET "$CRON_SECRET"
+            printf '%s=%s\n' AZURACAST_KEY "$AZURACAST_KEY"
+            printf '%s=%s\n' SMTP_PASS "$SMTP_PASS"
+            printf '%s=%s\n' CONTAINER_NAME "$CONTAINER_NAME"
+            if [ -n "${COMPOSE_PROJECT_NAME_VAR:-}" ]; then
+              printf '%s=%s\n' COMPOSE_PROJECT_NAME "$COMPOSE_PROJECT_NAME_VAR"
+            fi
+          } > "$RUNNER_TEMP/deploy.env"
 
-            chmod 600 "\$DEPLOY_PATH/.env"
-            echo "Secrets injected into \$DEPLOY_PATH/.env"
+      - name: Sync code to server
+        # No --delete: files hand-placed on the server are left alone (repo
+        # files removed in git will linger on the server until cleaned up
+        # manually). NOTE: repo-tracked files edited directly on the server
+        # ARE overwritten by every deploy.
+        run: |
+          rsync -az \
+            --exclude=.git --exclude=.github --exclude=.claude --exclude=.vscode \
+            --exclude=tests --exclude=tmp --exclude=coverage \
+            --exclude='.env' --exclude='.env.*' --exclude=.secrets \
+            --exclude=Caddyfile --exclude=db --exclude=node_modules --exclude=.next \
+            --exclude=public/media \
+            ./ "deploy:$DEPLOY_PATH/"
+
+      - name: Upload .env
+        # Streamed over stdin - never in argv or a remote script body. Must run
+        # before the build: the Dockerfile's COPY . . bakes .env into the build
+        # stage, which is how NEXT_PUBLIC_* values reach `next build`.
+        run: |
+          ssh deploy "umask 077 && cat > $(printf '%q' "$DEPLOY_PATH")/.env" < "$RUNNER_TEMP/deploy.env"
+
+      - name: Build and run on server
+        # Single-quoted heredoc: nothing is interpolated into the remote
+        # script; parameters are passed as a %q-escaped env prefix.
+        run: |
+          ssh deploy "DEPLOY_PATH=$(printf '%q' "$DEPLOY_PATH") CONTAINER_NAME=$(printf '%q' "$CONTAINER_NAME") bash -s" <<'EOF'
+          set -euo pipefail
+          cd "$DEPLOY_PATH"
+
+          # Pre-flight: the build's static generation needs mongo on
+          # 127.0.0.1:27017 (skip when .env supplies an external DATABASE_URI).
+          if ! grep -q '^DATABASE_URI=' .env; then
+            STATUS=$(docker inspect --format='{{.State.Health.Status}}' sookelive-mongodb 2>/dev/null || echo absent)
+            if [ "$STATUS" != "healthy" ]; then
+              echo "::error::MongoDB container 'sookelive-mongodb' is $STATUS - the build needs it. Start it: docker compose -f docker-compose.mongodb.yml up -d"
+              exit 1
+            fi
+          fi
+
+          # Legacy guard: a stale 'sookelive-builder' (docker-container driver)
+          # breaks build.network:host. Idempotent; removable once confirmed
+          # gone from the server.
+          docker buildx use default 2>/dev/null || true
+          docker buildx rm sookelive-builder >/dev/null 2>&1 || true
+
+          # Build, then recreate. A failed build aborts here and leaves the
+          # old container serving. Brief downtime during the swap is accepted.
+          docker compose up -d --build
+
+          # Real HTTP health check (runtime image has busybox wget, no curl).
+          echo "Waiting for $CONTAINER_NAME to serve HTTP..."
+          for i in $(seq 1 40); do
+            if docker exec "$CONTAINER_NAME" wget -qO /dev/null http://127.0.0.1:3000/ 2>/dev/null; then
+              echo "Healthy after ~$((i * 3))s"
+              break
+            fi
+            if [ "$i" = 40 ]; then
+              echo "::error::$CONTAINER_NAME did not serve HTTP within 120s"
+              docker logs --tail 100 "$CONTAINER_NAME" || true
+              exit 1
+            fi
+            sleep 3
+          done
+
+          # Dangling images only; runs only after the health check passes.
+          docker image prune -f
           EOF
 
-      - name: Build & Run
+      - name: Smoke test public site
+        # Hits the public URL from the runner - validates the full chain
+        # (DNS -> Caddy -> TLS -> container), which the in-container check can't.
         run: |
-          ssh -i ../private.key -p ${{ vars.SSH_PORT }} autobot@${{ vars.DEPLOY_IP }} << 'EOF'
-            set -e
-            cd ${{ vars.DEPLOY_PATH }}
-
-            # Ensure MongoDB is running first
-            # -- assume this is up for now. TODO: move mongo to hosted db.
-            # # If the container exists but isn't running (stopped/errored), remove it so compose can recreate
-            # MONGO_STATUS=$(docker inspect --format='{{.State.Status}}' sookelive-mongodb 2>/dev/null || echo "absent")
-            # if [ "$MONGO_STATUS" != "running" ] && [ "$MONGO_STATUS" != "absent" ]; then
-            #   echo "Removing stopped/errored MongoDB container (status: $MONGO_STATUS)"
-            #   docker rm sookelive-mongodb
-            # fi
-            # docker compose -f docker-compose.mongodb.yml up -d
-
-            # # Wait for MongoDB to be healthy (up to 60s)
-            # timeout 60 sh -c 'until docker inspect --format="{{.State.Health.Status}}" $(docker compose -f docker-compose.mongodb.yml ps -q mongodb) 2>/dev/null | grep -q healthy; do sleep 2; done'
-            # echo "MongoDB is healthy"
-
-            # Build and start application
-            docker compose up -d --build
-
-            # Verify container reaches running state (up to 120s)
-            timeout 120 sh -c 'until [ "$(docker inspect --format="{{.State.Status}}" sookelive-payload 2>/dev/null)" = "running" ]; do sleep 3; done'
-            echo "Deploy successful"
-
-            # Optionally start Caddy if using docker-compose.caddy.yml
-            # docker compose -f docker-compose.caddy.yml up -d || true
-          EOF
+          BASE_URL=$(grep -oP '^NEXT_PUBLIC_SERVER_URL=\K.*' ".env.$BRANCH_NAME" | tr -d '\r')
+          if [ -z "$BASE_URL" ]; then
+            echo "::error::NEXT_PUBLIC_SERVER_URL not found in .env.$BRANCH_NAME"
+            exit 1
+          fi
+          for path in / /posts /shows /admin; do
+            code=$(curl -fsSL -o /dev/null -w '%{http_code}' --max-time 30 --retry 3 --retry-delay 5 "$BASE_URL$path") \
+              || { echo "::error::Smoke test failed: $BASE_URL$path"; exit 1; }
+            echo "OK $code $BASE_URL$path"
+          done
+          home=$(mktemp)
+          curl -fsSL --max-time 30 "$BASE_URL/" -o "$home"
+          grep -qi 'sooke' "$home" \
+            || { echo "::error::Homepage content check failed for $BASE_URL/"; exit 1; }
+          # Image optimizer check: a real /_next/image URL from the rendered page
+          # must serve (catches runtime config regressions, e.g. images.qualities).
+          img=$(grep -oP 'src="\K/_next/image\?[^"]*' "$home" | head -1 | sed 's/&amp;/\&/g')
+          if [ -n "$img" ]; then
+            curl -fsS -o /dev/null --max-time 30 "$BASE_URL$img" \
+              || { echo "::error::Image optimizer check failed: $BASE_URL$img"; exit 1; }
+            echo "OK image $img"
+          else
+            echo "No /_next/image URL found on homepage; skipping image check"
+          fi
 
       - name: Cleanup
         if: always()
-        run: rm -f ../private.key
+        run: rm -f ~/.ssh/deploy_key "$RUNNER_TEMP/deploy.env"

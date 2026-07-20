@@ -22,13 +22,14 @@ describe('Playlists revalidate hooks', () => {
         az_id: 1,
         name: 'Morning Show',
         short_name: 'morning_show',
+        is_enabled: true,
         lastSync: new Date().toISOString(),
       },
     })
 
     expect(revalidatePath).toHaveBeenCalledWith('/schedule')
-    expect(revalidateTag).toHaveBeenCalledWith('shows')
-    expect(revalidateTag).toHaveBeenCalledWith('playlists')
+    expect(revalidateTag).toHaveBeenCalledWith('shows', 'max')
+    expect(revalidateTag).toHaveBeenCalledWith('playlists', 'max')
   })
 
   it('revalidates the same targets when a playlist is deleted', async () => {
@@ -39,6 +40,7 @@ describe('Playlists revalidate hooks', () => {
         az_id: 2,
         name: 'Evening Mix',
         short_name: 'evening_mix',
+        is_enabled: true,
         lastSync: new Date().toISOString(),
       },
     })
@@ -49,8 +51,8 @@ describe('Playlists revalidate hooks', () => {
     await payload.delete({ collection: 'playlists', id: created.id })
 
     expect(revalidatePath).toHaveBeenCalledWith('/schedule')
-    expect(revalidateTag).toHaveBeenCalledWith('shows')
-    expect(revalidateTag).toHaveBeenCalledWith('playlists')
+    expect(revalidateTag).toHaveBeenCalledWith('shows', 'max')
+    expect(revalidateTag).toHaveBeenCalledWith('playlists', 'max')
   })
 
   it('skips revalidation when context.disableRevalidate is set', async () => {
@@ -62,6 +64,7 @@ describe('Playlists revalidate hooks', () => {
         az_id: 3,
         name: 'No Revalidate',
         short_name: 'no_revalidate',
+        is_enabled: true,
         lastSync: new Date().toISOString(),
       },
       context: { disableRevalidate: true },

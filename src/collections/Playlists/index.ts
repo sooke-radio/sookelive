@@ -48,6 +48,15 @@ export const Playlists: CollectionConfig = {
       unique: false,
     },
     {
+      name: 'is_enabled',
+      type: 'checkbox',
+      required: true,
+      defaultValue: true,
+      admin: {
+        description: 'Mirrors the playlist enabled/disabled toggle in Azuracast.',
+      },
+    },
+    {
       name: 'lastSync',
       type: 'date',
       required: true,

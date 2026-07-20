@@ -10,14 +10,13 @@ FROM node:22-alpine AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
-ARG DATABASE_URI
 RUN apk add --no-cache libc6-compat build-base gcc autoconf automake zlib-dev libpng-dev nasm
 
 WORKDIR /app
 
 # Install dependencies — copy only lockfile + manifest so this layer caches across code-only changes
 FROM base AS install
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
 # Build NextJS for prod
@@ -29,23 +28,28 @@ ENV NODE_ENV=production
 COPY . .
 COPY --from=install /app/node_modules ./node_modules
 
-# if migrate is true, run payload migration
-# RUN if [[ -z "$MIGRATE" ]] ; then pnpm migrate ; else echo "No migration." ; fi
-
 RUN pnpm build
 
 # Runtime stage — lean image without build tools
 FROM node:22-alpine AS run
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable && apk add --no-cache libc6-compat
+RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
+ENV NODE_OPTIONS=--no-deprecation
 
 COPY --from=install /app/node_modules ./node_modules
 COPY --from=build /app/.next ./.next
 COPY --from=build /app/public ./public
 COPY package.json ./
+# next start reads next.config.js at runtime (it is NOT baked into .next).
+# Without it, production falls back to Next's default config — under Next 16
+# that restricts images.qualities to [75], 400-ing every q=100 image URL.
+COPY next.config.js redirects.js ./
 
-EXPOSE $EXPOSE_PORT
-CMD ["pnpm", "start"]
+EXPOSE 3000
+# Invoke next directly instead of `pnpm start` — pnpm's implicit
+# "verify deps before run" check re-triggers a real `pnpm install` on every
+# container start (this stage has no pnpm-lock.yaml/pnpm-workspace.yaml to
+# satisfy it), which re-downloads pnpm via corepack and re-hits the
+# ignored-builds gate. Dependencies are already baked into node_modules above.
+CMD ["node_modules/.bin/next", "start"]

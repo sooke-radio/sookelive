@@ -36,6 +36,8 @@ export const Card: React.FC<{
         'border border-border rounded-lg overflow-hidden bg-card hover:cursor-pointer relative min-h-[250px]',
         className,
       )}
+      // card.ref is a RefObject forwarded from useClickableCard, not read here
+      // eslint-disable-next-line react-hooks/refs
       ref={card.ref}
     >
       
@@ -83,7 +85,13 @@ export const Card: React.FC<{
         {titleToUse && (
           <div className="prose">
             <h3>
-              <Link className="not-prose" href={href} ref={link.ref}>
+              <Link
+                className="not-prose"
+                href={href}
+                // link.ref is a RefObject forwarded from useClickableCard, not read here
+                // eslint-disable-next-line react-hooks/refs
+                ref={link.ref}
+              >
                 {titleToUse}
               </Link>
             </h3>

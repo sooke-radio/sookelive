@@ -6,6 +6,48 @@
 
 set -euo pipefail
 
+REBUILD=0
+BASH_SHELL=0
+RESUME=0
+
+for arg in "$@"; do
+  case "$arg" in
+    --rebuild)
+      REBUILD=1
+      ;;
+    --bash)
+      BASH_SHELL=1
+      ;;
+    --resume)
+      RESUME=1
+      ;;
+    -h|--help)
+      echo "Usage: $(basename "${BASH_SOURCE[0]}") [--rebuild] [--bash|--resume]"
+      echo "  --rebuild  force-rebuild and recreate cc-container even if already running"
+      echo "  --bash     attach with a bash shell instead of launching claude"
+      echo "  --resume   launch claude with --resume for this attach"
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $arg" >&2
+      exit 1
+      ;;
+  esac
+done
+
+if [[ "$BASH_SHELL" == "1" ]] && [[ "$RESUME" == "1" ]]; then
+  echo "Error: --bash and --resume are mutually exclusive." >&2
+  exit 1
+fi
+
+if [[ "$BASH_SHELL" == "1" ]]; then
+  LAUNCH_CMD=(bash)
+elif [[ "$RESUME" == "1" ]]; then
+  LAUNCH_CMD=(claude --resume)
+else
+  LAUNCH_CMD=(claude)
+fi
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 cd "$PROJECT_ROOT"
@@ -41,8 +83,22 @@ echo "==> Starting mongodb (also creates sookelive-network if needed)..."
 # root username set but no password - crash-looping under `restart: always`.
 docker compose --env-file "$ENV_FILE" -f "$COMPOSE_MONGO" up -d
 
-echo "==> Starting cc-container..."
-docker compose -f "$COMPOSE_CC" up -d --build
+CC_CONTAINER_ID="$(docker compose -f "$COMPOSE_CC" ps -q cc-container)"
+CC_RUNNING=0
+if [[ -n "$CC_CONTAINER_ID" ]] && [[ "$(docker inspect -f '{{.State.Running}}' "$CC_CONTAINER_ID" 2>/dev/null)" == "true" ]]; then
+  CC_RUNNING=1
+fi
+
+if [[ "$CC_RUNNING" == "1" ]] && [[ "$REBUILD" == "0" ]]; then
+  echo "==> cc-container already running, attaching without rebuilding..."
+else
+  if [[ "$REBUILD" == "1" ]]; then
+    echo "==> Rebuilding cc-container (--rebuild)..."
+  else
+    echo "==> Starting cc-container..."
+  fi
+  docker compose -f "$COMPOSE_CC" up -d --build
+fi
 
 # --user claude matters: entrypoint.sh only drops from root to claude via
 # gosu for the container's main process. `exec` is a separate mechanism that
@@ -50,8 +106,9 @@ docker compose -f "$COMPOSE_CC" up -d --build
 # since cap_drop: ALL strips CAP_DAC_OVERRIDE, a root exec shell can't even
 # read files it doesn't own - like the claude-config volume's credentials -
 # so without this flag you'd hit a fresh login prompt every time.
-# `claude --resume` opens the session picker (or resumes directly if there's
-# only one to pick), and just starts a fresh session if none exist - so this
-# always drops you straight into Claude Code rather than an intermediate shell.
-echo "==> Attaching as the claude user..."
-exec docker compose -f "$COMPOSE_CC" exec --user claude cc-container claude --resume
+# Plain `claude` (no --resume) always starts a fresh session - see
+# .claude/planning/cc-container-dev-setup.md. --resume opts back into
+# `claude --resume` for this attach only; --bash swaps this for a plain
+# shell instead.
+echo "==> Attaching as the claude user (${LAUNCH_CMD[*]})..."
+exec docker compose -f "$COMPOSE_CC" exec --user claude cc-container "${LAUNCH_CMD[@]}"

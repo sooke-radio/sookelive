@@ -27,8 +27,8 @@ export const revalidateDelete: CollectionAfterDeleteHook<Playlist> = ({
 
 async function revalidatePlaylistPages(payload: Payload) {
   revalidatePath('/schedule')
-  revalidateTag('shows')
-  revalidateTag('playlists')
+  revalidateTag('shows', 'max')
+  revalidateTag('playlists', 'max')
   payload.logger.info(`Revalidating playlists and schedule components`)
 
   // Find all pages that contain Schedule blocks

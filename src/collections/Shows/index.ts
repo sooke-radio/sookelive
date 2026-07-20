@@ -51,6 +51,7 @@ export const Shows: CollectionConfig<'shows'> = {
     hosts: true,
     streamer_id: true,
     stream_playlist: true,
+    shuffle: true,
     mixcloudUrl: true,
     meta: {
       image: true,
@@ -168,6 +169,15 @@ export const Shows: CollectionConfig<'shows'> = {
               }
             },
             {
+              name: 'shuffle',
+              label: 'Shuffle',
+              type: 'checkbox',
+              defaultValue: false,
+              admin: {
+                description: 'Shuffle shows are shown darker in the schedule and sit behind regular shows when they overlap in the calendar view.',
+              }
+            },
+            {
               name: 'mixcloudUrl',
               label: 'Mixcloud Playlist',
               type: 'text',
@@ -272,7 +282,7 @@ export const Shows: CollectionConfig<'shows'> = {
   versions: {
     drafts: {
       autosave: {
-        interval: 100, // We set this interval for optimal live preview
+        interval: 2000, // Live preview freshness vs. not fighting typing
       },
       schedulePublish: true,
     },

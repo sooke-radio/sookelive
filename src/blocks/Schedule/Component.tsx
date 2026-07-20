@@ -1,24 +1,16 @@
 import React from 'react'
-import { weekdays, formatTime } from '@/schedule/schedule-common'
+import { weekdays, isScheduleItemActive } from '@/schedule/schedule-common'
 import { Show } from '@/payload-types'
-import { Card } from '@/components/ui/card'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
-import { unstable_cache } from 'next/cache'
+import { ScheduleViews } from './ScheduleViews'
+import { ScheduleByDay, ScheduleEntry } from './types'
 
 interface Props {
   shows?: Show[]
   allShows?: boolean
   title?: string
   description?: string
-}
-
-interface ScheduleEntry {
-  showName: string
-  playlistName: string
-  startTime: number
-  endTime: number
-  slug: string
 }
 
 export const ScheduleBlock: React.FC<Props> = async ({
@@ -28,32 +20,6 @@ export const ScheduleBlock: React.FC<Props> = async ({
   description = '',
 }) => {
   const payload = await getPayload({ config: configPromise })
-  const getShows = await unstable_cache(
-    async () => {
-      if (allShows || shows.length < 1) {
-        const getShows = await payload.find({
-          collection: 'shows',
-          draft: false,
-          limit: 1000,
-          depth: 3,
-          overrideAccess: false,
-          pagination: false,
-          select: {
-            slug: true,
-            stream_playlist: true,
-            title: true,
-          },
-        })
-
-        shows = ((await getShows?.docs) as Show[]) || []
-      }
-    },
-    ['shows'],
-    {
-      tags: ['shows', 'schedule', 'playlists'],
-      revalidate: 60 * 60, // 1 hour
-    },
-  )
 
   if (allShows || shows.length < 1) {
     const getShows = await payload.find({
@@ -67,6 +33,7 @@ export const ScheduleBlock: React.FC<Props> = async ({
         slug: true,
         stream_playlist: true,
         title: true,
+        shuffle: true,
       },
     })
 
@@ -74,7 +41,7 @@ export const ScheduleBlock: React.FC<Props> = async ({
   }
 
   // Create a schedule organized by day
-  const scheduleByDay: Record<number, ScheduleEntry[]> = {}
+  const scheduleByDay: ScheduleByDay = {}
 
   // Initialize empty arrays for each day of the week
   weekdays.forEach((_, index) => {
@@ -101,22 +68,25 @@ export const ScheduleBlock: React.FC<Props> = async ({
 
     // Process each playlist
     playlists.forEach((playlist) => {
+      if (playlist.is_enabled === false) return
       if (!playlist.schedule_items || !Array.isArray(playlist.schedule_items)) return
 
       try {
         // Add each scheduled item to the appropriate days
         playlist.schedule_items.forEach((item: any) => {
+          if (!isScheduleItemActive(item)) return
+
           item.days.forEach((day) => {
             day = day % 7 // normalize day to be in range 0-6, with sunday 7 = 0
             if (!scheduleByDay[day]) {
               return
             }
             scheduleByDay[day].push({
-              showName: show.title || 'Untitled Show',
               playlistName: playlist.name || 'Untitled Playlist',
               startTime: item.start_time,
               endTime: item.end_time,
               slug: show.slug || '',
+              shuffle: Boolean(show.shuffle),
             })
           })
         })
@@ -128,7 +98,7 @@ export const ScheduleBlock: React.FC<Props> = async ({
 
   // Sort each day's schedule by start time
   Object.keys(scheduleByDay).forEach((day) => {
-    scheduleByDay[Number(day)].sort((a, b) => a.startTime - b.startTime)
+    scheduleByDay[Number(day)].sort((a: ScheduleEntry, b: ScheduleEntry) => a.startTime - b.startTime)
   })
 
   // Check if there are any scheduled items
@@ -138,42 +108,5 @@ export const ScheduleBlock: React.FC<Props> = async ({
     return null
   }
 
-  return (
-    <div className="container mt-8">
-      {title && <h2 className="text-2xl font-bold mb-6">{title}</h2>}
-
-      {description && <p className="mb-6">{description}</p>}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {weekdays.map((day, dayIndex) => {
-          const daySchedule = scheduleByDay[dayIndex]
-
-          return (
-            <Card key={dayIndex} className="p-4">
-              <h3 className="text-lg font-semibold mb-4 border-b pb-2">{day}</h3>
-
-              {daySchedule.length > 0 ? (
-                <div className="space-y-4">
-                  {daySchedule.map((entry, entryIndex) => (
-                    <div key={entryIndex} className="space-y-1">
-                      <div className="flex border-b border-1 border-dotted">
-                        <span className="text-sm min-w-48">
-                          {formatTime(entry.startTime)} - {formatTime(entry.endTime)}
-                        </span>
-                        <div className="text-sm font-bold">
-                          <a href={`/shows/${entry.slug}`}>{entry.showName}</a>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-gray-500 italic">No shows scheduled</div>
-              )}
-            </Card>
-          )
-        })}
-      </div>
-    </div>
-  )
+  return <ScheduleViews scheduleByDay={scheduleByDay} title={title} description={description} />
 }

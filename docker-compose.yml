@@ -2,11 +2,13 @@ services:
   payload:
     build:
       context: .
-      network: host # need this to connect to mongodb for build
+      network: host # mongodb publishes 127.0.0.1:27017 (see docker-compose.mongodb.yml) so the build can reach it over localhost
       args:
         MIGRATE: false   # run payload migrate
-        DATABASE_URI: ${DATABASE_URI:-mongodb://${MONGO_ROOT_USERNAME:-admin}:${MONGO_ROOT_PASSWORD}@mongodb:27017/${MONGO_DATABASE:-payload}?authSource=admin}
-    container_name: sookelive-payload
+        # Build runs on the host network (see above), not sookelive-network, so it must use
+        # localhost here rather than the "mongodb" service name used at runtime below.
+        DATABASE_URI: ${DATABASE_URI:-mongodb://${MONGO_ROOT_USERNAME:-admin}:${MONGO_ROOT_PASSWORD}@localhost:27017/${MONGO_DATABASE:-payload}?authSource=admin}
+    container_name: ${CONTAINER_NAME:-sookelive-payload}
     networks:
       - sookelive-network
     # Port mapping removed for security - Caddy reverse proxy handles external access

@@ -25,6 +25,14 @@ export const Header: GlobalConfig = {
         },
       },
     },
+    {
+      name: 'chatUrl',
+      type: 'text',
+      label: 'Chat / Discord URL',
+      admin: {
+        description: 'Links the player\'s LIVE indicator to live chat when a show is live. Leave blank to hide it. For a general chat link in the main menu, add it to Nav Items above instead.',
+      },
+    },
   ],
   hooks: {
     afterChange: [revalidateHeader],

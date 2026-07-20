@@ -52,6 +52,10 @@ services:
     # in the background, then execs `sleep infinity` to keep the container
     # alive for `docker compose exec` the same way the plain command used to.
     command: ["bash", "/workspace/sookelive/bin/cc-container-start.sh"]
+    # Run Docker's init (tini) as PID 1 so exited processes get reaped -
+    # `sleep infinity` never wait()s, so without this every process that
+    # dies in the container lingers as a zombie until the container restarts.
+    init: true
     stdin_open: true
     tty: true
     # Claude Code keys a session's resumable conversation history off the
@@ -87,8 +91,12 @@ services:
 
     environment:
       - CLAUDE_CONFIG_DIR=/home/claude/.claude
-      # mongodb is reachable as sookelive-mongodb:27017 on sookelive-network
-      # already, so no EXTRA_ALLOWED_DOMAINS entry is needed for it.
+      # init-firewall.sh's default "open" mode only opens ports 80/443
+      # outbound (any host); every other port is dropped regardless of
+      # destination, including in-network traffic to sookelive-mongodb on
+      # sookelive-network. EXTRA_ALLOWED_PORTS opens 27017 to any
+      # destination so the app can reach MongoDB.
+      - EXTRA_ALLOWED_PORTS=27017
       # This image doesn't ship pnpm; bin/cc-container-start.sh enables it
       # via corepack on first start. Keep its package cache on the
       # tmpfs-backed ~/.cache rather than growing the container's writable

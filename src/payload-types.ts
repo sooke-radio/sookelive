@@ -120,9 +120,10 @@ export interface Config {
     footer: FooterSelect<false> | FooterSelect<true>;
   };
   locale: null;
-  user: User & {
-    collection: 'users';
+  widgets: {
+    collections: CollectionsWidget;
   };
+  user: User;
   jobs: {
     tasks: {
       'sync-azuracast': TaskSyncAzuracast;
@@ -465,6 +466,7 @@ export interface User {
       }[]
     | null;
   password?: string | null;
+  collection: 'users';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -500,6 +502,10 @@ export interface Show {
    * The streamer ID associated with this show in Azuracast for live streaming.
    */
   streamer_id?: string | null;
+  /**
+   * Shuffle shows are shown darker in the schedule and sit behind regular shows when they overlap in the calendar view.
+   */
+  shuffle?: boolean | null;
   /**
    * Paste the Mixcloud embed src URL or the full <iframe> embed code.
    */
@@ -570,6 +576,10 @@ export interface Playlist {
     | number
     | boolean
     | null;
+  /**
+   * Mirrors the playlist enabled/disabled toggle in Azuracast.
+   */
+  is_enabled: boolean;
   lastSync: string;
   updatedAt: string;
   createdAt: string;
@@ -874,9 +884,6 @@ export interface Form {
       )[]
     | null;
   submitButtonLabel?: string | null;
-  /**
-   * Choose whether to display an on-page message or redirect to a different page after they submit the form.
-   */
   confirmationType?: ('message' | 'redirect') | null;
   confirmationMessage?: {
     root: {
@@ -896,9 +903,6 @@ export interface Form {
   redirect?: {
     url: string;
   };
-  /**
-   * Send custom emails when the form submits. Use comma separated lists to send the same email to multiple recipients. To reference a value from this form, wrap that field's name with double curly brackets, i.e. {{firstName}}. You can use a wildcard {{*}} to output all data and {{*:table}} to format it as an HTML table in the email.
-   */
   emails?:
     | {
         emailTo?: string | null;
@@ -907,9 +911,6 @@ export interface Form {
         replyTo?: string | null;
         emailFrom?: string | null;
         subject: string;
-        /**
-         * Enter the message that should be sent in this email.
-         */
         message?: {
           root: {
             type: string;
@@ -1452,6 +1453,7 @@ export interface ShowsSelect<T extends boolean = true> {
   hosts?: T;
   stream_playlist?: T;
   streamer_id?: T;
+  shuffle?: T;
   mixcloudUrl?: T;
   meta?:
     | T
@@ -1641,6 +1643,7 @@ export interface PlaylistsSelect<T extends boolean = true> {
   name?: T;
   short_name?: T;
   schedule_items?: T;
+  is_enabled?: T;
   lastSync?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1937,6 +1940,10 @@ export interface Header {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Links the player's LIVE indicator to live chat when a show is live. Leave blank to hide it. For a general chat link in the main menu, add it to Nav Items above instead.
+   */
+  chatUrl?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1992,6 +1999,7 @@ export interface HeaderSelect<T extends boolean = true> {
             };
         id?: T;
       };
+  chatUrl?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -2018,6 +2026,16 @@ export interface FooterSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "collections_widget".
+ */
+export interface CollectionsWidget {
+  data?: {
+    [k: string]: unknown;
+  };
+  width: 'full';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
