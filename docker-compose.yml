@@ -5,9 +5,16 @@ services:
       network: host # mongodb publishes 127.0.0.1:27017 (see docker-compose.mongodb.yml) so the build can reach it over localhost
       args:
         MIGRATE: false   # run payload migrate
+        # Passed as separate pieces (not a pre-assembled URI) so the app can
+        # URL-encode username/password in Node - raw ${VAR} interpolation
+        # here can't, and breaks on reserved characters like @ : / # ? %.
         # Build runs on the host network (see above), not sookelive-network, so it must use
         # localhost here rather than the "mongodb" service name used at runtime below.
-        DATABASE_URI: ${DATABASE_URI:-mongodb://${MONGO_ROOT_USERNAME:-admin}:${MONGO_ROOT_PASSWORD}@localhost:27017/${MONGO_DATABASE:-payload}?authSource=admin}
+        DATABASE_URI: ${DATABASE_URI:-}
+        MONGO_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:-admin}
+        MONGO_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-}
+        MONGO_DATABASE: ${MONGO_DATABASE:-payload}
+        MONGO_HOST: localhost
     container_name: ${CONTAINER_NAME:-sookelive-payload}
     networks:
       - sookelive-network
@@ -20,9 +27,14 @@ services:
     env_file:
       - .env
     environment:
-      # Connect to MongoDB via container name (mongodb service in docker-compose.mongodb.yml)
-      # To use external database, set DATABASE_URI in .env and this will be ignored
-      - DATABASE_URI=${DATABASE_URI:-mongodb://${MONGO_ROOT_USERNAME:-admin}:${MONGO_ROOT_PASSWORD}@mongodb:27017/${MONGO_DATABASE:-payload}?authSource=admin}
+      # Connect to MongoDB via container name (mongodb service in docker-compose.mongodb.yml).
+      # The app assembles+URL-encodes the URI itself (src/utilities/getDatabaseURI.ts) from the
+      # pieces below - to use an external database, set DATABASE_URI in .env and it takes priority.
+      - DATABASE_URI=${DATABASE_URI:-}
+      - MONGO_ROOT_USERNAME=${MONGO_ROOT_USERNAME:-admin}
+      - MONGO_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD:-}
+      - MONGO_DATABASE=${MONGO_DATABASE:-payload}
+      - MONGO_HOST=mongodb
     restart: always
 
 networks:

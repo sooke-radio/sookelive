@@ -19,6 +19,7 @@ import { Header } from './Header/config'
 import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
+import { getDatabaseURI } from './utilities/getDatabaseURI'
 import { Hosts } from './collections/Hosts'
 import { isAuthenticatedOrCronSecret } from '@/access/isAuthenticatedOrCronSecret'
 
@@ -61,7 +62,7 @@ export default buildConfig({
   // This config helps us configure global or default features that the other editors can inherit
   editor: defaultLexical,
   db: mongooseAdapter({
-    url: process.env.DATABASE_URI || '',
+    url: getDatabaseURI(),
   }),
   collections: [Pages, Posts, Shows, Media, Categories, Genres, Hosts, Users, Playlists],
   cors: [getServerSideURL()].filter(Boolean),
