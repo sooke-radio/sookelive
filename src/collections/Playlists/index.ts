@@ -2,9 +2,10 @@
 // playlists include schedule info for the associated show
 
 
-import type { CollectionConfig, PayloadRequest } from 'payload'
-import { azuracastAPI } from '@/stream/azuracast/api'
+import type { CollectionConfig } from 'payload'
+import { isAuthenticatedOrCronSecret } from '@/access/isAuthenticatedOrCronSecret'
 import { revalidatePlaylist, revalidateDelete } from './hooks/revalidatePlaylists'
+import { syncPlaylists } from './syncPlaylists'
 
 export const Playlists: CollectionConfig = {
   slug: 'playlists',
@@ -63,65 +64,16 @@ export const Playlists: CollectionConfig = {
       path: '/sync',
       method: 'post',
       handler: async (req) => {
-
-        // TODO: authenticate user
-        // if (!req.user) {
-        //   return Response.json({ error: 'forbidden' }, { status: 403 })
-        // }
-        const playlists = await azuracastAPI.get('playlists')
+        if (!isAuthenticatedOrCronSecret(req)) {
+          return Response.json({ error: 'forbidden' }, { status: 401 })
+        }
 
         try {
-          await req.payload.delete({
-            collection: 'playlists',
-            where: {
-              az_id: {
-                not_in: playlists.map(playlist => playlist.id)
-              }
-            }
-          })
-          const results = await Promise.all(
-            playlists.map(async playlist => {
-
-              const existing = await req.payload.find({
-                collection: 'playlists',
-                where: {
-                  az_id: {
-                    equals: playlist.id
-                  }
-                }
-              })
-
-              const playlistData = {
-                az_id: playlist.id,
-                name: playlist.name,
-                short_name: playlist.short_name,
-                schedule_items: playlist.schedule_items ? playlist.schedule_items : null,
-                lastSync: new Date().toString()
-              }
-
-              if (existing.totalDocs === 0) {
-
-                return req.payload.create({
-                  collection: 'playlists',
-                  data: playlistData
-                })
-
-              } else {
-
-                return req.payload.update({
-                  collection: 'playlists',
-                  where: {
-                    az_id: playlist.id
-                  },
-                  data: playlistData
-                })
-
-              }
-            })
-          )
+          const { warning, results } = await syncPlaylists(req.payload)
           return Response.json({
             success: true,
-            results: results
+            warning,
+            results,
           })
         } catch (error) {
           return Response.json({ error: error.message }, { status: 500 })
