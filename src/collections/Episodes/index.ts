@@ -8,7 +8,11 @@ import {
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
 
-import { getAssignedShowIds, getHostId, isAdminOrEpisodeOfAssignedShow } from '../../access/assignedShows'
+import {
+  getAssignedShowIds,
+  getHostId,
+  isAdminOrEpisodeOfAssignedShow,
+} from '../../access/assignedShows'
 import { isAdminOrHost } from '../../access/byRole'
 import { isAdminUser } from '../../access/roles'
 import { generatePreviewPath } from '../../utilities/generatePreviewPath'
@@ -23,13 +27,8 @@ import {
   OverviewField,
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
+import { embedsField } from '@/fields/embeds'
 import { slugField } from '@/fields/slug'
-
-const extractMixcloudSrc = ({ value }: { value?: unknown }) => {
-  if (typeof value !== 'string' || !value.trim()) return value
-  const srcMatch = value.match(/src="([^"]+)"/)
-  return srcMatch ? srcMatch[1] : value
-}
 
 // Admins see everything; hosts see published episodes, episodes of their own
 // assigned (possibly-draft) shows, and their own still-showless drafts (an
@@ -73,7 +72,6 @@ export const Episodes: CollectionConfig<'episodes'> = {
     slug: true,
     show: true,
     dateAired: true,
-    mixcloudUrl: true,
     meta: {
       image: true,
       description: true,
@@ -136,22 +134,11 @@ export const Episodes: CollectionConfig<'episodes'> = {
               name: 'audio',
               type: 'upload',
               admin: {
-                description: 'The audio file for this episode.',
+                description: 'The audio file for this episode. Shown first on the episode page.',
               },
               relationTo: 'episode-audio',
             },
-            {
-              name: 'mixcloudUrl',
-              label: 'Mixcloud Embed',
-              type: 'text',
-              admin: {
-                description:
-                  'Paste the Mixcloud embed src URL or the full <iframe> embed code. Stand-in audio player until file uploads (audio field, above) are wired up to storage.',
-              },
-              hooks: {
-                beforeChange: [extractMixcloudSrc],
-              },
-            },
+            embedsField,
             {
               name: 'tracklist',
               type: 'array',

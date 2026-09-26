@@ -11,7 +11,8 @@ import { EpisodeHero } from '@/heros/EpisodeHero'
 import { generateMeta } from '@/utilities/generateMeta'
 import PageClient from './page.client'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
-import { MixcloudEmbed } from '@/components/MixcloudEmbed'
+import { EpisodePlayer } from '@/components/EpisodePlayer/index.client'
+import { MediaEmbeds } from '@/components/MediaEmbeds'
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
@@ -58,16 +59,22 @@ export default async function Episode({ params: paramsPromise }: Args) {
 
       <EpisodeHero episode={episode} />
 
-      {episode.mixcloudUrl && (
+      {episode.audio && typeof episode.audio === 'object' && episode.audio.url && (
         <div className="container max-w-[48rem] mx-auto pt-8">
-          <MixcloudEmbed src={episode.mixcloudUrl} />
+          <EpisodePlayer episodeId={String(episode.id)} src={episode.audio.url} />
         </div>
       )}
+
+      <MediaEmbeds embeds={episode.embeds} />
 
       {episode.description && (
         <div className="flex flex-col items-center gap-4 pt-8">
           <div className="container">
-            <RichText className="max-w-[48rem] mx-auto" data={episode.description} enableGutter={false} />
+            <RichText
+              className="max-w-[48rem] mx-auto"
+              data={episode.description}
+              enableGutter={false}
+            />
           </div>
         </div>
       )}

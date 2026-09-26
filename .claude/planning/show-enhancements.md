@@ -156,3 +156,49 @@ Unit specs for `src/access/*.ts` pure helpers. Optional `episodesRevalidate.int.
 | 6 | Onboarding email | 7-day token; SMTP failure must not abort user creation |
 
 Each phase leaves the app deployable. Development on a feature branch off `main`; no pushes to protected branches.
+
+## server update instructions
+
+Applies to each environment (`stg` first, then `prd`). Deploys are branch-driven (push to `stg`/`prd` → `deploy.yml` → `docker compose up -d --build`); pushing needs explicit permission.
+
+### Why admin access must be restored by hand
+
+Users now have a `roles` field and `/admin` only lets in users holding the `admin` or `host` role. Every user that existed before this update has **no `roles`**, so **nobody (including the site admin) can log in to `/admin` after the deploy** until roles are set. The app image only contains the built `.next` output, not `src/scripts/`, so `pnpm payload run ./src/scripts/backfill-user-roles.ts` can't run in the container — use the `mongosh` commands below instead (same effect as the script).
+
+### Before deploying
+
+1. Back up the database on the server: `bin/backup-db.sh` (dump lands in `db/`; restore with `bin/mongorestore.sh`).
+2. No new env vars or secrets are needed for this release (the S3/Wasabi variables only arrive with Phase 4).
+3. Episodes are new in this release, so there is no episode data to migrate on stg/prd. `src/scripts/migrate-episode-embeds.ts` is only for a database that already holds episodes with the old `mixcloudUrl` field (e.g. a dev DB).
+
+### After the deploy: restore admin privileges
+
+Find the database name the app uses (`sl2db` on prd and `stg` on stg at the time of writing — confirm rather than trust this):
+
+```bash
+docker exec sookelive-prd printenv DATABASE_URI   # use sookelive-stg on stg; the path after the last / is the DB name
+```
+
+Then set the admin role, using the mongo container's own root credentials (already in its environment, so no password on the command line). Replace `<DB>` and `you@example.com`:
+
+```bash
+# Restore admin for one user (preferred: the site admin)
+docker exec -i sookelive-mongodb sh -c 'mongosh "mongodb://$MONGO_INITDB_ROOT_USERNAME:$MONGO_INITDB_ROOT_PASSWORD@localhost:27017/<DB>?authSource=admin" --quiet --eval "db.users.updateOne({ email: \"you@example.com\" }, { \$set: { roles: [\"admin\"] } })"'
+```
+
+Expect `matchedCount: 1, modifiedCount: 1`. `matchedCount: 0` means the email is wrong (check with `db.users.find({}, {email: 1, roles: 1})`).
+
+To backfill **every** existing user that has no roles to admin (what `backfill-user-roles.ts` does; all pre-existing users were effectively admins):
+
+```bash
+docker exec -i sookelive-mongodb sh -c 'mongosh "mongodb://$MONGO_INITDB_ROOT_USERNAME:$MONGO_INITDB_ROOT_PASSWORD@localhost:27017/<DB>?authSource=admin" --quiet --eval "db.users.updateMany({ \$or: [{ roles: { \$exists: false } }, { roles: { \$size: 0 } }] }, { \$set: { roles: [\"admin\"] } })"'
+```
+
+Both are idempotent. Users created after the deploy default to `['host']` (least privilege), so only run these for accounts that should be admins.
+
+### After restoring roles
+
+1. **Log out and back in.** `roles` is saved into the login token, so sessions from before the update don't carry it. A previously logged-in admin will still be refused until they log in again.
+2. Verify: `/admin` loads with all collections visible; Header/Footer globals are editable.
+3. Create host accounts in the admin: create the user with a throwaway password, set roles `['host']`, link their `host` profile, and make sure that host is on the right Shows' `hosts` list. (The automatic "set your password" email is Phase 6 and not built yet, so for now give hosts their password another way.)
+4. Sanity check the public site: `/episodes` and a show page load. Published pages are cached, so if anything looks stale, `POST /api/revalidate-all` with `Authorization: Bearer $CRON_SECRET`.
