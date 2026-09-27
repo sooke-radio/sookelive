@@ -173,28 +173,36 @@ Users now have a `roles` field and `/admin` only lets in users holding the `admi
 
 ### After the deploy: restore admin privileges
 
-Find the database name the app uses (`sl2db` on prd and `stg` on stg at the time of writing — confirm rather than trust this):
+Connect with the credentials in the **environment's own deploy checkout `.env`** (the file the deploy writes; `DATABASE_URI` is deliberately *not* in it, and may not appear in the container's environment either, so don't rely on `printenv DATABASE_URI`). That is what the running app authenticates with. Don't use the mongo container's `MONGO_INITDB_ROOT_*`: stg and prd share one mongo container, those variables only apply when its data volume is first created, and they can fail with `Authentication failed.`
+
+Run on the server, from the stg (or prd) deploy directory (`DEPLOY_PATH`); replace `you@example.com`:
 
 ```bash
-docker exec sookelive-prd printenv DATABASE_URI   # use sookelive-stg on stg; the path after the last / is the DB name
-```
+cd <DEPLOY_PATH for this environment>
+# strips CR/quotes; credentials go in as separate flags, so no URL-encoding is needed
+envval() { grep -m1 "^$1=" .env | cut -d= -f2- | tr -d '\r"'"'"; }
+DBUSER=$(envval MONGO_ROOT_USERNAME); DBPASS=$(envval MONGO_ROOT_PASSWORD); DBNAME=$(envval MONGO_DATABASE)
+echo "user=[$DBUSER] db=[$DBNAME] passlen=${#DBPASS}"   # sanity check: none empty (password not shown)
 
-Then set the admin role, using the mongo container's own root credentials (already in its environment, so no password on the command line). Replace `<DB>` and `you@example.com`:
-
-```bash
 # Restore admin for one user (preferred: the site admin)
-docker exec -i sookelive-mongodb sh -c 'mongosh "mongodb://$MONGO_INITDB_ROOT_USERNAME:$MONGO_INITDB_ROOT_PASSWORD@localhost:27017/<DB>?authSource=admin" --quiet --eval "db.users.updateOne({ email: \"you@example.com\" }, { \$set: { roles: [\"admin\"] } })"'
+docker exec -i sookelive-mongodb mongosh --host localhost --port 27017 \
+  -u "$DBUSER" -p "$DBPASS" --authenticationDatabase admin "$DBNAME" --quiet \
+  --eval 'db.users.updateOne({ email: "you@example.com" }, { $set: { roles: ["admin"] } })'
 ```
 
-Expect `matchedCount: 1, modifiedCount: 1`. `matchedCount: 0` means the email is wrong (check with `db.users.find({}, {email: 1, roles: 1})`).
+Expect `matchedCount: 1, modifiedCount: 1`. `matchedCount: 0` means the email is wrong or the wrong database (check with `db.users.find({}, {email: 1, roles: 1})`; the database is the `MONGO_DATABASE` value in that `.env`, set by the environment's `MONGO_DATABASE` GitHub variable, default `payload`).
 
 To backfill **every** existing user that has no roles to admin (what `backfill-user-roles.ts` does; all pre-existing users were effectively admins):
 
 ```bash
-docker exec -i sookelive-mongodb sh -c 'mongosh "mongodb://$MONGO_INITDB_ROOT_USERNAME:$MONGO_INITDB_ROOT_PASSWORD@localhost:27017/<DB>?authSource=admin" --quiet --eval "db.users.updateMany({ \$or: [{ roles: { \$exists: false } }, { roles: { \$size: 0 } }] }, { \$set: { roles: [\"admin\"] } })"'
+docker exec -i sookelive-mongodb mongosh --host localhost --port 27017 \
+  -u "$DBUSER" -p "$DBPASS" --authenticationDatabase admin "$DBNAME" --quiet \
+  --eval 'db.users.updateMany({ $or: [{ roles: { $exists: false } }, { roles: { $size: 0 } }] }, { $set: { roles: ["admin"] } })'
 ```
 
-Both are idempotent. Users created after the deploy default to `['host']` (least privilege), so only run these for accounts that should be admins.
+Both are idempotent. The password is visible in the process list for the second or two the command runs, which is fine on a single-admin server. Users created after the deploy default to `['host']` (least privilege), so only run these for accounts that should be admins.
+
+If it still says `Authentication failed.`, the `.env` credentials don't match the mongo user either. Check the `user=/db=/passlen=` line above shows non-empty values.
 
 ### After restoring roles
 
