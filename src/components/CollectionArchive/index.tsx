@@ -7,7 +7,7 @@ import { Card, CardPostData } from '@/components/Card'
 
 export type Props = {
   posts: CardPostData[]
-  relationTo?: 'posts' | 'shows'
+  relationTo?: 'episodes' | 'posts' | 'shows'
 }
 
 export const CollectionArchive: React.FC<Props> = (props) => {

@@ -18,6 +18,7 @@ Running list of cruft found in the codebase (2026-07-07 audit). Fix these opport
 - [x] **Cron comment mismatch** — fixed: the `*/15 * * * *` cadence was correct (matches the docs and the 15-minute sync interval), comment corrected to "every 15 minutes".
 - [x] **Hard-coded Azuracast base URL** — fixed in the `cc-automated-testing` branch: now built from `AZURACAST_URL`/`AZURACAST_STATION_ID`, falling back to the `NEXT_PUBLIC_` vars and then the old hardcoded value.
 - [x] **`syncPlaylists` wiped all local playlists if Azuracast returned an empty array** — fixed: `syncPlaylists()` now short-circuits on a zero-length response, logs a warning via `payload.logger.warn`, and returns `{ warning, results: [] }` without deleting anything; the `/sync` endpoint passes `warning` through in its JSON response. Locked in with integration tests.
+- [ ] **`revalidateEpisode.ts`'s `afterChange` hook doesn't handle unpublishing** — only revalidates when `doc._status === 'published'`; unlike `revalidatePost.ts`, it has no branch for "previously published, now unpublished," so unpublishing an episode won't bust its now-stale `/episodes/[slug]` page. Found while building the public episode pages (2026-07-18); fix by mirroring `revalidatePost.ts`'s `previousDoc._status === 'published' && doc._status !== 'published'` branch.
 
 ## Docker / deploy
 

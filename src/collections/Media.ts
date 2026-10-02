@@ -9,7 +9,8 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 
 import { anyone } from '../access/anyone'
-import { authenticated } from '../access/authenticated'
+import { isAdmin, isAdminOrHost } from '../access/byRole'
+import { isAdminUser } from '../access/roles'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -17,15 +18,18 @@ const dirname = path.dirname(filename)
 export const Media: CollectionConfig = {
   slug: 'media',
   access: {
-    create: authenticated,
-    delete: authenticated,
+    create: isAdminOrHost,
+    delete: isAdmin,
     read: anyone,
-    update: authenticated,
+    update: isAdmin,
   },
   admin: {
     components: {
       beforeListTable: ['@/components/RevalidateAll'],
     },
+    // Hidden from the nav for hosts, but still usable via upload drawers
+    // (e.g. when picking an episode image) - this is UI decluttering only.
+    hidden: ({ user }) => !isAdminUser(user),
   },
   fields: [
     {

@@ -1,5 +1,7 @@
 import type { GlobalConfig } from 'payload'
 
+import { isAdmin } from '@/access/byRole'
+import { isAdminUser } from '@/access/roles'
 import { link } from '@/fields/link'
 import { revalidateHeader } from './hooks/revalidateHeader'
 
@@ -7,6 +9,10 @@ export const Header: GlobalConfig = {
   slug: 'header',
   access: {
     read: () => true,
+    update: isAdmin,
+  },
+  admin: {
+    hidden: ({ user }) => !isAdminUser(user),
   },
   fields: [
     {
