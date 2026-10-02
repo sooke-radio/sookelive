@@ -631,13 +631,26 @@ export interface Episode {
     [k: string]: unknown;
   } | null;
   /**
-   * The audio file for this episode.
+   * The audio file for this episode. Shown first on the episode page.
    */
   audio?: (string | null) | EpisodeAudio;
   /**
-   * Paste the Mixcloud embed src URL or the full <iframe> embed code. Stand-in audio player until file uploads (audio field, above) are wired up to storage.
+   * Audio and video for this page: YouTube, SoundCloud or Mixcloud embeds. Shown in this order.
    */
-  mixcloudUrl?: string | null;
+  embeds?:
+    | {
+        type: 'youtube' | 'soundcloud' | 'mixcloud';
+        /**
+         * Optional heading shown above this embed.
+         */
+        title?: string | null;
+        /**
+         * Paste the page URL or the full <iframe> embed code.
+         */
+        url?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   tracklist?:
     | {
         artist: string;
@@ -1610,7 +1623,14 @@ export interface EpisodesSelect<T extends boolean = true> {
   image?: T;
   description?: T;
   audio?: T;
-  mixcloudUrl?: T;
+  embeds?:
+    | T
+    | {
+        type?: T;
+        title?: T;
+        url?: T;
+        id?: T;
+      };
   tracklist?:
     | T
     | {

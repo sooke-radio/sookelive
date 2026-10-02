@@ -27,6 +27,10 @@ const isAdminOrOwnUpload: Access = ({ req: { user } }) => {
   }
 }
 
+// Audio uploads are hidden in the admin UI until S3 storage (Wasabi) is wired
+// up. Flip to true to re-enable; access control and the page player are unchanged.
+export const AUDIO_UPLOADS_ENABLED = false
+
 export const EpisodeAudio: CollectionConfig = {
   slug: 'episode-audio',
   access: {
@@ -36,7 +40,7 @@ export const EpisodeAudio: CollectionConfig = {
     update: isAdminOrOwnUpload,
   },
   admin: {
-    hidden: ({ user }) => !isAdminUser(user),
+    hidden: ({ user }) => !AUDIO_UPLOADS_ENABLED || !isAdminUser(user),
     useAsTitle: 'title',
   },
   fields: [

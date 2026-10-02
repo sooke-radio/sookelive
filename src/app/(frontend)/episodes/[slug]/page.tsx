@@ -11,7 +11,8 @@ import { EpisodeHero } from '@/heros/EpisodeHero'
 import { generateMeta } from '@/utilities/generateMeta'
 import PageClient from './page.client'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
-import { MixcloudEmbed } from '@/components/MixcloudEmbed'
+import { EpisodePlayer } from '@/components/EpisodePlayer/index.client'
+import { MediaEmbeds } from '@/components/MediaEmbeds'
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
@@ -47,6 +48,10 @@ export default async function Episode({ params: paramsPromise }: Args) {
 
   if (!episode) return <PayloadRedirects url={url} />
 
+  const audioUrl =
+    episode.audio && typeof episode.audio === 'object' ? episode.audio.url : undefined
+  const hasMedia = Boolean(audioUrl) || Boolean(episode.embeds?.some((embed) => embed.url))
+
   return (
     <article className="pt-16 pb-16">
       <PageClient />
@@ -58,17 +63,27 @@ export default async function Episode({ params: paramsPromise }: Args) {
 
       <EpisodeHero episode={episode} />
 
-      {episode.mixcloudUrl && (
-        <div className="container max-w-[48rem] mx-auto pt-8">
-          <MixcloudEmbed src={episode.mixcloudUrl} />
-        </div>
-      )}
-
       {episode.description && (
         <div className="flex flex-col items-center gap-4 pt-8">
           <div className="container">
-            <RichText className="max-w-[48rem] mx-auto" data={episode.description} enableGutter={false} />
+            <RichText
+              className="max-w-[48rem] mx-auto"
+              data={episode.description}
+              enableGutter={false}
+            />
           </div>
+        </div>
+      )}
+
+      {hasMedia && (
+        <div className="container max-w-[48rem] mx-auto pt-8">
+          <h2 className="text-2xl">Episode Media</h2>
+          {audioUrl && (
+            <div className="pt-4">
+              <EpisodePlayer episodeId={String(episode.id)} src={audioUrl} />
+            </div>
+          )}
+          <MediaEmbeds embeds={episode.embeds} />
         </div>
       )}
 
