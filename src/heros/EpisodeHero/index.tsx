@@ -28,7 +28,6 @@ export const EpisodeHero: React.FC<{
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-1">
                   <p className="text-lg">
-                    Part of{' '}
                     {showSlug ? (
                       <Link className="underline" href={`/shows/${showSlug}`}>
                         {showTitle}

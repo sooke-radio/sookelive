@@ -48,6 +48,10 @@ export default async function Episode({ params: paramsPromise }: Args) {
 
   if (!episode) return <PayloadRedirects url={url} />
 
+  const audioUrl =
+    episode.audio && typeof episode.audio === 'object' ? episode.audio.url : undefined
+  const hasMedia = Boolean(audioUrl) || Boolean(episode.embeds?.some((embed) => embed.url))
+
   return (
     <article className="pt-16 pb-16">
       <PageClient />
@@ -59,14 +63,6 @@ export default async function Episode({ params: paramsPromise }: Args) {
 
       <EpisodeHero episode={episode} />
 
-      {episode.audio && typeof episode.audio === 'object' && episode.audio.url && (
-        <div className="container max-w-[48rem] mx-auto pt-8">
-          <EpisodePlayer episodeId={String(episode.id)} src={episode.audio.url} />
-        </div>
-      )}
-
-      <MediaEmbeds embeds={episode.embeds} />
-
       {episode.description && (
         <div className="flex flex-col items-center gap-4 pt-8">
           <div className="container">
@@ -76,6 +72,18 @@ export default async function Episode({ params: paramsPromise }: Args) {
               enableGutter={false}
             />
           </div>
+        </div>
+      )}
+
+      {hasMedia && (
+        <div className="container max-w-[48rem] mx-auto pt-8">
+          <h2 className="text-2xl">Episode Media</h2>
+          {audioUrl && (
+            <div className="pt-4">
+              <EpisodePlayer episodeId={String(episode.id)} src={audioUrl} />
+            </div>
+          )}
+          <MediaEmbeds embeds={episode.embeds} />
         </div>
       )}
 

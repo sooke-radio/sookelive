@@ -50,7 +50,7 @@ export const MediaEmbeds: React.FC<{ embeds?: Embed[] | null }> = ({ embeds }) =
   if (!embeds || embeds.length === 0) return null
 
   return (
-    <div className="container max-w-[48rem] mx-auto flex flex-col gap-6 pt-8">
+    <div className="flex flex-col gap-6 pt-6">
       {embeds.map((embed, index) => {
         const key = embed.id ?? String(index)
         const content = renderEmbed(embed)
