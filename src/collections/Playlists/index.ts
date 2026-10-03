@@ -4,6 +4,7 @@
 
 import type { CollectionConfig } from 'payload'
 import { isAuthenticatedOrCronSecret } from '@/access/isAuthenticatedOrCronSecret'
+import { isAdminUser } from '@/access/roles'
 import { revalidatePlaylist, revalidateDelete } from './hooks/revalidatePlaylists'
 import { syncPlaylists } from './syncPlaylists'
 
@@ -20,6 +21,7 @@ export const Playlists: CollectionConfig = {
         '@/components/SyncPlaylists'
       ],
     },
+    hidden: ({ user }) => !isAdminUser(user),
     useAsTitle: 'name',
   },
   fields:[

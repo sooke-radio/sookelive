@@ -12,7 +12,10 @@ export async function getTestPayload(): Promise<Payload> {
   return cached
 }
 
-export async function deleteAll(payload: Payload, collection: 'playlists' | 'shows' | 'pages') {
+export async function deleteAll(
+  payload: Payload,
+  collection: 'playlists' | 'shows' | 'pages' | 'posts' | 'hosts' | 'users' | 'episodes',
+) {
   await payload.delete({
     collection,
     where: { id: { exists: true } },

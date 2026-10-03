@@ -3,6 +3,7 @@
 import React, { useCallback, useRef, useEffect, useState, useMemo } from 'react'
 import { Howl } from 'howler'
 import { connectToWebSocket, forceReconnectWebSocket } from '@/stream/azuracast/nowplaying'
+import { useAudioSource } from '@/providers/AudioSource'
 import { AudioWaveform } from './AudioWaveform.index.client'
 import { selectMount } from './mountSelection'
 import { QualityMenu } from './QualityMenu.client'
@@ -73,6 +74,8 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className, chatUrl })
   // once playerState is 'playing', which can't happen before at least one
   // real now-playing update has already set it via connectToWebSocket.
   const lastMetadataAtRef = useRef(0)
+
+  const { activeId, claim } = useAudioSource()
 
   // For visualization - refs hold the imperative Web Audio resources (read
   // only from effects/handlers); `visualizationNodes` mirrors them into state
@@ -183,6 +186,7 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className, chatUrl })
         },
         onplay: () => {
           setPlayerState('playing')
+          claim('live')
           // Clear any existing timeout
           if (timeoutRef.current) {
             clearTimeout(timeoutRef.current)
@@ -224,7 +228,7 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className, chatUrl })
         newSound.play()
       }
     },
-    [unloadSound],
+    [unloadSound, claim],
   )
 
   useEffect(() => {
@@ -323,6 +327,14 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className, chatUrl })
       clearInterval(staleCheck)
     }
   }, [])
+
+  // Another player (an episode) claimed playback - pause ourselves so only
+  // one source is ever audible.
+  useEffect(() => {
+    if (activeId !== 'live' && playerState === 'playing') {
+      soundRef.current?.pause()
+    }
+  }, [activeId, playerState])
 
   // Cleanup on unmount
   useEffect(() => {

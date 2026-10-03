@@ -7,6 +7,8 @@ import { buildConfig, PayloadRequest } from 'payload'
 import { fileURLToPath } from 'url'
 
 import { Categories } from './collections/Categories'
+import { Episodes } from './collections/Episodes'
+import { EpisodeAudio } from './collections/EpisodeAudio'
 import { Genres } from './collections/Genres'
 import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
@@ -36,6 +38,14 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
     user: Users.slug,
+    components: {
+      Nav: '@/components/HostNav',
+      views: {
+        dashboard: {
+          Component: '@/components/HostDashboard',
+        },
+      },
+    },
     livePreview: {
       breakpoints: [
         {
@@ -64,7 +74,19 @@ export default buildConfig({
   db: mongooseAdapter({
     url: getDatabaseURI(),
   }),
-  collections: [Pages, Posts, Shows, Media, Categories, Genres, Hosts, Users, Playlists],
+  collections: [
+    Pages,
+    Posts,
+    Shows,
+    Episodes,
+    EpisodeAudio,
+    Media,
+    Categories,
+    Genres,
+    Hosts,
+    Users,
+    Playlists,
+  ],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer],
   plugins: [
