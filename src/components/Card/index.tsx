@@ -4,12 +4,17 @@ import useClickableCard from '@/utilities/useClickableCard'
 import Link from 'next/link'
 import React, { Fragment } from 'react'
 
-import type { Post, Show } from '@/payload-types'
+import type { Episode, Post } from '@/payload-types'
 
 import { Media } from '@/components/Media'
+import { formatDateTime } from '@/utilities/formatDateTime'
 import { GradientFill } from '@/components/GradientFill/index.client'
 
-export type CardPostData = Pick<Post, 'slug' | 'categories' | 'meta' | 'title'>
+export type CardPostData = Pick<Post, 'slug' | 'categories' | 'meta' | 'title'> & {
+  // Episodes only: used when no SEO (meta) image is set
+  image?: Episode['image']
+  dateAired?: Episode['dateAired']
+}
 
 export const Card: React.FC<{
   alignItems?: 'center'
@@ -22,8 +27,9 @@ export const Card: React.FC<{
   const { card, link } = useClickableCard({})
   const { className, doc, relationTo, showCategories, title: titleFromProps } = props
 
-  const { slug, categories, meta, title } = doc || {}
-  const { description, image: metaImage } = meta || {}
+  const { slug, categories, meta, title, image: episodeImage, dateAired } = doc || {}
+  const { description, image: seoImage } = meta || {}
+  const metaImage = seoImage || (relationTo === 'episodes' ? episodeImage : undefined)
 
   const hasCategories = (categories && Array.isArray(categories) && categories.length > 0)
   const titleToUse = titleFromProps || title
@@ -110,6 +116,9 @@ export const Card: React.FC<{
               </Link>
             </h3>
           </div>
+        )}
+        {relationTo === 'episodes' && dateAired && (
+          <div className="mt-1 text-xs text-muted-foreground">{formatDateTime(dateAired)}</div>
         )}
         {description && <div className="mt-2">{description && <p>{sanitizedDescription}</p>}</div>}
 
