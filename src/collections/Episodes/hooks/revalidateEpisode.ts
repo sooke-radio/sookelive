@@ -34,6 +34,8 @@ const revalidateEpisodePaths = async (doc: Episode, req: PayloadRequest) => {
   const showSlug = await getShowSlug(doc.show, req)
   if (showSlug) {
     revalidatePath(`/shows/${showSlug}`)
+    // Paginated show pages (/shows/[slug]/page/N) - the dynamic pattern covers every page number
+    revalidatePath('/shows/[slug]/page/[pageNumber]', 'page')
   }
 }
 

@@ -23,6 +23,7 @@ export default async function Page() {
     select: {
       title: true,
       slug: true,
+      image: true,
       meta: true,
     },
   })
