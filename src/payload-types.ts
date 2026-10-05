@@ -692,6 +692,8 @@ export interface EpisodeAudio {
   id: string;
   title?: string | null;
   uploadedBy?: (string | null) | User;
+  prefix?: string | null;
+  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -1664,6 +1666,8 @@ export interface EpisodesSelect<T extends boolean = true> {
 export interface EpisodeAudioSelect<T extends boolean = true> {
   title?: T;
   uploadedBy?: T;
+  prefix?: T;
+  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;

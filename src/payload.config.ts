@@ -1,4 +1,5 @@
 // storage-adapter-import-placeholder
+import { s3Storage } from '@payloadcms/storage-s3'
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
 
 import sharp from 'sharp' // sharp-import
@@ -91,11 +92,40 @@ export default buildConfig({
   globals: [Header, Footer],
   plugins: [
     ...plugins,
-    // storage-adapter-placeholder
+    // Episode audio lives in Wasabi (S3-compatible); media stays on local disk.
+    // Docs keep their stored `prefix`, so audio uploaded under another env's
+    // prefix (e.g. prd docs synced to stg) still resolves to the right object.
+    s3Storage({
+      alwaysInsertFields: true, // keep the schema (prefix field) identical with or without S3
+      enabled: Boolean(process.env.S3_BUCKET),
+      collections: {
+        'episode-audio': {
+          prefix: process.env.S3_PREFIX || 'episode-audio',
+          // Direct public bucket URLs -> native Range requests -> seeking works.
+          // File bytes are public regardless of collection access control.
+          disablePayloadAccessControl: true,
+          generateFileURL: ({ filename, prefix }) =>
+            [process.env.S3_PUBLIC_URL, prefix, filename].filter(Boolean).join('/'),
+        },
+      },
+      bucket: process.env.S3_BUCKET || '',
+      config: {
+        credentials: {
+          accessKeyId: process.env.S3_ACCESS_KEY_ID || '',
+          secretAccessKey: process.env.S3_SECRET_ACCESS_KEY || '',
+        },
+        endpoint: process.env.S3_ENDPOINT,
+        forcePathStyle: true,
+        region: process.env.S3_REGION,
+      },
+    }),
   ],
   secret: process.env.PAYLOAD_SECRET,
   endpoints: [revalidateAllEndpoint],
   sharp,
+  upload: {
+    limits: { fileSize: 300 * 1024 * 1024 }, // 300MB, sized for episode audio
+  },
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },

@@ -15,7 +15,6 @@ import {
 } from '../../access/assignedShows'
 import { isAdminOrHost } from '../../access/byRole'
 import { isAdminUser } from '../../access/roles'
-import { AUDIO_UPLOADS_ENABLED } from '../EpisodeAudio'
 import { generatePreviewPath } from '../../utilities/generatePreviewPath'
 import { populatePublishedAt } from '../../hooks/populatePublishedAt'
 import { enforceShowOwnership } from './hooks/enforceShowOwnership'
@@ -136,7 +135,6 @@ export const Episodes: CollectionConfig<'episodes'> = {
               type: 'upload',
               admin: {
                 description: 'The audio file for this episode. Shown first on the episode page.',
-                hidden: !AUDIO_UPLOADS_ENABLED,
               },
               relationTo: 'episode-audio',
             },
