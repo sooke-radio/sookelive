@@ -116,7 +116,9 @@ const queryEpisodesByShow = cache(async ({ showId, page }: { showId: string; pag
     limit: EPISODES_PER_PAGE,
     overrideAccess: false,
     page,
-    sort: '-dateAired',
+    // Tie-breaker on id: episodes with equal/missing dateAired otherwise sort
+    // nondeterministically, so one can be skipped across page boundaries.
+    sort: ['-dateAired', '-id'],
     where: {
       show: {
         equals: showId,
