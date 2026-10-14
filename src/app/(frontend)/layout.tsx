@@ -14,10 +14,19 @@ import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
 import { draftMode } from 'next/headers'
 
 import './globals.css'
+import type { Analytics } from '@/payload-types'
+import { getCachedGlobal } from '@/utilities/getGlobals'
 import { getServerSideURL } from '@/utilities/getURL'
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const { isEnabled } = await draftMode()
+  // Analytics must never take the whole site down if the global can't be read.
+  let analytics: Analytics | null = null
+  try {
+    analytics = await getCachedGlobal('analytics')()
+  } catch (err) {
+    console.error('Failed to load analytics global', err)
+  }
 
   return (
     <html className={cn(GeistSans.variable, GeistMono.variable)} lang="en" suppressHydrationWarning>
@@ -30,8 +39,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <link href="/favicon-solid-32.png" rel="apple-touch-icon" sizes="32x32" />
         <link href="/favicon-solid-192.png" rel="apple-touch-icon" sizes="192x192" />
         <link rel="manifest" href="/manifest.json" />
-        {process.env.NEXT_PUBLIC_SITE_ENV === 'prd' && (
-          <script defer src="https://umami.sooke.live/script.js" data-website-id="fcda2793-d54f-4b8e-98d5-79ef5d457b10"></script>
+        {analytics?.umamiSrc && analytics?.umamiWebsiteId && (
+          <script defer src={analytics.umamiSrc} data-website-id={analytics.umamiWebsiteId} />
         )}
       </head>      
       <body>
