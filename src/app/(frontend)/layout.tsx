@@ -20,7 +20,13 @@ import { getServerSideURL } from '@/utilities/getURL'
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const { isEnabled } = await draftMode()
-  const analytics: Analytics = await getCachedGlobal('analytics')()
+  // Analytics must never take the whole site down if the global can't be read.
+  let analytics: Analytics | null = null
+  try {
+    analytics = await getCachedGlobal('analytics')()
+  } catch (err) {
+    console.error('Failed to load analytics global', err)
+  }
 
   return (
     <html className={cn(GeistSans.variable, GeistMono.variable)} lang="en" suppressHydrationWarning>
