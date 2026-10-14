@@ -4,6 +4,7 @@ import React, { useCallback, useRef, useEffect, useState, useMemo } from 'react'
 import { Howl } from 'howler'
 import { connectToWebSocket, forceReconnectWebSocket } from '@/stream/azuracast/nowplaying'
 import { useAudioSource } from '@/providers/AudioSource'
+import { trackEvent } from '@/Analytics/track'
 import { AudioWaveform } from './AudioWaveform.index.client'
 import { selectMount } from './mountSelection'
 import { QualityMenu } from './QualityMenu.client'
@@ -58,6 +59,8 @@ const VOLUME_STORAGE_KEY = 'sookelive:volume'
 // If we're supposedly playing but haven't heard a now-playing update in this
 // long, assume the connection died silently (common on a network handoff -
 // the underlying <audio> element often just goes quiet with no error event).
+const MIN_LISTEN_MS = 60_000
+
 const STALE_METADATA_MS = 25_000
 const STALE_CHECK_INTERVAL_MS = 10_000
 
@@ -66,6 +69,8 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className, chatUrl })
   const [sound, setSound] = useState<Howl | null>(null)
   const soundRef = useRef<Howl | null>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  // Fires after MIN_LISTEN_MS of continuous playback; cancelled on pause/stop.
+  const listenTimerRef = useRef<NodeJS.Timeout | null>(null)
   const analyzerRef = useRef<AnalyserNode | null>(null)
   const playerStateRef = useRef<PlayerState>('stopped')
   const hasInitializedRef = useRef(false)
@@ -187,6 +192,11 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className, chatUrl })
         onplay: () => {
           setPlayerState('playing')
           claim('live')
+          if (listenTimerRef.current) clearTimeout(listenTimerRef.current)
+          listenTimerRef.current = setTimeout(() => {
+            listenTimerRef.current = null
+            trackEvent('stream-listen-1min')
+          }, MIN_LISTEN_MS)
           // Clear any existing timeout
           if (timeoutRef.current) {
             clearTimeout(timeoutRef.current)
@@ -197,6 +207,10 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className, chatUrl })
           // setupVisualization()
         },
         onpause: () => {
+          if (listenTimerRef.current) {
+            clearTimeout(listenTimerRef.current)
+            listenTimerRef.current = null
+          }
           setPlayerState('stopped')
           // setShowVisualization(false)
 
@@ -207,6 +221,10 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className, chatUrl })
           }, 30 * 1000)
         },
         onstop: () => {
+          if (listenTimerRef.current) {
+            clearTimeout(listenTimerRef.current)
+            listenTimerRef.current = null
+          }
           setPlayerState('stopped')
           setShowVisualization(false)
         },
@@ -342,6 +360,9 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className, chatUrl })
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current)
       }
+      if (listenTimerRef.current) {
+        clearTimeout(listenTimerRef.current)
+      }
       if (soundRef.current) {
         soundRef.current.unload()
       }
@@ -356,6 +377,7 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className, chatUrl })
 
   const togglePlay = () => {
     if (!sound) {
+      trackEvent('stream-play')
       if (!activeMountRef.current) {
         // No mount data yet - remember the request; the init effect will
         // autoplay once mounts arrive over the WebSocket.
@@ -369,8 +391,10 @@ export const StreamPlayer: React.FC<MediaPlayerProps> = ({ className, chatUrl })
     }
 
     if (playerState === 'playing') {
+      trackEvent('stream-stop')
       sound.pause()
     } else {
+      trackEvent('stream-play')
       setPlayerState('loading')
       sound.play()
     }
