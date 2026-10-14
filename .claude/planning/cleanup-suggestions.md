@@ -36,3 +36,14 @@ Running list of cruft found in the codebase (2026-07-07 audit). Fix these opport
 - [x] **`payload-docs.md` (repo root, ~15 KB)** — moved to `docs/payload-docs.md` (user confirmed: keep as reference, don't delete).
 - [x] **`db/` backups directory** — added `db/` to `.gitignore`.
 - [x] **`.gitignore` vs tracked env files** — replaced blanket `.env.*` with explicit `.env`, `.env.local`, `.env.development.local`, `.env.test.local`, `.env.production.local`; tracked `.env.example`/`.env.stg`/`.env.prd` are unaffected.
+
+## Analytics global (Umami) — review notes (2026-10-14)
+
+Security review: no blocking issues. Update access is admin-only, `src` is validated as an `https://` URL and the website ID as `[A-Za-z0-9-]+` (enforced server-side by Payload's `validate`, so REST/Local API writes are covered too), and values are rendered as React props (escaped).
+
+- [x] **Umami script prd-only gate** — removed at the user's request; the script now renders wherever the Analytics fields are set. Caveat: `sync-prd-to-stg.sh` restores the prd DB onto stg, so stg will carry prd's Umami values (and report analytics) unless they're cleared there after each sync.
+- [ ] **`/api/revalidate-all` doesn't bust global cache tags** — it only calls `revalidatePath('/', 'layout')`, but `getCachedGlobal` uses `unstable_cache` with `global_<slug>` tags. After a `mongorestore` the `global_analytics` / `global_header` / `global_footer` data stays stale until the cache is evicted. Add `revalidateTag('global_*', 'max')` calls for each global in `src/endpoints/revalidateAll.ts`.
+- [ ] **Root layout now depends on a DB read for analytics** — a failed `getCachedGlobal('analytics')` would throw and take down every page (same exposure as Header/Footer). Wrap in try/catch and fall back to no script if resilience matters.
+- [ ] **No tests for the Analytics validators** — `validateScriptSrc` / `validateWebsiteId` in `src/Analytics/config.ts` are pure and could be unit-tested (`src/**/*.spec.ts`).
+- [ ] **No CSP / script allow-list** — any admin can load an arbitrary https script site-wide via `umamiSrc`. Acceptable with admin-only access; if a CSP is added later, include the Umami host.
+- [ ] **Import order in `src/app/(frontend)/layout.tsx`** — the new imports sit below `./globals.css`; tidy when next touching the file.
