@@ -1,5 +1,8 @@
 services:
   payload:
+    # Explicit so `docker buildx bake` (which, unlike `compose build`, does not
+    # derive a tag from the project name) and `compose up --no-build` agree.
+    image: ${CONTAINER_NAME:-sookelive-payload}:latest
     build:
       context: .
       network: host # mongodb publishes 127.0.0.1:27017 (see docker-compose.mongodb.yml) so the build can reach it over localhost
@@ -12,9 +15,13 @@ services:
         # localhost here rather than the "mongodb" service name used at runtime below.
         DATABASE_URI: ${DATABASE_URI:-}
         MONGO_ROOT_USERNAME: ${MONGO_ROOT_USERNAME:-admin}
-        MONGO_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-}
         MONGO_DATABASE: ${MONGO_DATABASE:-payload}
         MONGO_HOST: localhost
+      # The password is a build secret, not an arg (see Dockerfile). The file is
+      # written by the deploy workflow; for a local build create it yourself:
+      #   mkdir -p .secrets && printf '%s' "$MONGO_ROOT_PASSWORD" > .secrets/mongo_root_password
+      secrets:
+        - mongo_root_password
     container_name: ${CONTAINER_NAME:-sookelive-payload}
     networks:
       - sookelive-network
@@ -41,6 +48,10 @@ networks:
   sookelive-network:
     name: sookelive-network
     external: true
+
+secrets:
+  mongo_root_password:
+    file: ./.secrets/mongo_root_password
 
 volumes:
   web_media:

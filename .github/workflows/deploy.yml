@@ -135,6 +135,8 @@ jobs:
               printf '%s=%s\n' COMPOSE_PROJECT_NAME "$COMPOSE_PROJECT_NAME_VAR"
             fi
           } > "$RUNNER_TEMP/deploy.env"
+          # Raw value, no trailing newline: mounted as a BuildKit secret (see Dockerfile).
+          printf '%s' "$MONGO_ROOT_PASSWORD" > "$RUNNER_TEMP/mongo_root_password"
 
       - name: Sync code to server
         # No --delete: files hand-placed on the server are left alone (repo
@@ -156,6 +158,12 @@ jobs:
         # stage, which is how NEXT_PUBLIC_* values reach `next build`.
         run: |
           ssh deploy "umask 077 && cat > $(printf '%q' "$DEPLOY_PATH")/.env" < "$RUNNER_TEMP/deploy.env"
+
+      - name: Upload build secrets
+        # Same stdin streaming as .env. .secrets/ is gitignored and excluded
+        # from the rsync above.
+        run: |
+          ssh deploy "umask 077 && mkdir -p $(printf '%q' "$DEPLOY_PATH")/.secrets && cat > $(printf '%q' "$DEPLOY_PATH")/.secrets/mongo_root_password" < "$RUNNER_TEMP/mongo_root_password"
 
       - name: Build and run on server
         # Single-quoted heredoc: nothing is interpolated into the remote
@@ -183,7 +191,12 @@ jobs:
 
           # Build, then recreate. A failed build aborts here and leaves the
           # old container serving. Brief downtime during the swap is accepted.
-          docker compose up -d --build
+          # Bake (not `compose up --build`): compose delegates to Bake anyway on
+          # current versions, and Bake refuses build.network:host unless
+          # --allow=network.host is passed - which compose can't do. The image
+          # name comes from `image:` in docker-compose.yml.
+          docker buildx bake -f docker-compose.yml --allow=network.host
+          docker compose up -d --no-build
 
           # Real HTTP health check (runtime image has busybox wget, no curl).
           echo "Waiting for $CONTAINER_NAME to serve HTTP..."
