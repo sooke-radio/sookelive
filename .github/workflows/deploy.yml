@@ -66,11 +66,14 @@ jobs:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
           AZURACAST_KEY: ${{ secrets.AZURACAST_KEY }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          S3_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
+          S3_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY }}
         run: |
           missing=""
           for v in DEPLOY_HOST DEPLOY_PORT DEPLOY_PATH \
                    SSH_PRIVATE_KEY SSH_KNOWN_HOSTS \
-                   MONGO_ROOT_PASSWORD PAYLOAD_SECRET CRON_SECRET AZURACAST_KEY SMTP_PASS; do
+                   MONGO_ROOT_PASSWORD PAYLOAD_SECRET CRON_SECRET AZURACAST_KEY SMTP_PASS \
+                   S3_ACCESS_KEY_ID S3_SECRET_ACCESS_KEY; do
             [ -n "${!v}" ] || missing="$missing $v"
           done
           if [ -n "$missing" ]; then
@@ -115,6 +118,8 @@ jobs:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
           AZURACAST_KEY: ${{ secrets.AZURACAST_KEY }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          S3_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
+          S3_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY }}
         run: |
           umask 077
           {
@@ -130,11 +135,15 @@ jobs:
             printf '%s=%s\n' CRON_SECRET "$CRON_SECRET"
             printf '%s=%s\n' AZURACAST_KEY "$AZURACAST_KEY"
             printf '%s=%s\n' SMTP_PASS "$SMTP_PASS"
+            printf '%s=%s\n' S3_ACCESS_KEY_ID "$S3_ACCESS_KEY_ID"
+            printf '%s=%s\n' S3_SECRET_ACCESS_KEY "$S3_SECRET_ACCESS_KEY"
             printf '%s=%s\n' CONTAINER_NAME "$CONTAINER_NAME"
             if [ -n "${COMPOSE_PROJECT_NAME_VAR:-}" ]; then
               printf '%s=%s\n' COMPOSE_PROJECT_NAME "$COMPOSE_PROJECT_NAME_VAR"
             fi
           } > "$RUNNER_TEMP/deploy.env"
+          # Raw value, no trailing newline: mounted as a BuildKit secret (see Dockerfile).
+          printf '%s' "$MONGO_ROOT_PASSWORD" > "$RUNNER_TEMP/mongo_root_password"
 
       - name: Sync code to server
         # No --delete: files hand-placed on the server are left alone (repo
@@ -156,6 +165,12 @@ jobs:
         # stage, which is how NEXT_PUBLIC_* values reach `next build`.
         run: |
           ssh deploy "umask 077 && cat > $(printf '%q' "$DEPLOY_PATH")/.env" < "$RUNNER_TEMP/deploy.env"
+
+      - name: Upload build secrets
+        # Same stdin streaming as .env. .secrets/ is gitignored and excluded
+        # from the rsync above.
+        run: |
+          ssh deploy "umask 077 && mkdir -p $(printf '%q' "$DEPLOY_PATH")/.secrets && cat > $(printf '%q' "$DEPLOY_PATH")/.secrets/mongo_root_password" < "$RUNNER_TEMP/mongo_root_password"
 
       - name: Build and run on server
         # Single-quoted heredoc: nothing is interpolated into the remote
@@ -183,7 +198,12 @@ jobs:
 
           # Build, then recreate. A failed build aborts here and leaves the
           # old container serving. Brief downtime during the swap is accepted.
-          docker compose up -d --build
+          # Bake (not `compose up --build`): compose delegates to Bake anyway on
+          # current versions, and Bake refuses build.network:host unless
+          # --allow=network.host is passed - which compose can't do. The image
+          # name comes from `image:` in docker-compose.yml.
+          docker buildx bake -f docker-compose.yml --allow=network.host
+          docker compose up -d --no-build
 
           # Real HTTP health check (runtime image has busybox wget, no curl).
           echo "Waiting for $CONTAINER_NAME to serve HTTP..."

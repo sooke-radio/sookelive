@@ -30,8 +30,12 @@ docker-compose -f docker-compose.mongodb.yml up -d
 
 #### Start the Application
 
+The image build reads the Mongo password from a BuildKit secret file (not a build arg). Create it once from your `.env` value, then build and start:
+
 ```bash
-docker-compose up -d
+mkdir -p .secrets && printf '%s' "$MONGO_ROOT_PASSWORD" > .secrets/mongo_root_password   # .secrets/ is gitignored
+docker buildx bake -f docker-compose.yml --allow=network.host   # build uses host networking to reach MongoDB
+docker-compose up -d --no-build
 ```
 
 #### Start All Services Together (MongoDB + Application + Caddy)

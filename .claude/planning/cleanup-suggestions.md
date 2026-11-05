@@ -47,3 +47,4 @@ Security review: no blocking issues. Update access is admin-only, `src` is valid
 - [ ] **No tests for the Analytics validators** — `validateScriptSrc` / `validateWebsiteId` in `src/Analytics/config.ts` are pure and could be unit-tested (`src/**/*.spec.ts`).
 - [ ] **No CSP / script allow-list** — any admin can load an arbitrary https script site-wide via `umamiSrc`. Acceptable with admin-only access; if a CSP is added later, include the Umami host.
 - [ ] **Import order in `src/app/(frontend)/layout.tsx`** — the new imports sit below `./globals.css`; tidy when next touching the file.
+- [ ] **Unused `MIGRATE` build arg** — `docker-compose.yml` passes `MIGRATE: false` but the Dockerfile has no matching `ARG`, so it does nothing. Remove it.
