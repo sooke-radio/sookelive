@@ -14,7 +14,15 @@ export async function getTestPayload(): Promise<Payload> {
 
 export async function deleteAll(
   payload: Payload,
-  collection: 'playlists' | 'shows' | 'pages' | 'posts' | 'hosts' | 'users' | 'episodes',
+  collection:
+    | 'playlists'
+    | 'shows'
+    | 'pages'
+    | 'posts'
+    | 'hosts'
+    | 'users'
+    | 'episodes'
+    | 'episode-audio',
 ) {
   await payload.delete({
     collection,
