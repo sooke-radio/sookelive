@@ -23,12 +23,10 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 FROM base AS build
 ARG DATABASE_URI
 ARG MONGO_ROOT_USERNAME
-ARG MONGO_ROOT_PASSWORD
 ARG MONGO_DATABASE
 ARG MONGO_HOST
 ENV DATABASE_URI=$DATABASE_URI
 ENV MONGO_ROOT_USERNAME=$MONGO_ROOT_USERNAME
-ENV MONGO_ROOT_PASSWORD=$MONGO_ROOT_PASSWORD
 ENV MONGO_DATABASE=$MONGO_DATABASE
 ENV MONGO_HOST=$MONGO_HOST
 ENV NODE_ENV=production
@@ -36,7 +34,10 @@ ENV NODE_ENV=production
 COPY . .
 COPY --from=install /app/node_modules ./node_modules
 
-RUN pnpm build
+# The Mongo password is a BuildKit secret (not ARG/ENV): it never lands in build
+# args, image metadata, `bake --print` or provenance. Mounted only for this RUN.
+RUN --mount=type=secret,id=mongo_root_password \
+    MONGO_ROOT_PASSWORD="$(cat /run/secrets/mongo_root_password)" pnpm build
 
 # Runtime stage — lean image without build tools
 FROM node:22-alpine AS run

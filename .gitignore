@@ -16,6 +16,7 @@ Caddyfile
 
 # Payload default media upload directory
 public/media/
+public/episode-audio/
 
 public/robots.txt
 public/sitemap*.xml

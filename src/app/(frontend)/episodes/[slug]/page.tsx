@@ -50,6 +50,9 @@ export default async function Episode({ params: paramsPromise }: Args) {
 
   const audioUrl =
     episode.audio && typeof episode.audio === 'object' ? episode.audio.url : undefined
+  const showSlug =
+    episode.show && typeof episode.show === 'object' ? (episode.show.slug ?? undefined) : undefined
+  const audioId = episode.audio && typeof episode.audio === 'object' ? episode.audio.id : undefined
   const hasMedia = Boolean(audioUrl) || Boolean(episode.embeds?.some((embed) => embed.url))
 
   return (
@@ -80,7 +83,11 @@ export default async function Episode({ params: paramsPromise }: Args) {
           <h2 className="text-2xl">Episode Media</h2>
           {audioUrl && (
             <div className="pt-4">
-              <EpisodePlayer episodeId={String(episode.id)} src={audioUrl} />
+              <EpisodePlayer
+                analytics={{ audio: audioId, episode: episode.slug ?? undefined, show: showSlug }}
+                episodeId={String(episode.id)}
+                src={audioUrl}
+              />
             </div>
           )}
           <MediaEmbeds embeds={episode.embeds} />

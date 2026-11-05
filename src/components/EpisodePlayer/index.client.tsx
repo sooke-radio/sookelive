@@ -21,9 +21,11 @@ export type EpisodePlayerProps = {
   episodeId: string
   src: string
   className?: string
+  /** Extra properties for the Umami play events (show/episode slugs, audio id). */
+  analytics?: { audio?: string; episode?: string; show?: string }
 }
 
-export const EpisodePlayer: React.FC<EpisodePlayerProps> = ({ episodeId, src, className }) => {
+export const EpisodePlayer: React.FC<EpisodePlayerProps> = ({ episodeId, src, className, analytics }) => {
   const [playerState, setPlayerState] = useState<PlayerState>('idle')
   const [duration, setDuration] = useState(0)
   const [position, setPosition] = useState(0)
@@ -44,6 +46,22 @@ export const EpisodePlayer: React.FC<EpisodePlayerProps> = ({ episodeId, src, cl
     }
   }, [])
   const { activeId, claim } = useAudioSource()
+
+  // Latest analytics context without re-creating the Howl or the 1-minute timer.
+  const analyticsRef = useRef(analytics)
+  useEffect(() => {
+    analyticsRef.current = analytics
+  }, [analytics])
+
+  const getEventData = useCallback(() => {
+    const { audio, episode, show } = analyticsRef.current ?? {}
+    return {
+      episodeId,
+      ...(show ? { show } : {}),
+      ...(episode ? { episode } : {}),
+      ...(audio ? { audio } : {}),
+    }
+  }, [episodeId])
 
   const stopTicking = useCallback(() => {
     if (rafRef.current !== null) {
@@ -83,7 +101,7 @@ export const EpisodePlayer: React.FC<EpisodePlayerProps> = ({ episodeId, src, cl
         if (!listenTrackedRef.current) {
           listenTimerRef.current = setTimeout(() => {
             listenTrackedRef.current = true
-            trackEvent('episode-listen-1min', { episodeId })
+            trackEvent('episode-listen-1min', getEventData())
           }, MIN_LISTEN_MS)
         }
         stopTicking()
@@ -117,7 +135,7 @@ export const EpisodePlayer: React.FC<EpisodePlayerProps> = ({ episodeId, src, cl
 
     soundRef.current = sound
     return sound
-  }, [src, episodeId, claim, stopTicking, clearListenTimer, tick])
+  }, [src, episodeId, claim, stopTicking, clearListenTimer, tick, getEventData])
 
   const togglePlay = () => {
     const sound = ensureSound()
@@ -126,7 +144,7 @@ export const EpisodePlayer: React.FC<EpisodePlayerProps> = ({ episodeId, src, cl
     } else {
       if (!playTrackedRef.current) {
         playTrackedRef.current = true
-        trackEvent('episode-play', { episodeId })
+        trackEvent('episode-play', getEventData())
       }
       setPlayerState('loading')
       sound.play()

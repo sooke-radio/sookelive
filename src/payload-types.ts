@@ -88,7 +88,11 @@ export interface Config {
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  collectionsJoins: {};
+  collectionsJoins: {
+    'episode-audio': {
+      episodes: 'episodes';
+    };
+  };
   collectionsSelect: {
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
@@ -692,8 +696,32 @@ export interface Episode {
  */
 export interface EpisodeAudio {
   id: string;
+  /**
+   * Defaults to the filename; edit as needed.
+   */
   title?: string | null;
+  /**
+   * Set automatically from the episodes using this file.
+   */
+  show?: (string | Show)[] | null;
+  /**
+   * Optional: anything that helps find this file later (guest, topic, date).
+   */
+  notes?: string | null;
+  /**
+   * Episodes using this audio file. Empty = not attached to any episode.
+   */
+  episodes?: {
+    docs?: (string | Episode)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  /**
+   * Set automatically to the uploading user.
+   */
   uploadedBy?: (string | null) | User;
+  prefix?: string | null;
+  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -1665,7 +1693,12 @@ export interface EpisodesSelect<T extends boolean = true> {
  */
 export interface EpisodeAudioSelect<T extends boolean = true> {
   title?: T;
+  show?: T;
+  notes?: T;
+  episodes?: T;
   uploadedBy?: T;
+  prefix?: T;
+  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
