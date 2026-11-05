@@ -4,6 +4,11 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Howl } from 'howler'
 
 import { useAudioSource } from '@/providers/AudioSource'
+import { createListenTimer } from '@/utilities/listenTimer'
+import { trackEvent } from '@/utilities/trackEvent'
+
+// A play counts after this much actual listening, once per page load.
+const PLAY_THRESHOLD_MS = 30_000
 
 type PlayerState = 'idle' | 'loading' | 'playing' | 'paused'
 
@@ -18,9 +23,11 @@ export type EpisodePlayerProps = {
   episodeId: string
   src: string
   className?: string
+  /** Analytics context for the `audio-play` Umami event. */
+  analytics?: { audio?: string; episode?: string; show?: string }
 }
 
-export const EpisodePlayer: React.FC<EpisodePlayerProps> = ({ episodeId, src, className }) => {
+export const EpisodePlayer: React.FC<EpisodePlayerProps> = ({ episodeId, src, className, analytics }) => {
   const [playerState, setPlayerState] = useState<PlayerState>('idle')
   const [duration, setDuration] = useState(0)
   const [position, setPosition] = useState(0)
@@ -29,6 +36,28 @@ export const EpisodePlayer: React.FC<EpisodePlayerProps> = ({ episodeId, src, cl
   const soundRef = useRef<Howl | null>(null)
   const rafRef = useRef<number | null>(null)
   const { activeId, claim } = useAudioSource()
+
+  // Keep the latest analytics values without re-creating the timer or Howl.
+  const analyticsRef = useRef(analytics)
+  useEffect(() => {
+    analyticsRef.current = analytics
+  }, [analytics])
+
+  const listenTimerRef = useRef<ReturnType<typeof createListenTimer> | null>(null)
+  useEffect(() => {
+    listenTimerRef.current = createListenTimer(PLAY_THRESHOLD_MS, () => {
+      const { audio, episode, show } = analyticsRef.current ?? {}
+      trackEvent('audio-play', {
+        ...(show ? { show } : {}),
+        ...(episode ? { episode } : {}),
+        ...(audio ? { audio } : {}),
+      })
+    })
+    return () => {
+      listenTimerRef.current?.stop()
+      listenTimerRef.current = null
+    }
+  }, [])
 
   const stopTicking = useCallback(() => {
     if (rafRef.current !== null) {
@@ -62,20 +91,24 @@ export const EpisodePlayer: React.FC<EpisodePlayerProps> = ({ episodeId, src, cl
       preload: 'metadata',
       onload: () => setDuration(sound.duration()),
       onplay: () => {
+        listenTimerRef.current?.start()
         setPlayerState('playing')
         claim(episodeId)
         stopTicking()
         rafRef.current = requestAnimationFrame(tick)
       },
       onpause: () => {
+        listenTimerRef.current?.stop()
         setPlayerState('paused')
         stopTicking()
       },
       onstop: () => {
+        listenTimerRef.current?.stop()
         setPlayerState('idle')
         stopTicking()
       },
       onend: () => {
+        listenTimerRef.current?.stop()
         setPlayerState('idle')
         setPosition(0)
         stopTicking()

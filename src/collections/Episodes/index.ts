@@ -19,6 +19,7 @@ import { generatePreviewPath } from '../../utilities/generatePreviewPath'
 import { populatePublishedAt } from '../../hooks/populatePublishedAt'
 import { enforceShowOwnership } from './hooks/enforceShowOwnership'
 import { revalidateDelete, revalidateEpisode } from './hooks/revalidateEpisode'
+import { syncAudioShowsOnChange, syncAudioShowsOnDelete } from './hooks/syncAudioShows'
 
 import {
   MetaDescriptionField,
@@ -284,8 +285,8 @@ export const Episodes: CollectionConfig<'episodes'> = {
     ...slugField('title', { slugOverrides: { unique: true } }),
   ],
   hooks: {
-    afterChange: [revalidateEpisode],
-    afterDelete: [revalidateDelete],
+    afterChange: [revalidateEpisode, syncAudioShowsOnChange],
+    afterDelete: [revalidateDelete, syncAudioShowsOnDelete],
     beforeChange: [populatePublishedAt],
     beforeValidate: [enforceShowOwnership],
   },
