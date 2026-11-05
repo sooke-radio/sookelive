@@ -188,9 +188,12 @@ jobs:
           docker buildx use default 2>/dev/null || true
           docker buildx rm sookelive-builder >/dev/null 2>&1 || true
 
+          # COMPOSE_BAKE=false: newer Compose delegates builds to Bake, which
+          # rejects build.network:host without --allow=network.host. See
+          # .claude/planning/compose-bake-network-host.md.
           # Build, then recreate. A failed build aborts here and leaves the
           # old container serving. Brief downtime during the swap is accepted.
-          docker compose up -d --build
+          COMPOSE_BAKE=false docker compose up -d --build
 
           # Real HTTP health check (runtime image has busybox wget, no curl).
           echo "Waiting for $CONTAINER_NAME to serve HTTP..."
