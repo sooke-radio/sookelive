@@ -5,7 +5,7 @@ import { Howl } from 'howler'
 
 import { useAudioSource } from '@/providers/AudioSource'
 import { createListenTimer } from '@/utilities/listenTimer'
-import { trackEvent } from '@/utilities/trackEvent'
+import { trackEvent } from '@/Analytics/track'
 
 // A play counts after this much actual listening, once per page load.
 const PLAY_THRESHOLD_MS = 30_000
@@ -35,6 +35,8 @@ export const EpisodePlayer: React.FC<EpisodePlayerProps> = ({ episodeId, src, cl
 
   const soundRef = useRef<Howl | null>(null)
   const rafRef = useRef<number | null>(null)
+  // Count a click-to-play once per page view, not on every pause/resume.
+  const playTrackedRef = useRef(false)
   const { activeId, claim } = useAudioSource()
 
   // Keep the latest analytics values without re-creating the timer or Howl.
@@ -132,6 +134,10 @@ export const EpisodePlayer: React.FC<EpisodePlayerProps> = ({ episodeId, src, cl
     if (playerState === 'playing') {
       sound.pause()
     } else {
+      if (!playTrackedRef.current) {
+        playTrackedRef.current = true
+        trackEvent('episode-play', { episodeId })
+      }
       setPlayerState('loading')
       sound.play()
     }

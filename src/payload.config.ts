@@ -17,6 +17,7 @@ import { Posts } from './collections/Posts'
 import { Users } from './collections/Users'
 import { Shows } from './collections/Shows'
 import { Playlists } from './collections/Playlists'
+import { Analytics } from './Analytics/config'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
 import { plugins } from './plugins'
@@ -111,7 +112,7 @@ export default buildConfig({
     Playlists,
   ],
   cors: [getServerSideURL()].filter(Boolean),
-  globals: [Header, Footer],
+  globals: [Header, Footer, Analytics],
   plugins: [
     ...plugins,
     // Episode audio lives in Wasabi (S3-compatible); media stays on local disk.
