@@ -308,6 +308,10 @@ export interface Post {
   title: string;
   background?: ('gradient' | 'media') | null;
   heroImage?: (string | null) | Media;
+  /**
+   * Used as the thumbnail on cards and as the social/SEO share image.
+   */
+  thumbnail?: (string | null) | Media;
   content: {
     root: {
       type: string;
@@ -327,9 +331,6 @@ export interface Post {
   categories?: (string | Category)[] | null;
   meta?: {
     title?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
     image?: (string | null) | Media;
     description?: string | null;
   };
@@ -520,6 +521,10 @@ export interface Show {
   title: string;
   background?: ('gradient' | 'media') | null;
   heroImage?: (string | null) | Media;
+  /**
+   * Used as the thumbnail on cards and as the social/SEO share image.
+   */
+  thumbnail?: (string | null) | Media;
   content: {
     root: {
       type: string;
@@ -554,9 +559,6 @@ export interface Show {
   shuffle?: boolean | null;
   meta?: {
     title?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
     image?: (string | null) | Media;
     description?: string | null;
   };
@@ -622,6 +624,10 @@ export interface Episode {
   id: string;
   title: string;
   image?: (string | null) | Media;
+  /**
+   * Used as the thumbnail on episode cards and as the social/SEO share image.
+   */
+  thumbnail?: (string | null) | Media;
   description?: {
     root: {
       type: string;
@@ -671,9 +677,6 @@ export interface Episode {
     | null;
   meta?: {
     title?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
     image?: (string | null) | Media;
     description?: string | null;
   };
@@ -1586,6 +1589,7 @@ export interface PostsSelect<T extends boolean = true> {
   title?: T;
   background?: T;
   heroImage?: T;
+  thumbnail?: T;
   content?: T;
   relatedPosts?: T;
   categories?: T;
@@ -1618,6 +1622,7 @@ export interface ShowsSelect<T extends boolean = true> {
   title?: T;
   background?: T;
   heroImage?: T;
+  thumbnail?: T;
   content?: T;
   genres?: T;
   hosts?: T;
@@ -1652,6 +1657,7 @@ export interface ShowsSelect<T extends boolean = true> {
 export interface EpisodesSelect<T extends boolean = true> {
   title?: T;
   image?: T;
+  thumbnail?: T;
   description?: T;
   audio?: T;
   embeds?:

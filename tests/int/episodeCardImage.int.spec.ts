@@ -60,4 +60,65 @@ describe('Episode card image (meta.image)', () => {
     })
     expect(selected.docs[0]?.meta?.image).toBeTypeOf('object')
   })
+
+  it('treats an existing meta.image as the thumbnail (legacy docs)', async () => {
+    const payload = await getTestPayload()
+    const media = await payload.create({
+      collection: 'media',
+      data: { alt: 'legacy' },
+      file: { data: PNG, mimetype: 'image/png', name: 'legacy.png', size: PNG.length },
+    })
+    const show = await payload.create({
+      collection: 'shows',
+      data: { title: 'Show', _status: 'draft' },
+      draft: true,
+    })
+    // Legacy shape: only meta.image, no thumbnail.
+    const created = await payload.create({
+      collection: 'episodes',
+      user: adminUser,
+      data: {
+        title: 'Legacy',
+        show: show.id,
+        dateAired: new Date().toISOString(),
+        meta: { image: media.id },
+        _status: 'published',
+      },
+    })
+
+    const read = await payload.findByID({ collection: 'episodes', id: created.id, depth: 0 })
+    expect(read.thumbnail).toBe(media.id)
+
+    // An edit that doesn't send thumbnail keeps meta.image.
+    const renamed = await payload.update({
+      collection: 'episodes',
+      id: created.id,
+      user: adminUser,
+      data: { title: 'Legacy renamed' },
+      depth: 0,
+    })
+    expect(renamed.meta?.image).toBe(media.id)
+    expect(renamed.meta?.title).toBe('Legacy renamed')
+
+    // The admin round-trip (form sends the fallback thumbnail back) keeps it too.
+    const resaved = await payload.update({
+      collection: 'episodes',
+      id: created.id,
+      user: adminUser,
+      data: { thumbnail: read.thumbnail as string },
+      depth: 0,
+    })
+    expect(resaved.meta?.image).toBe(media.id)
+
+    // Explicitly clearing it clears both.
+    const cleared = await payload.update({
+      collection: 'episodes',
+      id: created.id,
+      user: adminUser,
+      data: { thumbnail: null },
+      depth: 0,
+    })
+    expect(cleared.meta?.image ?? null).toBeNull()
+    expect(cleared.thumbnail ?? null).toBeNull()
+  })
 })
