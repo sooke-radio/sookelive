@@ -1,5 +1,7 @@
 # Audio Player Update: Quality Selector, Copy URL, Chat Link
 
+**Status: DONE (reviewed 2026-11-10)** — implemented: `QualityMenu.client.tsx`, `mountSelection.ts` (+ spec), `Header.chatUrl` field. The §5 manual verification pass against real Azuracast was not recorded; the operator still needs to add extra Azuracast mounts for more than one quality option to appear.
+
 ## Context
 
 `.claude/planning/update-audio-player.md` lists a set of UI/functionality upgrades for the site-wide stream player (`src/stream/player/index.client.tsx`), rendered inside `HeaderClient` (`src/Header/Component.client.tsx:69`). The player currently:

@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import { deleteAll, getTestPayload } from './helpers/payload'
+import { minimalContent } from './helpers/fixtures'
 
 describe('Playlists collection access control (read-only via the API)', () => {
   afterEach(async () => {
@@ -87,7 +88,7 @@ describe('Shows read access on drafts (readShows in src/collections/Shows/index.
     const payload = await getTestPayload()
     await payload.create({
       collection: 'shows',
-      data: { title: 'Unpublished Show', _status: 'draft' },
+      data: { title: 'Unpublished Show', content: minimalContent, _status: 'draft' },
       draft: true,
     })
 
@@ -103,7 +104,7 @@ describe('Shows read access on drafts (readShows in src/collections/Shows/index.
     const payload = await getTestPayload()
     await payload.create({
       collection: 'shows',
-      data: { title: 'Unpublished Show', _status: 'draft' },
+      data: { title: 'Unpublished Show', content: minimalContent, _status: 'draft' },
       draft: true,
     })
 
@@ -122,7 +123,7 @@ describe('Shows read access on drafts (readShows in src/collections/Shows/index.
     const payload = await getTestPayload()
     await payload.create({
       collection: 'shows',
-      data: { title: 'Unpublished Show', _status: 'draft' },
+      data: { title: 'Unpublished Show', content: minimalContent, _status: 'draft' },
       draft: true,
     })
 

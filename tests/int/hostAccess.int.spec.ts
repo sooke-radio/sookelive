@@ -1,27 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest'
 
 import { deleteAll, getTestPayload } from './helpers/payload'
-
-// Minimal valid Lexical value for required richText `content` fields.
-const minimalContent = {
-  root: {
-    type: 'root',
-    children: [
-      {
-        type: 'paragraph',
-        children: [{ type: 'text', text: 'placeholder', version: 1 }],
-        direction: null,
-        format: '',
-        indent: 0,
-        version: 1,
-      },
-    ],
-    direction: null,
-    format: '',
-    indent: 0,
-    version: 1,
-  },
-} as any
+import { minimalContent } from './helpers/fixtures'
 
 const adminUser = { collection: 'users', id: 'fake-admin-id', roles: ['admin'] } as any
 
@@ -41,12 +21,12 @@ describe('Host role access matrix', () => {
 
     await payload.create({
       collection: 'shows',
-      data: { title: 'Show A', hosts: [hostA.id], _status: 'draft' },
+      data: { title: 'Show A', hosts: [hostA.id], content: minimalContent, _status: 'draft' },
       draft: true,
     })
     await payload.create({
       collection: 'shows',
-      data: { title: 'Show B', hosts: [hostB.id], _status: 'draft' },
+      data: { title: 'Show B', hosts: [hostB.id], content: minimalContent, _status: 'draft' },
       draft: true,
     })
     await payload.create({
@@ -73,12 +53,12 @@ describe('Host role access matrix', () => {
 
     const showA = await payload.create({
       collection: 'shows',
-      data: { title: 'Show A', hosts: [hostA.id], _status: 'draft' },
+      data: { title: 'Show A', hosts: [hostA.id], content: minimalContent, _status: 'draft' },
       draft: true,
     })
     const showB = await payload.create({
       collection: 'shows',
-      data: { title: 'Show B', hosts: [hostB.id], _status: 'draft' },
+      data: { title: 'Show B', hosts: [hostB.id], content: minimalContent, _status: 'draft' },
       draft: true,
     })
 
@@ -118,6 +98,7 @@ describe('Host role access matrix', () => {
         title: 'Show A',
         hosts: [hostA.id],
         streamer_id: 'original-streamer',
+        content: minimalContent,
         _status: 'draft',
       },
       draft: true,
@@ -189,7 +170,7 @@ describe('Host role access matrix', () => {
     const payload = await getTestPayload()
     await payload.create({
       collection: 'shows',
-      data: { title: 'Draft Show', _status: 'draft' },
+      data: { title: 'Draft Show', content: minimalContent, _status: 'draft' },
       draft: true,
     })
     await payload.create({
