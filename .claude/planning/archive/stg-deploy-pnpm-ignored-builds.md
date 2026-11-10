@@ -1,5 +1,7 @@
 # stg deploy: ERR_PNPM_IGNORED_BUILDS + a prompt-injection anomaly
 
+**Status: DONE (2026-11-10)** — confirmed resolved by the user.
+
 ## Goal
 
 Fix the stg server's Docker build failing with `[ERR_PNPM_IGNORED_BUILDS]`, and record a

@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { deleteAll, getTestPayload } from './helpers/payload'
+import { minimalContent } from './helpers/fixtures'
 
 const adminUser = { collection: 'users', id: 'fake-admin-id', roles: ['admin'] } as any
 
@@ -20,7 +21,7 @@ describe('Episodes revalidate hooks', () => {
     const payload = await getTestPayload()
     const show = await payload.create({
       collection: 'shows',
-      data: { title: 'Show', _status: 'draft' },
+      data: { title: 'Show', content: minimalContent, _status: 'draft' },
       draft: true,
     })
 
@@ -46,7 +47,7 @@ describe('Episodes revalidate hooks', () => {
     const payload = await getTestPayload()
     const show = await payload.create({
       collection: 'shows',
-      data: { title: 'Show', _status: 'draft' },
+      data: { title: 'Show', content: minimalContent, _status: 'draft' },
       draft: true,
     })
 
@@ -70,7 +71,7 @@ describe('Episodes revalidate hooks', () => {
     const payload = await getTestPayload()
     const show = await payload.create({
       collection: 'shows',
-      data: { title: 'Show', _status: 'draft' },
+      data: { title: 'Show', content: minimalContent, _status: 'draft' },
       draft: true,
     })
 
@@ -101,7 +102,7 @@ describe('Episodes revalidate hooks', () => {
     const payload = await getTestPayload()
     const show = await payload.create({
       collection: 'shows',
-      data: { title: 'Show', _status: 'draft' },
+      data: { title: 'Show', content: minimalContent, _status: 'draft' },
       draft: true,
     })
 

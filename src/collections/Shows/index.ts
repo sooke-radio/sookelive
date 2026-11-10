@@ -22,11 +22,11 @@ import { revalidateDelete, revalidateShow } from './hooks/revalidateShows'
 
 import {
   MetaDescriptionField,
-  MetaImageField,
   MetaTitleField,
   OverviewField,
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
+import { createAutoMeta, thumbnailFallback } from '@/hooks/autoMeta'
 import { slugField } from '@/fields/slug'
 // import { populatePlaylists } from './hooks/populatePlaylists'
 
@@ -99,6 +99,13 @@ export const Shows: CollectionConfig<'shows'> = {
   },
   fields: [
     {
+      // UI-only (no stored data): warns about losing a new doc's first unsaved edits
+      // (drafts.validate defers creation until the first save; see versions below).
+      name: 'unsavedNewDocWarning',
+      type: 'ui',
+      admin: { components: { Field: '@/components/UnsavedNewDocWarning' } },
+    },
+    {
       name: 'title',
       type: 'text',
       required: true,
@@ -131,6 +138,16 @@ export const Shows: CollectionConfig<'shows'> = {
               admin: {
                 condition: ((_, { background } = {}) => background === 'media'),
               },
+            },
+            {
+              name: 'thumbnail',
+              type: 'upload',
+              admin: {
+                description:
+                  'Used as the thumbnail on cards and as the social/SEO share image.',
+              },
+              label: 'Thumbnail image',
+              relationTo: 'media',
             },
             {
               name: 'content',
@@ -216,14 +233,19 @@ export const Shows: CollectionConfig<'shows'> = {
             OverviewField({
               titlePath: 'meta.title',
               descriptionPath: 'meta.description',
-              imagePath: 'meta.image',
+              imagePath: 'thumbnail',
             }),
             MetaTitleField({
               hasGenerateFn: true,
             }),
-            MetaImageField({
+            // Stored value only: edited via "Thumbnail image" on the Content tab and
+            // mirrored here by the autoMeta hook.
+            {
+              name: 'image',
+              type: 'upload',
+              admin: { hidden: true },
               relationTo: 'media',
-            }),
+            },
 
             MetaDescriptionField({}),
             PreviewField({
@@ -298,10 +320,15 @@ export const Shows: CollectionConfig<'shows'> = {
   ],
   hooks: {
     afterChange: [revalidateShow],
+    afterRead: [thumbnailFallback],
+    beforeChange: [createAutoMeta('content')],
     afterDelete: [revalidateDelete],
   },
   versions: {
     drafts: {
+      // Don't create a draft doc just by opening "Create New": Payload only
+      // defers creation until the required fields are filled in when drafts validate.
+      validate: true,
       autosave: {
         interval: 2000, // Live preview freshness vs. not fighting typing
       },

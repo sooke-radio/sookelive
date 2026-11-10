@@ -63,7 +63,7 @@ Trigger: admin button **and** periodic cron job (both).
    `payload.config.ts` (own queue `import-episode-audio`, e.g. every 10 min). Existing
    `shouldAutoRun` applies unchanged.
 7. **Types/docs**: `pnpm generate:types` (no field changes expected); update
-   `wasabi-storage-setup.md` with how to upload directly (key must be `episode-audio/<filename>`,
+   `archive/wasabi-storage-setup.md` with how to upload directly (key must be `episode-audio/<filename>`,
    then Scan bucket or wait for cron) and the stg-to-prd DB-sync caveat.
 
 ## Critical files
