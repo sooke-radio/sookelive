@@ -1,6 +1,11 @@
 # fix known bugs
 - ~~the pagination on the 'shows' page links to 'posts' instead~~ — fixed (commit 147b03c2, merged to stg in 444ae3c2): `Pagination` now takes an explicit `baseUrl` prop, and both Shows pages pass `baseUrl="/shows"`.
 - nodemailer auth / transport error — the hang/timeout part is fixed (see `src/plugins/mailer.ts`, 2026-07-15); whether SMTP creds actually work for real delivery is still unverified, needs a live send test against real `.env` SMTP_* values. Confirmed 2026-07-16: cc-container's dev server logs `Error verifying Nodemailer transport... ETIMEDOUT` on boot — this sandbox has no outbound network access to the real SMTP host at all, so the live send test needs to happen from stg/prod (or another environment with real egress), not from cc-container.
+  - **TODO: live send test on stg** (cc-container can't reach SMTP). Trigger a password reset on stg, then `docker logs sookelive-payload` and read the error (connection vs auth vs sender). Things to check if it fails:
+    - Port: stg uses `2525`, prd `587`; try the other, or `465` with `secure: true` (`mailer.ts` doesn't set `secure`).
+    - `SMTP_PORT` is passed as a string; consider `Number(process.env.SMTP_PORT)`.
+    - `SMTP_PASS` GitHub secret is set and is a Mailgun SMTP password for the SMTP user (not an API key).
+    - From address `mailer@sookeradio.ca` must be on a Mailgun-verified domain; SMTP user is on `mailer.sookeradio.ca`, so the domains differ.
 - **Live preview doesn't refresh in the admin panel iframe** (reported 2026-07-15, testing via `10.0.0.142:3006` in cc-container). Root cause fixed 2026-07-16, live browser re-check still needed:
   - Confirmed fixed as part of this: Shows was missing from `generatePreviewPath.ts`'s `collectionPrefixMap`, so its preview URL resolved to `undefined/<slug>` (commit 8b085eff).
   - Confirmed still correctly wired: `LivePreviewListener` (`RefreshRouteOnSave` from `@payloadcms/live-preview-react`) is mounted in all three frontend templates (`posts/[slug]`, `shows/[slug]`, `[slug]`); `/next/preview/route.ts` already awaits `draftMode()` (Next 16-compatible).

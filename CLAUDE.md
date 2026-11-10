@@ -54,7 +54,7 @@ After changing any collection or field config, run `pnpm generate:types` — fro
 
 ## Environments & deployment
 
-Branch-driven deploys: pushing to `stg` or `prd` triggers `.github/workflows/deploy.yml`, which rsyncs the repo to the server, writes secrets to `.secrets/.env` on the host (from GitHub secrets, merged with the non-secret `.env.stg`/`.env.prd` for that branch), then builds with `docker buildx bake --allow=network.host` and recreates with `docker compose up -d --no-build` (see `.claude/planning/compose-bake-network-host.md`; the Mongo password reaches the build as a BuildKit secret from `.secrets/mongo_root_password`, not a build arg). Development happens on `main`/feature branches.
+Branch-driven deploys: pushing to `stg` or `prd` triggers `.github/workflows/deploy.yml`, which rsyncs the repo to the server, writes secrets to `.secrets/.env` on the host (from GitHub secrets, merged with the non-secret `.env.stg`/`.env.prd` for that branch), then builds with `docker buildx bake --allow=network.host` and recreates with `docker compose up -d --no-build` (see `.claude/planning/archive/compose-bake-network-host.md`; the Mongo password reaches the build as a BuildKit secret from `.secrets/mongo_root_password`, not a build arg). Development happens on `main`/feature branches.
 
 Docker is split into three compose files (see README for full details): `docker-compose.mongodb.yml` (DB, managed independently), `docker-compose.yml` (the app, no host ports exposed), and `docker-compose.caddy.yml` (Caddy, the only thing exposing 80/443, proxying to `sookelive-payload:3000` over the `sookelive-network` Docker network).
 

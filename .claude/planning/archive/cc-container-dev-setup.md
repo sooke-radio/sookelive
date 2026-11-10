@@ -1,5 +1,7 @@
 # cc-container dev setup
 
+**Status: DONE (2026-11-10)** — confirmed complete by the user; the open `DATABASE_URI` item below is considered resolved.
+
 ## Goal
 
 Get `docker-compose.cc-container.yml` launching a working Claude Code dev

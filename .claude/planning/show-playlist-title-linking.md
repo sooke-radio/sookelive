@@ -4,7 +4,7 @@
 
 `.claude/planning/update-audio-player.md` asks for the stream player to link back to the show page of the currently playing/scheduled show, and separately notes that DJ-entered live titles in Azuracast are often wrong, suggesting the scheduled show's title be substituted when a live user is connected during that timeslot.
 
-This was split out of `.claude/planning/audio-player-quality-selector.md` (which covers quality selection, copy-URL, and the chat link only) so each concern gets its own focused design. Not yet implemented; this file records the intended scope and phasing for when it's picked up.
+This was split out of `.claude/planning/archive/audio-player-quality-selector.md` (which covers quality selection, copy-URL, and the chat link only) so each concern gets its own focused design. Not yet implemented; this file records the intended scope and phasing for when it's picked up.
 
 ## Phase 1 — hyperlinked playlist titles
 

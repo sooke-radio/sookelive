@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest'
 
 import { deleteAll, getTestPayload } from './helpers/payload'
+import { minimalContent } from './helpers/fixtures'
 
 const adminUser = { collection: 'users', id: 'fake-admin-id', roles: ['admin'] } as any
 
@@ -17,7 +18,7 @@ describe('Episodes access control and show-ownership enforcement', () => {
     const hostA = await payload.create({ collection: 'hosts', data: { title: 'Host A' } })
     const showA = await payload.create({
       collection: 'shows',
-      data: { title: 'Show A', hosts: [hostA.id], _status: 'draft' },
+      data: { title: 'Show A', hosts: [hostA.id], content: minimalContent, _status: 'draft' },
       draft: true,
     })
 
@@ -45,7 +46,7 @@ describe('Episodes access control and show-ownership enforcement', () => {
     const hostB = await payload.create({ collection: 'hosts', data: { title: 'Host B' } })
     const showB = await payload.create({
       collection: 'shows',
-      data: { title: 'Show B', hosts: [hostB.id], _status: 'draft' },
+      data: { title: 'Show B', hosts: [hostB.id], content: minimalContent, _status: 'draft' },
       draft: true,
     })
 
@@ -73,12 +74,12 @@ describe('Episodes access control and show-ownership enforcement', () => {
     const hostB = await payload.create({ collection: 'hosts', data: { title: 'Host B' } })
     const showA = await payload.create({
       collection: 'shows',
-      data: { title: 'Show A', hosts: [hostA.id], _status: 'draft' },
+      data: { title: 'Show A', hosts: [hostA.id], content: minimalContent, _status: 'draft' },
       draft: true,
     })
     const showB = await payload.create({
       collection: 'shows',
-      data: { title: 'Show B', hosts: [hostB.id], _status: 'draft' },
+      data: { title: 'Show B', hosts: [hostB.id], content: minimalContent, _status: 'draft' },
       draft: true,
     })
 
@@ -108,21 +109,42 @@ describe('Episodes access control and show-ownership enforcement', () => {
     ).rejects.toThrow()
   })
 
-  it('lets a host read back their own draft episode created before a show was picked', async () => {
+  // drafts.validate is on, so a draft can no longer exist without a show.
+  it('rejects a showless draft episode', async () => {
     const payload = await getTestPayload()
     const hostA = await payload.create({ collection: 'hosts', data: { title: 'Host A' } })
     const hostUserA = { collection: 'users', id: 'fake-host-a', roles: ['host'], host: hostA.id } as any
 
-    // Mirrors what autosave does: title filled in, `show` not chosen yet.
+    await expect(
+      payload.create({
+        collection: 'episodes',
+        draft: true,
+        overrideAccess: false,
+        user: hostUserA,
+        data: {
+          title: 'Episode before show picked',
+          dateAired: new Date().toISOString(),
+        },
+      }),
+    ).rejects.toThrow(/Show/)
+  })
+
+  it('lets a host read back their own draft episode', async () => {
+    const payload = await getTestPayload()
+    const hostA = await payload.create({ collection: 'hosts', data: { title: 'Host A' } })
+    const showA = await payload.create({
+      collection: 'shows',
+      data: { title: 'Show A', hosts: [hostA.id], content: minimalContent, _status: 'draft' },
+      draft: true,
+    })
+    const hostUserA = { collection: 'users', id: 'fake-host-a', roles: ['host'], host: hostA.id } as any
+
     const draft = await payload.create({
       collection: 'episodes',
       draft: true,
       overrideAccess: false,
       user: hostUserA,
-      data: {
-        title: 'Episode before show picked',
-        dateAired: new Date().toISOString(),
-      },
+      data: { title: 'Host draft', show: showA.id, dateAired: new Date().toISOString() },
     })
 
     await expect(
@@ -136,10 +158,15 @@ describe('Episodes access control and show-ownership enforcement', () => {
     ).resolves.toMatchObject({ id: draft.id })
   })
 
-  it('hides another host\'s still-showless draft episode', async () => {
+  it('hides a host\'s draft episode from another host', async () => {
     const payload = await getTestPayload()
     const hostA = await payload.create({ collection: 'hosts', data: { title: 'Host A' } })
     const hostB = await payload.create({ collection: 'hosts', data: { title: 'Host B' } })
+    const showA = await payload.create({
+      collection: 'shows',
+      data: { title: 'Show A', hosts: [hostA.id], content: minimalContent, _status: 'draft' },
+      draft: true,
+    })
     const hostUserA = { collection: 'users', id: 'fake-host-a', roles: ['host'], host: hostA.id } as any
     const hostUserB = { collection: 'users', id: 'fake-host-b', roles: ['host'], host: hostB.id } as any
 
@@ -148,10 +175,7 @@ describe('Episodes access control and show-ownership enforcement', () => {
       draft: true,
       overrideAccess: false,
       user: hostUserA,
-      data: {
-        title: 'Episode before show picked',
-        dateAired: new Date().toISOString(),
-      },
+      data: { title: 'Host draft', show: showA.id, dateAired: new Date().toISOString() },
     })
 
     await expect(
@@ -165,44 +189,11 @@ describe('Episodes access control and show-ownership enforcement', () => {
     ).rejects.toThrow()
   })
 
-  it('lets a host set the show on their own draft after the fact', async () => {
-    const payload = await getTestPayload()
-    const hostA = await payload.create({ collection: 'hosts', data: { title: 'Host A' } })
-    const showA = await payload.create({
-      collection: 'shows',
-      data: { title: 'Show A', hosts: [hostA.id], _status: 'draft' },
-      draft: true,
-    })
-    const hostUserA = { collection: 'users', id: 'fake-host-a', roles: ['host'], host: hostA.id } as any
-
-    const draft = await payload.create({
-      collection: 'episodes',
-      draft: true,
-      overrideAccess: false,
-      user: hostUserA,
-      data: {
-        title: 'Episode before show picked',
-        dateAired: new Date().toISOString(),
-      },
-    })
-
-    const updated = await payload.update({
-      collection: 'episodes',
-      id: draft.id,
-      draft: true,
-      overrideAccess: false,
-      user: hostUserA,
-      data: { show: showA.id },
-    })
-
-    expect(typeof updated.show === 'object' ? updated.show?.id : updated.show).toBe(showA.id)
-  })
-
   it('shows only published episodes to anonymous requests, and all to admin', async () => {
     const payload = await getTestPayload()
     const show = await payload.create({
       collection: 'shows',
-      data: { title: 'Show', _status: 'draft' },
+      data: { title: 'Show', content: minimalContent, _status: 'draft' },
       draft: true,
     })
 

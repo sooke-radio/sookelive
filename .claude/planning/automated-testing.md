@@ -64,4 +64,4 @@ These come from `cleanup-suggestions.md` and must land first because the code ca
 
 ## Status
 
-Planned 2026-07-07. Nothing implemented yet. Suggested order: Phase 0 + 1 in one PR (small, immediate value), Phase 2 next (highest value — protects the destructive sync path), then 4, then 3.
+Reviewed 2026-11-10. **Phases 0–2 done**: `syncPlaylists()` extracted, Azuracast client configurable, `typecheck` script, Vitest unit specs (`src/**/*.spec.ts`) and integration tests (`tests/int/`, mongodb-memory-server + msw). **Phase 4 partial**: `deploy.yml` runs typecheck + unit tests only; `test:int` and lint are not in CI. **Phase 3 (Playwright e2e) not started** (no `tests/e2e`, no config). Remaining: add `test:int` (+ lint) to CI, then e2e smoke.
