@@ -1,5 +1,7 @@
 # Compose Bake vs `build.network: host`
 
+**Status: DONE (2026-11-10)** — confirmed working by the user. Follow-ups below (host-network build hardening, old image cleanup) remain optional.
+
 ## Goal
 
 Deploy builds must keep reaching MongoDB on `127.0.0.1:27017` during

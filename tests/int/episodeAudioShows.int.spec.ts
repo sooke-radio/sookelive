@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { deleteAll, getTestPayload } from './helpers/payload'
+import { minimalContent } from './helpers/fixtures'
 
 // A real user document: episodes referencing audio query the users collection,
 // which chokes on the fake non-ObjectId ids other specs use.
@@ -9,7 +10,7 @@ const makeShow = async (title: string) => {
   const payload = await getTestPayload()
   return payload.create({
     collection: 'shows',
-    data: { title, _status: 'draft' },
+    data: { title, content: minimalContent, _status: 'draft' },
     draft: true,
   })
 }

@@ -23,12 +23,12 @@ import { syncAudioShowsOnChange, syncAudioShowsOnDelete } from './hooks/syncAudi
 
 import {
   MetaDescriptionField,
-  MetaImageField,
   MetaTitleField,
   OverviewField,
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
 import { embedsField } from '@/fields/embeds'
+import { createAutoMeta, thumbnailFallback } from '@/hooks/autoMeta'
 import { slugField } from '@/fields/slug'
 
 // Admins see everything; hosts see published episodes, episodes of their own
@@ -101,6 +101,13 @@ export const Episodes: CollectionConfig<'episodes'> = {
   },
   fields: [
     {
+      // UI-only (no stored data): warns about losing a new doc's first unsaved edits
+      // (drafts.validate defers creation until the first save; see versions below).
+      name: 'unsavedNewDocWarning',
+      type: 'ui',
+      admin: { components: { Field: '@/components/UnsavedNewDocWarning' } },
+    },
+    {
       name: 'title',
       type: 'text',
       required: true,
@@ -113,6 +120,16 @@ export const Episodes: CollectionConfig<'episodes'> = {
             {
               name: 'image',
               type: 'upload',
+              relationTo: 'media',
+            },
+            {
+              name: 'thumbnail',
+              type: 'upload',
+              admin: {
+                description:
+                  'Used as the thumbnail on episode cards and as the social/SEO share image.',
+              },
+              label: 'Thumbnail image',
               relationTo: 'media',
             },
             {
@@ -130,6 +147,16 @@ export const Episodes: CollectionConfig<'episodes'> = {
                 },
               }),
               label: false,
+            },
+            {
+              // UI-only (no stored data): section heading, sized like the "Media embeds" header.
+              name: 'audioHeading',
+              type: 'ui',
+              admin: {
+                components: {
+                  Field: '@/components/AdminSectionHeading/EpisodeAudio',
+                },
+              },
             },
             {
               name: 'audio',
@@ -180,14 +207,19 @@ export const Episodes: CollectionConfig<'episodes'> = {
             OverviewField({
               titlePath: 'meta.title',
               descriptionPath: 'meta.description',
-              imagePath: 'meta.image',
+              imagePath: 'thumbnail',
             }),
             MetaTitleField({
               hasGenerateFn: true,
             }),
-            MetaImageField({
+            // Stored value only: edited via "Thumbnail image" on the Content tab and
+            // mirrored here by the autoMeta hook.
+            {
+              name: 'image',
+              type: 'upload',
+              admin: { hidden: true },
               relationTo: 'media',
-            }),
+            },
             MetaDescriptionField({}),
             PreviewField({
               hasGenerateFn: true,
@@ -287,11 +319,15 @@ export const Episodes: CollectionConfig<'episodes'> = {
   hooks: {
     afterChange: [revalidateEpisode, syncAudioShowsOnChange],
     afterDelete: [revalidateDelete, syncAudioShowsOnDelete],
-    beforeChange: [populatePublishedAt],
+    beforeChange: [populatePublishedAt, createAutoMeta('description')],
+    afterRead: [thumbnailFallback],
     beforeValidate: [enforceShowOwnership],
   },
   versions: {
     drafts: {
+      // Don't create a draft doc just by opening "Create New": Payload only
+      // defers creation until the required fields are filled in when drafts validate.
+      validate: true,
       autosave: {
         interval: 2000,
       },

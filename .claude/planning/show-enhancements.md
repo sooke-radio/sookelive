@@ -1,5 +1,7 @@
 # show enhancements
 
+**Status (reviewed 2026-11-10): mostly done.** Phases 1–5 and 7 are implemented (roles/host access, episodes + EpisodeAudio, Wasabi signed downloads, episode pages/cards/sitemap/player, int tests). **Phase 6 (host onboarding welcome email) is not built** (no `Users` `sendWelcomeEmail` hook or custom forgot-password template), and it depends on SMTP working on stg (see `bugfixes.md`). Wasabi rollout (stg/prd) is tracked in `archive/wasabi-storage-setup.md`. Server update instructions below still apply to first deploy of roles.
+
 ## requirements overview
 
 This goal for this plan is to add new features to Show pages on the Sooke.live website:

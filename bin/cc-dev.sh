@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Brings up the cc-container dev environment correctly and drops you into a
 # shell inside it, folding in everything discovered while getting this
-# working - see .claude/planning/cc-container-dev-setup.md for the full
+# working - see .claude/planning/archive/cc-container-dev-setup.md for the full
 # debugging history behind each of these steps.
 
 set -euo pipefail
@@ -107,7 +107,7 @@ fi
 # read files it doesn't own - like the claude-config volume's credentials -
 # so without this flag you'd hit a fresh login prompt every time.
 # Plain `claude` (no --resume) always starts a fresh session - see
-# .claude/planning/cc-container-dev-setup.md. --resume opts back into
+# .claude/planning/archive/cc-container-dev-setup.md. --resume opts back into
 # `claude --resume` for this attach only; --bash swaps this for a plain
 # shell instead.
 echo "==> Attaching as the claude user (${LAUNCH_CMD[*]})..."
