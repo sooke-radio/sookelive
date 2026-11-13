@@ -4,6 +4,16 @@ import { revalidatePath, revalidateTag } from 'next/cache'
 
 import type { Post } from '../../../payload-types'
 
+// Index/archive pages are statically rendered, so they must be busted explicitly.
+const revalidatePostIndexes = () => {
+  revalidatePath('/')
+  revalidatePath('/home')
+  revalidatePath('/posts')
+  // Dynamic pattern covers every page number
+  revalidatePath('/posts/page/[pageNumber]', 'page')
+  revalidateTag('posts-sitemap', 'max')
+}
+
 export const revalidatePost: CollectionAfterChangeHook<Post> = ({
   doc,
   previousDoc,
@@ -16,9 +26,7 @@ export const revalidatePost: CollectionAfterChangeHook<Post> = ({
       payload.logger.info(`Revalidating post at path: ${path}`)
 
       revalidatePath(path)
-      revalidatePath('/')
-      revalidatePath('/home')
-      revalidateTag('posts-sitemap', 'max')
+      revalidatePostIndexes()
     }
 
     // If the post was previously published, we need to revalidate the old path
@@ -28,9 +36,7 @@ export const revalidatePost: CollectionAfterChangeHook<Post> = ({
       payload.logger.info(`Revalidating old post at path: ${oldPath}`)
 
       revalidatePath(oldPath)
-      revalidatePath('/')
-      revalidatePath('/home')
-      revalidateTag('posts-sitemap', 'max')
+      revalidatePostIndexes()
     }
   }
   return doc
@@ -41,9 +47,7 @@ export const revalidateDelete: CollectionAfterDeleteHook<Post> = ({ doc, req: { 
     const path = `/posts/${doc?.slug}`
 
     revalidatePath(path)
-    revalidatePath('/')
-    revalidatePath('/home')
-    revalidateTag('posts-sitemap', 'max')
+    revalidatePostIndexes()
   }
 
   return doc

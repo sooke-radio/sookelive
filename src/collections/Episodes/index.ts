@@ -1,4 +1,5 @@
 import type { Access, CollectionConfig, Where } from 'payload'
+import { imageOnly } from '@/fields/imageOnly'
 
 import {
   FixedToolbarFeature,
@@ -120,6 +121,7 @@ export const Episodes: CollectionConfig<'episodes'> = {
             {
               name: 'image',
               type: 'upload',
+              filterOptions: imageOnly,
               relationTo: 'media',
             },
             {
@@ -130,6 +132,7 @@ export const Episodes: CollectionConfig<'episodes'> = {
                   'Used as the thumbnail on episode cards and as the social/SEO share image.',
               },
               label: 'Thumbnail image',
+              filterOptions: imageOnly,
               relationTo: 'media',
             },
             {
@@ -218,6 +221,7 @@ export const Episodes: CollectionConfig<'episodes'> = {
               name: 'image',
               type: 'upload',
               admin: { hidden: true },
+              filterOptions: imageOnly,
               relationTo: 'media',
             },
             MetaDescriptionField({}),

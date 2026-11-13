@@ -1,4 +1,5 @@
 import { Field } from 'payload'
+import { imageOnly } from '@/fields/imageOnly'
 
 export const searchFields: Field[] = [
   {
@@ -32,6 +33,7 @@ export const searchFields: Field[] = [
         name: 'image',
         label: 'Image',
         type: 'upload',
+        filterOptions: imageOnly,
         relationTo: 'media',
       },
     ],

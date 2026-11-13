@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { imageOnly } from '@/fields/imageOnly'
 
 import { isAdmin } from '../../access/byRole'
 import { isAdminOrPublished } from '../../access/isAdminOrPublished'
@@ -110,6 +111,7 @@ export const Pages: CollectionConfig<'pages'> = {
               hasGenerateFn: true,
             }),
             MetaImageField({
+              overrides: { filterOptions: imageOnly },
               relationTo: 'media',
             }),
 
