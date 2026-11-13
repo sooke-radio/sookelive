@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { imageOnly } from '@/fields/imageOnly'
 
 import {
   BlocksFeature,
@@ -107,6 +108,7 @@ export const Posts: CollectionConfig<'posts'> = {
             {
               name: 'heroImage',
               type: 'upload',
+              filterOptions: imageOnly,
               relationTo: 'media',
               admin: {
                 condition: ((_, { background } = {}) => background === 'media'),
@@ -120,6 +122,7 @@ export const Posts: CollectionConfig<'posts'> = {
                   'Used as the thumbnail on cards and as the social/SEO share image.',
               },
               label: 'Thumbnail image',
+              filterOptions: imageOnly,
               relationTo: 'media',
             },
             {
@@ -191,6 +194,7 @@ export const Posts: CollectionConfig<'posts'> = {
               name: 'image',
               type: 'upload',
               admin: { hidden: true },
+              filterOptions: imageOnly,
               relationTo: 'media',
             },
 

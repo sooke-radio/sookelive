@@ -4,6 +4,21 @@ import { revalidatePath, revalidateTag } from 'next/cache'
 
 import type { Show } from '../../../payload-types'
 
+// Index/archive pages are statically rendered, so they must be busted explicitly.
+const revalidateShowIndexes = () => {
+  revalidatePath('/')
+  revalidatePath('/home')
+  revalidatePath('/shows')
+  // Dynamic pattern covers every page number
+  revalidatePath('/shows/page/[pageNumber]', 'page')
+  // Paginated episode lists on each show page (/shows/[slug]/page/N)
+  revalidatePath('/shows/[slug]/page/[pageNumber]', 'page')
+  revalidatePath('/schedule')
+  revalidateTag('shows-sitemap', 'max')
+  revalidateTag('shows', 'max')
+  revalidateTag('schedule', 'max')
+}
+
 export const revalidateShow: CollectionAfterChangeHook<Show> = ({
   doc,
   previousDoc,
@@ -16,12 +31,7 @@ export const revalidateShow: CollectionAfterChangeHook<Show> = ({
       payload.logger.info(`Revalidating show at path: ${path}`)
 
       revalidatePath(path)
-      revalidatePath('/')
-      revalidatePath('/home')
-      revalidateTag('shows-sitemap', 'max')
-      revalidatePath('/schedule')
-      revalidateTag('shows', 'max')
-      revalidateTag('schedule', 'max')
+      revalidateShowIndexes()
     }
 
     // If the show was previously published, we need to revalidate the old path
@@ -31,12 +41,7 @@ export const revalidateShow: CollectionAfterChangeHook<Show> = ({
       payload.logger.info(`Revalidating old show at path: ${oldPath}`)
 
       revalidatePath(oldPath)
-      revalidatePath('/')
-      revalidatePath('/home')
-      revalidateTag('shows-sitemap', 'max')
-      revalidatePath('/schedule')
-      revalidateTag('shows', 'max')
-      revalidateTag('schedule', 'max')
+      revalidateShowIndexes()
     }
   }
   return doc
@@ -47,12 +52,7 @@ export const revalidateDelete: CollectionAfterDeleteHook<Show> = ({ doc, req: { 
     const path = `/shows/${doc?.slug}`
 
     revalidatePath(path)
-    revalidatePath('/')
-    revalidatePath('/home')
-    revalidateTag('shows-sitemap', 'max')
-    revalidatePath('/schedule')
-    revalidateTag('shows', 'max')
-    revalidateTag('schedule', 'max')
+    revalidateShowIndexes()
   }
 
   return doc
