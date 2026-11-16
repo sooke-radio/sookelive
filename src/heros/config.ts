@@ -1,4 +1,5 @@
 import type { Field } from 'payload'
+import { imageOnly } from '@/fields/imageOnly'
 
 import {
   FixedToolbarFeature,
@@ -84,6 +85,7 @@ export const hero: Field = {
         condition: ((_, { type, background } = {}) => ['highImpact', 'mediumImpact'].includes(type) && background === 'media'),
          
       },
+      filterOptions: imageOnly,
       relationTo: 'media',
       required: true,
     },
