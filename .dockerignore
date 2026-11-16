@@ -8,3 +8,8 @@ db
 Caddyfile
 tmp
 coverage
+# Not part of the app build. deploy.yml's rsync excludes these but doesn't
+# --delete, so copies left on the server from older deploys would otherwise
+# reach `next build`'s type check (tsconfig includes **/*.ts).
+tests
+.claude
