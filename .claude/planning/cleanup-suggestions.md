@@ -48,3 +48,10 @@ Security review: no blocking issues. Update access is admin-only, `src` is valid
 - [ ] **No CSP / script allow-list** — any admin can load an arbitrary https script site-wide via `umamiSrc`. Acceptable with admin-only access; if a CSP is added later, include the Umami host.
 - [ ] **Import order in `src/app/(frontend)/layout.tsx`** — the new imports sit below `./globals.css`; tidy when next touching the file.
 - [ ] **Unused `MIGRATE` build arg** — `docker-compose.yml` passes `MIGRATE: false` but the Dockerfile has no matching `ARG`, so it does nothing. Remove it.
+
+## Payload 3.93.0 upgrade (2026-11-14)
+
+- [x] **Next.js was below Payload's supported range** — Payload 3.90–3.93 peer `next` `>=16.3.3 <17` on 16.x; we were on 16.2.10 (`legacy-peer-deps=true` in `.npmrc` hid the warning). Now pinned to `next`/`eslint-config-next` `16.4.6` (16.4.1+ patches CVE-2026-96889, critical Image Optimization RCE; 16.3.6+ patches the `next/og` RCE, which we don't use). Keep `next` within Payload's peer range on future bumps - check `npm view @payloadcms/next@<ver> peerDependencies.next`.
+- [ ] **Build memory on the 4 GB server** — measured in the 4 GB cc-container (12 CPUs): Payload 3.90.2 + Next 16.2.10 peaked ~3.7 GB and passed; Payload 3.93 + Next 16.2.10 ~3.5 GB, passed; Next 16.3.8 was OOM-killed (Turbopack while compiling; webpack during "Collecting page data" with 11 workers). Not yet measured with fewer cores or on the server. If the stg build OOMs: add swap on the host, set `experimental.cpus` low, or build in CI and push the image.
+- [ ] **Two copies of sharp** — Next 16.4's optional `sharp` dep is `^0.35.5`, but our direct `sharp` (used by Payload image sizes) is `^0.34.5`, so the lockfile carries both native builds. CVE-2026-96889's fix is sharp >= 0.35.5, so bump ours to `^0.35.5` (dedupes too); check sharp 0.35's changelog and re-run the media upload tests.
+- [ ] **Stale `docker-compose-cc-container.yml`** (dash, not dot) — an older generic example of `docker-compose.cc-container.yml`, which is the one `bin/cc-dev.sh` uses. Delete it, or rename it to make clear it's an example.
