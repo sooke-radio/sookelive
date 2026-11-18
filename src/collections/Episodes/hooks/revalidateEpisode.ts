@@ -27,7 +27,9 @@ const revalidateEpisodePaths = async (doc: Episode, req: PayloadRequest) => {
   req.payload.logger.info(`Revalidating episode at path: ${path}`)
 
   revalidatePath(path)
+  revalidatePath('/')
   revalidatePath('/episodes')
+  revalidatePath('/episodes/page/[pageNumber]', 'page')
   revalidateTag('episodes', 'max')
   revalidateTag('episodes-sitemap', 'max')
 
@@ -39,9 +41,20 @@ const revalidateEpisodePaths = async (doc: Episode, req: PayloadRequest) => {
   }
 }
 
-export const revalidateEpisode: CollectionAfterChangeHook<Episode> = async ({ doc, req }) => {
-  if (!req.context.disableRevalidate && doc._status === 'published') {
-    await revalidateEpisodePaths(doc, req)
+export const revalidateEpisode: CollectionAfterChangeHook<Episode> = async ({
+  doc,
+  previousDoc,
+  req,
+}) => {
+  if (!req.context.disableRevalidate) {
+    if (doc._status === 'published') {
+      await revalidateEpisodePaths(doc, req)
+    }
+
+    // Previously published, now unpublished: bust the now-stale pages (old slug/show too)
+    if (previousDoc?._status === 'published' && doc._status !== 'published') {
+      await revalidateEpisodePaths(previousDoc as Episode, req)
+    }
   }
   return doc
 }
