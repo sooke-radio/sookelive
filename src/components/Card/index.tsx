@@ -4,7 +4,7 @@ import useClickableCard from '@/utilities/useClickableCard'
 import Link from 'next/link'
 import React, { Fragment } from 'react'
 
-import type { Episode, Post } from '@/payload-types'
+import type { Episode, Post, Show } from '@/payload-types'
 
 import { Media } from '@/components/Media'
 import { formatDateTime } from '@/utilities/formatDateTime'
@@ -14,7 +14,16 @@ export type CardPostData = Pick<Post, 'slug' | 'categories' | 'meta' | 'title'> 
   // Episodes only: used when no SEO (meta) image is set
   image?: Episode['image']
   dateAired?: Episode['dateAired']
+  // Episodes only: shown in place of the SEO description (needs depth >= 1 to be populated)
+  show?: Episode['show']
+  // Shows only: shown in place of the SEO description (need depth >= 1 to be populated)
+  hosts?: Show['hosts']
+  genres?: Show['genres']
 }
+
+// Titles of populated relationship docs; unpopulated (id-only) entries are skipped.
+const relationTitles = (docs?: (string | { title?: string | null })[] | null): string[] =>
+  (docs ?? []).flatMap((doc) => (typeof doc === 'object' && doc.title ? [doc.title] : []))
 
 export const Card: React.FC<{
   alignItems?: 'center'
@@ -27,9 +36,15 @@ export const Card: React.FC<{
   const { card, link } = useClickableCard({})
   const { className, doc, relationTo, showCategories, title: titleFromProps } = props
 
-  const { slug, categories, meta, title, image: episodeImage, dateAired } = doc || {}
+  const { slug, categories, meta, title, image: episodeImage, dateAired, show, hosts, genres } =
+    doc || {}
   const { description, image: seoImage } = meta || {}
-  const metaImage = seoImage || (relationTo === 'episodes' ? episodeImage : undefined)
+  const isEpisode = relationTo === 'episodes'
+  const isShow = relationTo === 'shows'
+  const hostNames = isShow ? relationTitles(hosts) : []
+  const genreNames = isShow ? relationTitles(genres) : []
+  const metaImage = seoImage || (isEpisode ? episodeImage : undefined)
+  const showTitle = isEpisode && show && typeof show === 'object' ? show.title : undefined
 
   const hasCategories = (categories && Array.isArray(categories) && categories.length > 0)
   const titleToUse = titleFromProps || title
@@ -117,10 +132,32 @@ export const Card: React.FC<{
             </h3>
           </div>
         )}
-        {relationTo === 'episodes' && dateAired && (
+        {isEpisode && dateAired && (
           <div className="mt-1 text-xs text-muted-foreground">{formatDateTime(dateAired)}</div>
         )}
-        {description && <div className="mt-2">{description && <p>{sanitizedDescription}</p>}</div>}
+        {isEpisode && showTitle && <p className="mt-2">{showTitle}</p>}
+        {isShow && (
+          <>
+            {hostNames.length > 0 && <p className="mt-2">{hostNames.join(', ')}</p>}
+            {genreNames.length > 0 && (
+              <ul className="mt-3 flex flex-wrap gap-2" aria-label="Genres">
+                {genreNames.map((genre) => (
+                  <li
+                    key={genre}
+                    className="rounded-full border border-border px-2 py-0.5 text-xs text-muted-foreground"
+                  >
+                    {genre}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </>
+        )}
+        {!isEpisode && !isShow && description && (
+          <div className="mt-2">
+            <p>{sanitizedDescription}</p>
+          </div>
+        )}
 
       </div>
     </article>

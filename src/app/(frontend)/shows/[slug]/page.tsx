@@ -7,6 +7,9 @@ import React from 'react'
 import { generateMeta } from '@/utilities/generateMeta'
 import { ShowView, queryShowBySlug } from './ShowView'
 
+// Periodic refresh so episodes reaching their air date appear without a save.
+export const revalidate = 600
+
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
   const shows = await payload.find({
