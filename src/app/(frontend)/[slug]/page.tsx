@@ -14,6 +14,10 @@ import { generateMeta } from '@/utilities/generateMeta'
 import PageClient from './page.client'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 
+// Periodic refresh so time-based content (e.g. Archive blocks listing episodes
+// that reach their air date) appears without a document save triggering revalidation.
+export const revalidate = 600
+
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
   const pages = await payload.find({

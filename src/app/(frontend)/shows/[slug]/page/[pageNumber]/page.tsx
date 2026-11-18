@@ -6,7 +6,11 @@ import { getPayload } from 'payload'
 import React from 'react'
 
 import { generateMeta } from '@/utilities/generateMeta'
+import { airedEpisodesWhere } from '@/utilities/airedEpisodes'
 import { EPISODES_PER_PAGE, ShowView, queryShowBySlug } from '../../ShowView'
+
+// Periodic refresh so episodes reaching their air date appear without a save.
+export const revalidate = 600
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
@@ -32,6 +36,7 @@ export async function generateStaticParams() {
       where: {
         show: { equals: show.id },
         _status: { equals: 'published' },
+        ...airedEpisodesWhere(),
       },
     })
 
