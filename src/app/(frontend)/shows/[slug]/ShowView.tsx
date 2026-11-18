@@ -17,6 +17,7 @@ import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { ShowScheduleBlock } from '@/schedule/ShowSchedule/Component'
 import { CollectionArchive } from '@/components/CollectionArchive'
 import { Pagination } from '@/components/Pagination'
+import { airedEpisodesWhere } from '@/utilities/airedEpisodes'
 
 export const EPISODES_PER_PAGE = 12
 
@@ -126,6 +127,7 @@ const queryEpisodesByShow = cache(async ({ showId, page }: { showId: string; pag
       _status: {
         equals: 'published',
       },
+      ...airedEpisodesWhere(),
     },
   })
 

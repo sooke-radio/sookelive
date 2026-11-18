@@ -17,10 +17,15 @@ export const Pagination: React.FC<{
   page: number
   totalPages: number
   baseUrl?: string
+  /** Current filters as a query string; when set, pages link to `baseUrl?query&page=N` instead of `baseUrl/page/N`. */
+  query?: string
 }> = (props) => {
   const router = useRouter()
 
-  const { className, page, totalPages, baseUrl = '/posts' } = props
+  const { className, page, totalPages, baseUrl = '/posts', query } = props
+
+  const hrefFor = (target: number) =>
+    query ? `${baseUrl}?${query}&page=${target}` : `${baseUrl}/page/${target}`
   const hasNextPage = page < totalPages
   const hasPrevPage = page > 1
 
@@ -35,7 +40,7 @@ export const Pagination: React.FC<{
             <PaginationPrevious
               disabled={!hasPrevPage}
               onClick={() => {
-                router.push(`${baseUrl}/page/${page - 1}`)
+                router.push(hrefFor(page - 1))
               }}
             />
           </PaginationItem>
@@ -50,7 +55,7 @@ export const Pagination: React.FC<{
             <PaginationItem>
               <PaginationLink
                 onClick={() => {
-                  router.push(`${baseUrl}/page/${page - 1}`)
+                  router.push(hrefFor(page - 1))
                 }}
               >
                 {page - 1}
@@ -62,7 +67,7 @@ export const Pagination: React.FC<{
             <PaginationLink
               isActive
               onClick={() => {
-                router.push(`${baseUrl}/page/${page}`)
+                router.push(hrefFor(page))
               }}
             >
               {page}
@@ -73,7 +78,7 @@ export const Pagination: React.FC<{
             <PaginationItem>
               <PaginationLink
                 onClick={() => {
-                  router.push(`${baseUrl}/page/${page + 1}`)
+                  router.push(hrefFor(page + 1))
                 }}
               >
                 {page + 1}
@@ -91,7 +96,7 @@ export const Pagination: React.FC<{
             <PaginationNext
               disabled={!hasNextPage}
               onClick={() => {
-                router.push(`${baseUrl}/page/${page + 1}`)
+                router.push(hrefFor(page + 1))
               }}
             />
           </PaginationItem>
