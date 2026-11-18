@@ -11,6 +11,9 @@ import {
 } from '@payloadcms/richtext-lexical'
 
 import { link } from '@/fields/link'
+import { linkGroup } from '@/fields/linkGroup'
+
+import { migrateLegacyLinkHook } from './hooks/migrateLegacyLink'
 
 import { Archive } from '../../blocks/ArchiveBlock/config'
 import { CallToAction } from '../../blocks/CallToAction/config'
@@ -60,14 +63,27 @@ const columnFields: Field[] = [
     }),
     label: false,
   },
+  linkGroup({
+    overrides: {
+      admin: {
+        description: 'Buttons shown side by side under the text.',
+      },
+    },
+  }),
+  // Legacy single link, superseded by `links`. Only shown for columns that still
+  // have it enabled; migrateLegacyLinkHook moves it into `links` on save.
   {
     name: 'enableLink',
     type: 'checkbox',
+    label: 'Legacy link (moves into Links on save)',
+    admin: {
+      condition: (_, siblingData) => Boolean(siblingData?.enableLink),
+    },
   },
   link({
     overrides: {
       admin: {
-        condition: (_, { enableLink }) => Boolean(enableLink),
+        condition: (_, siblingData) => Boolean(siblingData?.enableLink),
       },
     },
   }),
@@ -90,6 +106,9 @@ export const Content: Block = {
       type: 'array',
       admin: {
         initCollapsed: true,
+      },
+      hooks: {
+        beforeValidate: [migrateLegacyLinkHook],
       },
       fields: columnFields,
     },
