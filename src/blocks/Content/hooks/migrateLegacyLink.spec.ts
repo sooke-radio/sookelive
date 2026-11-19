@@ -2,31 +2,42 @@ import { describe, expect, it } from 'vitest'
 
 import { migrateLegacyColumnLinks } from './migrateLegacyLink'
 
-const legacy = { type: 'custom', url: '/about', label: 'About' }
+const legacy = { type: 'reference', label: 'About', reference: { relationTo: 'pages', value: 'abc' } }
 const other = { type: 'custom', url: '/shows', label: 'Shows' }
+
+const migrate = (cols: unknown) => migrateLegacyColumnLinks(cols) as any[]
 
 describe('migrateLegacyColumnLinks', () => {
   it('moves an enabled legacy link to the front of links and disables it', () => {
-    const [col] = migrateLegacyColumnLinks([
-      { size: 'half', enableLink: true, link: legacy, links: [{ link: other }] },
-    ])!
-    expect(col!.enableLink).toBe(false)
-    expect(col!.links).toEqual([{ link: legacy }, { link: other }])
-    expect(col!.size).toBe('half')
+    const [col] = migrate([
+      { id: 'c1', size: 'half', enableLink: true, link: legacy, links: [{ id: 'r1', link: other }] },
+    ])
+    expect(col.enableLink).toBe(false)
+    expect(col.links).toEqual([
+      { id: 'c1-legacy-link', link: legacy },
+      { id: 'r1', link: other },
+    ])
+    expect(col.size).toBe('half')
   })
 
-  it('handles a legacy link with no existing links array', () => {
-    const [col] = migrateLegacyColumnLinks([{ enableLink: true, link: legacy }])!
-    expect(col!.links).toEqual([{ link: legacy }])
+  it('copies the link so relationship population cannot touch the legacy object twice', () => {
+    const [col] = migrate([{ id: 'c1', enableLink: true, link: legacy }])
+    expect(col.links[0].link).not.toBe(legacy)
+    expect(col.links[0].link.reference).not.toBe(legacy.reference)
+  })
+
+  it('treats a missing or non-array links value as empty', () => {
+    expect(migrate([{ enableLink: true, link: legacy }])[0].links).toHaveLength(1)
+    expect(migrate([{ enableLink: true, link: legacy, links: 2 }])[0].links).toHaveLength(1)
   })
 
   it('leaves columns without an enabled legacy link untouched', () => {
     const cols = [{ enableLink: false, link: legacy }, { links: [{ link: other }] }]
-    expect(migrateLegacyColumnLinks(cols)).toEqual(cols)
+    expect(migrate(cols)).toEqual(cols)
   })
 
   it('passes through non-array values', () => {
     expect(migrateLegacyColumnLinks(undefined)).toBeUndefined()
-    expect(migrateLegacyColumnLinks(null)).toBeNull()
+    expect(migrateLegacyColumnLinks(3)).toBe(3)
   })
 })

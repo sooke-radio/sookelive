@@ -70,21 +70,17 @@ const columnFields: Field[] = [
       },
     },
   }),
-  // Legacy single link, superseded by `links`. Only shown for columns that still
-  // have it enabled; migrateLegacyLinkHook moves it into `links` on save.
+  // Legacy single link, superseded by `links`. Kept in the schema so existing data
+  // can be read; migrateLegacyLinkHook moves it into `links` on read.
   {
     name: 'enableLink',
     type: 'checkbox',
-    label: 'Legacy link (moves into Links on save)',
-    admin: {
-      condition: (_, siblingData) => Boolean(siblingData?.enableLink),
-    },
+    admin: { hidden: true },
   },
   link({
     overrides: {
-      admin: {
-        condition: (_, siblingData) => Boolean(siblingData?.enableLink),
-      },
+      // `condition` (not `hidden`) so the link's required sub-fields aren't validated.
+      admin: { condition: () => false },
     },
   }),
   {
@@ -108,7 +104,7 @@ export const Content: Block = {
         initCollapsed: true,
       },
       hooks: {
-        beforeValidate: [migrateLegacyLinkHook],
+        afterRead: [migrateLegacyLinkHook],
       },
       fields: columnFields,
     },

@@ -25,9 +25,9 @@ export const ContentBlock: React.FC<ContentBlockProps> = (props) => {
         {columns &&
           columns.length > 0 &&
           columns.map((col, index) => {
-            const { enableLink, link, links, richText, size, blocks } = col
-            // Legacy single link renders until the page is next saved (see migrateLegacyLink).
-            const allLinks = [...(enableLink && link ? [link] : []), ...(links ?? []).map((l) => l.link)]
+            const { links, richText, size, blocks } = col
+            // Legacy single `link` is folded into `links` on read (see hooks/migrateLegacyLink).
+            const allLinks = (links ?? []).map((l) => l.link)
 
             return (
               <div
@@ -39,7 +39,7 @@ export const ContentBlock: React.FC<ContentBlockProps> = (props) => {
                 {richText && <RichText data={richText} enableGutter={false} />}
                 
                 {allLinks.length > 0 && (
-                  <div className="flex flex-wrap justify-center gap-4 mt-6">
+                  <div className="flex flex-wrap justify-evenly gap-4 mt-6">
                     {allLinks.map((l, i) => (
                       <CMSLink key={i} {...l} className="min-w-32" />
                     ))}
