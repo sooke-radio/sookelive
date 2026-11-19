@@ -2,8 +2,10 @@ import { afterEach, describe, expect, it } from 'vitest'
 
 import { deleteAll, getTestPayload } from './helpers/payload'
 
-const legacy = { type: 'custom', url: '/legacy', label: 'Legacy', appearance: 'default' } as const
-const added = { type: 'custom', url: '/added', label: 'Added', appearance: 'outline' } as const
+const custom = (label: string) =>
+  ({ type: 'custom', url: `/${label.toLowerCase()}`, label, appearance: 'default' }) as const
+
+const columnOf = (page: any) => page.layout[0].columns[0]
 
 describe('Content block column links', () => {
   afterEach(async () => {
@@ -17,16 +19,21 @@ describe('Content block column links', () => {
       data: {
         title: 'Links page',
         hero: { type: 'none' },
-        layout: [{ blockType: 'content', columns: [{ links: [{ link: legacy }, { link: added }] }] }],
+        layout: [{ blockType: 'content', columns: [{ links: [{ link: custom('A') }, { link: custom('B') }] }] }],
       },
     })
 
-    const col = (page.layout[0] as any).columns[0]
-    expect(col.links.map((l: any) => l.link.label)).toEqual(['Legacy', 'Added'])
+    expect(columnOf(page).links.map((l: any) => l.link.label)).toEqual(['A', 'B'])
   })
 
-  it('moves a legacy single link into links on save', async () => {
+  it('reads a legacy single link as the first entry in links, populated, and saves it back once', async () => {
     const payload = await getTestPayload()
+    const target = await payload.create({
+      collection: 'pages',
+      data: { title: 'Target', slug: 'target', hero: { type: 'none' }, layout: [{ blockType: 'content' }] },
+    })
+
+    // Simulate a pre-existing doc: legacy `enableLink` + `link`, no `links`.
     const page = await payload.create({
       collection: 'pages',
       data: {
@@ -35,14 +42,36 @@ describe('Content block column links', () => {
         layout: [
           {
             blockType: 'content',
-            columns: [{ enableLink: true, link: legacy, links: [{ link: added }] }],
+            columns: [
+              {
+                enableLink: true,
+                link: {
+                  type: 'reference',
+                  label: 'Legacy',
+                  appearance: 'default',
+                  reference: { relationTo: 'pages', value: target.id },
+                },
+              },
+            ],
           },
         ],
       } as any,
     })
 
-    const col = (page.layout[0] as any).columns[0]
+    const read = await payload.findByID({ collection: 'pages', id: page.id, depth: 1 })
+    const col = columnOf(read)
     expect(col.enableLink).toBe(false)
-    expect(col.links.map((l: any) => l.link.url)).toEqual(['/legacy', '/added'])
+    expect(col.links).toHaveLength(1)
+    expect(col.links[0].link.reference.value.slug).toBe('target')
+
+    // What the admin does: save the read doc (depth 0) plus a second link.
+    const forEdit = await payload.findByID({ collection: 'pages', id: page.id, depth: 0 })
+    const editCol = columnOf(forEdit)
+    editCol.links.push({ link: custom('Added') })
+    await payload.update({ collection: 'pages', id: page.id, data: { layout: forEdit.layout } })
+
+    const after = columnOf(await payload.findByID({ collection: 'pages', id: page.id, depth: 0 }))
+    expect(after.enableLink).toBe(false)
+    expect(after.links.map((l: any) => l.link.label)).toEqual(['Legacy', 'Added'])
   })
 })
