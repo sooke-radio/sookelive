@@ -77,9 +77,13 @@ services:
     # mode=1777 (world-writable, like a real /tmp) because these mounts
     # otherwise default to root:root 0755 - unwritable by the non-root
     # claude user entrypoint.sh drops to.
+    # Docker tmpfs mounts are noexec by default. ~/.cache needs `exec`
+    # because COREPACK_HOME lives there and pnpm >= 12 runs a native
+    # binary (pnpm-native) from corepack's cache - noexec makes every
+    # `pnpm` call fail with EACCES.
     tmpfs:
       - /tmp:exec,size=1g,mode=1777
-      - /home/claude/.cache:size=512m,mode=1777
+      - /home/claude/.cache:exec,size=512m,mode=1777
       - /home/claude/.npm:size=512m,mode=1777
       - /home/claude/.config:size=64m,mode=1777
     mem_limit: 4g
