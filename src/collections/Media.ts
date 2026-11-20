@@ -11,6 +11,7 @@ import { fileURLToPath } from 'url'
 import { anyone } from '../access/anyone'
 import { isAdmin, isAdminOrHost } from '../access/byRole'
 import { isAdminUser } from '../access/roles'
+import { revalidateMedia, revalidateMediaDelete } from '../hooks/revalidateMedia'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -31,6 +32,10 @@ export const Media: CollectionConfig = {
     // (e.g. when picking an episode image) - this is UI decluttering only.
     hidden: ({ user }) => !isAdminUser(user),
   },
+  hooks: {
+    afterChange: [revalidateMedia],
+    afterDelete: [revalidateMediaDelete],
+  },
   fields: [
     {
       name: 'alt',
@@ -48,6 +53,8 @@ export const Media: CollectionConfig = {
     },
   ],
   upload: {
+    // Images and video only (audio goes in `episode-audio`). Enforced server-side too.
+    mimeTypes: ['image/*', 'video/*'],
     // Upload to the public/media directory in Next.js making them publicly accessible even outside of Payload
     staticDir: path.resolve(dirname, '../../public/media'),
     adminThumbnail: 'thumbnail',
